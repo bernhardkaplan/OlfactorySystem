@@ -34,7 +34,7 @@ def cluster_odor_space(num_clusters):
         centroids, distortions = kmeans(d, num_clusters, iter=100)#, thresh=1e-6)
         retrial += 1
         if (retrial > 50):
-            return # --> end of script
+            return # it's not possible to put the desired number of centroids in the space --> end of script
     code, dist = vq(d, centroids)
 
     # calculate the F value: F = between-group-variability / within-group-variability
