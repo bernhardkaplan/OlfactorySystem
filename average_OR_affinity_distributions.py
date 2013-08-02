@@ -164,19 +164,19 @@ if __name__ == '__main__':
             ax.set_xlabel('Affinities between odorant and ORs')
         else:
             ax.set_xlabel('Distances between odorant and ORs')
-        ax.set_ylabel('Average number of occurences divided by n_cluster\n and pooled over %d trials' % file_cnt)
+        ax.set_ylabel('Average number of occurences\ndivided by n_cluster\n and pooled over %d trials' % file_cnt)
         ax.bar(bins[:-1], mean_count, width=bins[1]-bins[0], yerr=std_count, label="%s distribution" % dist_or_aff)
 
         # decide on which function to fit to the distribution
         # fit a gaussian function
-        guess_params = [0.2, 0.1, 1.0, .2 * mean_count.max()] # mu, sigma, alpha, amplitude
+#        guess_params_skewgauss = [0.2, 0.1, 1.0, .2 * mean_count.max()] # mu, sigma, alpha, amplitude
         bincenters = 0.5*(bins[1:]+bins[:-1])
 
         x0 = 0
         x1 = n_bins
         x = bincenters[x0:x1]
-#        opt_params_skewgauss = leastsq(residuals_skew_normal, guess_params, args=(mean_count[x0:x1], x), maxfev=1000)
-    #    opt_params_gauss = leastsq(residuals_gauss, guess_params, args=(mean_count[x0:x1], x), maxfev=1000)
+#        opt_params_skewgauss = leastsq(residuals_skew_normal, guess_params_skewgauss, args=(mean_count[x0:x1], x), maxfev=1000)
+    #    opt_params_gauss = leastsq(residuals_gauss, guess_params_skewgauss, args=(mean_count[x0:x1], x), maxfev=1000)
     #    print "opt_mu_sigma", opt_params
 #        opt_mu = opt_params_skewgauss[0][0]
 #        opt_sigma = opt_params_skewgauss[0][1]
@@ -190,8 +190,8 @@ if __name__ == '__main__':
         # tri-modal normal distribution [w1, mu1, sigma1, ...
         fit_curve = 'tri-modal-gauss'
 
-        guess_params = [1000., 7., 3., 100., 15., 10., 50., 40., 2.]
-        opt_params = leastsq(residuals_trimodal_gauss, guess_params, args=(mean_count[x0:x1], x))[0]
+        guess_params_trimodalgauss = [165., 7., 2., 20., 11., 3., 3., 40., .5]
+        opt_params = leastsq(residuals_trimodal_gauss, guess_params_trimodalgauss, args=(mean_count[x0:x1], x))[0]
         opt_fit = peval_trimodal_gauss(x, opt_params)
         reduced_chi_square = get_reduced_chi_square(mean_count, opt_fit, std_count, len(opt_params))
 

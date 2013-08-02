@@ -10,6 +10,10 @@ Olfactory system simulation
     real-world data and the virtual olfactory receptors (=centroids after
     k-means clustering) for many trials and for various numbers of centroids.
     
-    average_OR_affinity_distributions.py pools the distances over the many
-    trials, tries to fit a distribution to the data and creates a figure.
+    Distances between ORs and odorants is pooled by
+    average_OR_affinity_distributions.py over many trials.
+    It tries to fit a distribution to the data and writes the fit parameters
+    to a file, which can be displayed by plot_OR_placement_fit_params.py.
+    
+
      

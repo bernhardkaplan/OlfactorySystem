@@ -1,3 +1,13 @@
+"""
+This script plots the result from cluster_odorant_space.py, 
+the so-called F-Test for placing the ORs in the odorant space.
+http://en.wikipedia.org/wiki/F-test
+
+The F-value plotted here is the between-group-variability divided by 
+the within-group-variability, where a group is the odorants assigned to the same cluster center i.e. an OR.
+
+
+"""
 import pylab
 import numpy as np
 import sys
