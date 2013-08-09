@@ -3,6 +3,8 @@ OlfactorySystem
 
 Olfactory system simulation 
 
+  The neuron code is in the neuron_files subfolder.
+  Before running a simulation run nrnivmodl in this folder.
 
   For the distribution of Olfactory Receptor affinities:
     The data in the Haddad_data folder is from http://www.nature.com/nmeth/journal/v5/n5/extref/nmeth.1197-S3.xls [Haddad 2008 "A metric for odorant comparison", Nature Methods] 
@@ -15,5 +17,6 @@ Olfactory system simulation
     It tries to fit a distribution to the data and writes the fit parameters
     to a file, which can be displayed by plot_OR_placement_fit_params.py.
     
+
 
      

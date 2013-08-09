@@ -128,7 +128,7 @@ if __name__ == '__main__':
     n_bins = 100
     # get the distribution of distances between centroids and virtual ORs
     # for each number of ORs
-    for n_cluster in xrange(2, 67):
+    for n_cluster in xrange(2, 66):
         file_cnt = 0
         # find the files matching the filter_fn pattern
         for fn in os.listdir(folder):
@@ -147,8 +147,12 @@ if __name__ == '__main__':
             data_fn = "%s%d_%d.dat" % (filter_fn, n_cluster, i) 
             d = np.loadtxt(folder + "/" +  data_fn)
             d = d.flatten() # we want to count affinities between all OR and all odorants
+            # convert x-axis to affinity
+            if dist_or_aff == 'Affinity':
+                d_ = 1. / d
+                n, bins = np.histogram(d_, n_bins)
             n, bins = np.histogram(d, n_bins)
-            all_data[:, i] = n / n_cluster
+            all_data[:, i] = n / n_cluster # normalize the number of occurrences by dividing through n_cluster
 #            all_data[:, i] = n
         
         # 2) average how often a distance has occured in the file_cnt many
@@ -166,6 +170,7 @@ if __name__ == '__main__':
         ax = fig.add_subplot(111)
         if dist_or_aff == 'Affinity':
             ax.set_xlabel('Affinities between odorant and ORs')
+
         else:
             ax.set_xlabel('Distances between odorant and ORs')
         ax.set_ylabel('Average number of occurences\ndivided by n_cluster\n and pooled over %d trials' % file_cnt)
@@ -233,12 +238,13 @@ if __name__ == '__main__':
         pylab.savefig(fn_out, dpi=100)
 
         # save the mean distance distribution including the std for each bin
-        output_data_fn = data_folder + 'mean_distance_distribution_and_fit_params_%d.txt' % (n_cluster)
+        output_data_fn = data_folder + 'mean_%s_distribution_and_fit_params_%d.txt' % (dist_or_aff.lower(), n_cluster)
         header = '# Mean distance distribution for %d centroids averaged over %d trials\n' % (n_cluster, file_cnt)
         header += '# Fit parameters for the three gaussian fits (weight, mu, sigma):\n'
-        header += '# %.6e\t%.6e\t%.6e\n' % (abs(opt_params[0]), abs(opt_params[1]), abs(opt_params[2]))
-        header += '# %.6e\t%.6e\t%.6e\n' % (abs(opt_params[3]), abs(opt_params[4]), abs(opt_params[5]))
-        header += '# %.6e\t%.6e\t%.6e\n' % (abs(opt_params[6]), abs(opt_params[7]), abs(opt_params[8]))
+        header += '# %.6e, %.6e, %.6e\n' % (abs(opt_params[0]), abs(opt_params[1]), abs(opt_params[2]))
+        header += '# %.6e, %.6e, %.6e\n' % (abs(opt_params[3]), abs(opt_params[4]), abs(opt_params[5]))
+        header += '# %.6e, %.6e, %.6e\n' % (abs(opt_params[6]), abs(opt_params[7]), abs(opt_params[8]))
+        header += '# bins\tmean_count\tstd_count\topt_fit\n'
         output_file = file(output_data_fn, 'w')
         output_file.write(header)
         output_file.flush()
