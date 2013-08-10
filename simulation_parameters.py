@@ -21,7 +21,7 @@ class parameter_storage(object):
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 0
-        self.params['concentration_sweep'] = 0
+        self.params['concentration_sweep'] = 1
         self.params['n_patterns'] = 10
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
 
@@ -35,13 +35,14 @@ class parameter_storage(object):
         # ------ N E T W O R K    S I Z E -----------
         if (self.params['concentration_sweep'] == 1):  # it's a concentration sweep
             self.params['n_patterns'] = 1
+            # if concentration_sweep: n_or represents the number of different concentrations measured
             if (self.params['Cluster'] == 1):
                 self.params['n_or'] = 64
             else:
                 self.params['n_or'] = 16
         else:
-#            self.params['n_or'] = 16
-            self.params['n_or'] = 40
+            self.params['n_or'] = 20 
+#            self.params['n_or'] = 40
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
             self.params['rel_orn_mit'] = 200
@@ -53,8 +54,8 @@ class parameter_storage(object):
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
         # ------ C E L L     N U M B E R S ------------
-        self.params['n_gor'] = 10# number of mitral cells per glomerulus
-#        self.params['n_gor'] = 8# number of mitral cells per glomerulus
+#        self.params['n_gor'] = 10# number of mitral cells per glomerulus
+        self.params['n_gor'] = 8# number of mitral cells per glomerulus
         self.params['n_glom'] = self.params['n_or']
         self.params['n_orn_x'] = self.params['n_gor'] * self.params['rel_orn_mit']# n_orn_x : number of orns expressing one olfactory receptor
         self.params['n_orn_y'] = self.params['n_or']# n_orn_y : number of different receptor families (each having a different affinity to an odour)
@@ -128,9 +129,9 @@ class parameter_storage(object):
 
         # number of randomly selected testcells from which membrane potentials will be recorded
         self.params['n_test_orn'] = 5
-        self.params['n_test_mit'] = 5
-        self.params['n_test_gran'] = 5
-        self.params['n_test_pg'] = 5
+        self.params['n_test_mit'] = 10
+        self.params['n_test_gran'] = 10
+        self.params['n_test_pg'] = 10
         self.params['n_test_pyr'] = 5
         self.params['n_sample_pyr_per_mc'] = 1
         self.params['n_test_basket'] = 1
@@ -138,6 +139,22 @@ class parameter_storage(object):
 #        self.params['n_sample_basket_per_hc'] = int(round(self.params['n_basket_per_hc'] / 10.0))
         self.params['n_test_rsnp'] = 1
         self.params['n_sample_rsnp_per_mc'] = 1
+
+
+
+
+        # ---------------- E X P E R I M E N T A L    P A R A M E T E R S --------- #
+        self.params['temperature'] = 36# [Celsius] very important! required for NEURON simulations
+        self.params['t_sim']	= 1200 # [ms] simulated time
+        self.params['time_step']= 0.025   # [ms] max time step
+        self.params['time_step_rec']= 0.5  # [ms] time step for recording membrane potentials etc
+        self.params['thresh']	= 0     # [mV] threshold for spike detection. thresh is currently the same for all cells 	
+        self.params['t_start']	= 0     # [ms] start time of current injection into orn cells
+        self.params['tau_odorinput_sigmoid'] = 20 # [ms] time constant for sigmoidal function for input conductance time course, check with neuron_files/odorinput.mod
+        self.params['t_stop']	= 25 * self.params['tau_odorinput_sigmoid'] # [ms] start time for decaying sigmoid for odor input conductance
+#        self.params['curr_amp']= 100	# [nA] amplitude of current injected into orn cells
+        self.params['v_init'] = -70.	# [mV]
+        self.params['v_init_sigma'] = 3 # [mV]
 
 
 
@@ -150,10 +167,8 @@ class parameter_storage(object):
          1.909487e+01, 1.110809e+01, 3.353855e+00, \
          4.188897e+00, 4.088460e+01, 4.966478e-01] # these values are taken from clustering the odorant space with 40 ORs
 
-        """
         # ---------------- C E L L    P A R A M E T E R S --------- # 
         # ---------------- ORN cell parameters:
-        """
 
         # gor stands for the maximum conductance evoked by an odor
         # gor values are distributed between a min and max value
@@ -170,28 +185,92 @@ class parameter_storage(object):
         self.params['tau_cadec'] = 1000 # [ms]
 
         # parameters for gleak, gkcag, gcal, gained through combined hand tuning / fitting procedure 
-#        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
-#        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03, 2.26738160e-03]
+        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
+        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03]
 #        self.params['gleak_params'] = [4.25453912e-05, -5.18713818e+05, 3.47077557e-05]
 
-        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
+#        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
 #        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03, 2.26738160e-03]
-        self.params['gcal_params'] =  [4.99086531e-04, 2.0e-3]
+#        self.params['gcal_params'] =  [4.99086531e-04, 2.0e-3]
         self.params['gleak_params'] = [5.0e-05, -6.0e+05, 1.0e-05]
 
 
-        # ---------------- E X P E R I M E N T A L    P A R A M E T E R S --------- #
-        self.params['temperature'] = 36# [Celsius] very important! required for NEURON simulations
-        self.params['t_sim']	= 1200 # [ms] simulated time
-        self.params['time_step']= 0.025   # [ms] max time step
-        self.params['time_step_rec']= 0.5  # [ms] time step for recording membrane potentials etc
-        self.params['thresh']	= 0     # [mV] threshold for spike detection. thresh is currently the same for all cells 	
-        self.params['t_start']	= 0     # [ms] start time of current injection into orn cells
-        self.params['tau_odorinput_sigmoid'] = 20 # [ms] time constant for sigmoidal function for input conductance time course, check with neuron_files/odorinput.mod
-        self.params['t_stop']	= 25 * self.params['tau_odorinput_sigmoid'] # [ms] start time for decaying sigmoid for odor input conductance
-#        self.params['curr_amp']= 100	# [nA] amplitude of current injected into orn cells
-        self.params['v_init'] = -70.	# [mV]
-        self.params['v_init_sigma'] = 3 # [mV]
+        # --------------- Artificial ORNs
+        self.params['f_out_artificial_orn_min'] = 30
+        self.params['f_out_artificial_orn_max'] = 40
+        self.params['t_sigma_artificial_orn'] = 50 # [ms] -> what's the temporal spread of spikes originating from ORNs?
+
+
+        # ---------------- OB connectivity parameters
+        # ---------------- ORN -> MIT connectivity
+        self.params['w_nmda_mult'] = 2 # ORN - MT and ORN - PG: NMDA weights are multiplied by this factor compared to AMPA weights
+        self.params['with_auto_receptors'] = 1 # flag for glutamatergic autoreceptors on mitral cells
+        self.params['w_mit_ampa_autoreceptors'] = 0.002 # weight of the NetCons in the mitral cell primary dendrite representing AMPA autoreceptors
+        self.params['w_mit_nmda_autoreceptors'] = self.params['w_mit_ampa_autoreceptors'] * self.params['w_nmda_mult'] # weight of the NetCons in the mitral cell primary dendrite representing NMDA autoreceptors
+        self.params['w_orn_mit_target'] = 0.10 # target excitatory conductance received by a mitral cell
+        self.params['w_orn_mit_sigma'] = 0.2 # sigma of the normal distribution for drawing conn weights
+        self.params['w_orn_mit_mult'] = 4.0 # orns with lower sensitivity have smaller output rates at high concentrations, thus their outgoing connection weight to MT and PG cells is multiplied by this factor
+
+        # the weight from some ORN groups to their target MIT is multiplied to compensate for their lower output rate
+        self.params['orn_mit_change_ids'] = [0, 1, 2, 3, 4]
+        self.params['orn_mit_change_factors'] = [1.9, 1.7, 1.4, 1.3, 1.1]
+        assert (len(self.params['orn_mit_change_ids']) == len(self.params['orn_mit_change_factors']))
+
+        # ---------------- ORN -> PG connectivity
+#        self.params['w_orn_pg_target'] = 0.001 # Sum of excitatory weights to be received by a PG cell
+        self.params['w_orn_pg_target'] = 0.025 # Sum of excitatory weights to be received by a PG cell
+        self.params['w_orn_pg_sigma'] = 0.2 # sigma of the normal distribution for drawing conn weights
+        self.params['w_orn_pg_mult'] = self.params['w_orn_mit_mult'] #2.0 # orns with lower sensitivity have smaller output rates at max concentration, thus their outgoing connection weight to MT and PG cells is multiplied by this factor
+        self.params['orn_inh_shift'] = 1.0 # inhibitory gaussian curve is shifted to the left by this number of n_orn_exc_sigma
+        self.params['orn_pg_change_ids'] = [] #self.params['orn_mit_change_ids']  # index of PG cells whose orn-pg weights are not increased (=index of a mitral cell with too low f_out in the interval code response curve plot
+        self.params['orn_pg_change_factors'] = [] #self.params['orn_mit_change_factors']
+        assert (len(self.params['orn_pg_change_factors']) == len(self.params['orn_pg_change_ids']))
+
+        # MT o--- PG: serial
+        self.params['w_pg_mit_serial_target'] = 5.0 # total inhibitory conductance to be received by one MT cell from the population of 'serial' periglomerular cells
+        self.params['w_pg_mit_serial_sigma'] = 0.2
+        # MT o---< PG: reciprocal
+        self.params['w_pg_mit_reciprocal_target'] = 0.4 # total inhibitory conductance to be received by one MT cell from the population of 'reciprocal' periglomerular cells
+        self.params['w_pg_mit_reciprocal_sigma'] = 0.2
+        self.params['w_mit_pg_serial'] = 0.005 # total excitatory conductance to be received by one PG cell from one MT cell
+        self.params['w_mit_pg_serial_sigma'] = 0.2
+        self.params['w_mit_pg_reciprocal'] = 0.002 # total excitatory conductance to be received by one PG cell from one MT cell
+        self.params['w_mit_pg_reciprocal_sigma'] = 0.2
+        # MT o----< GRAN: local
+        self.params['n_mit_gran_syn_local'] = 500 # number of reciprocal synapses between one MT cell and all granule cells within the same glomerulus
+#        self.params['w_mit_gran_local_target'] = 0.015 # total excitation received in average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
+        self.params['w_mit_gran_local_target'] = 0.05 # total excitation received on average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
+        self.params['w_mit_gran_nmda_mult'] = 3 # dendro-dendritic synapses from MT onto Gran cells are dominantly NMDA mediated (Schoppa'98), thus multiply their weight compared to AMPA weights
+        self.params['w_mit_gran_local_sigma'] = 0.2   # std deviation for gaussian distributed weights
+        self.params['w_gran_mit_local_target'] = 5.0
+        self.params['w_gran_mit_local_sigma'] = 0.2
+        # MT o----< GRAN: global
+        if (self.params['concentration_sweep'] == 1):
+            self.params['n_mit_gran_syn_global'] = 1 # number of reciprocal synapses between one MT cell and granule cells in other glomeruli
+            self.params['w_mit_gran_global_target'] = 1e-9  # total excitatory conductance received by a Gran cells from non-local MT cells, i.e. MT cells in other glomeruli
+            self.params['w_gran_mit_global_target'] = 1e-9  # total inhibitory conductance received by an MT cells from non-local DDI connections with Gran cells, i.e. Gran cells in other glomeruli
+        else:
+            self.params['n_mit_gran_syn_global'] = 100 # number of reciprocal synapses between one MT cell and granule cells in other glomeruli
+            self.params['w_mit_gran_global_target'] = 0.002  # total excitatory conductance received by a Gran cells from non-local MT cells, i.e. MT cells in other glomeruli
+            self.params['w_gran_mit_global_target'] = 0.1 # total inhibitory conductance received by an MT cells from non-local DDI connections with Gran cells, i.e. Gran cells in other glomeruli
+        self.params['w_mit_gran_global_sigma'] = 0.2
+        self.params['w_gran_mit_global_sigma'] = 0.2
+        # --------------- OB parameters for dendro-dendritic inhibition
+        self.params['ddi_thresh'] = -40
+        self.params['ddi_mit_glom_thresh'] = self.params['ddi_thresh']
+        self.params['ddi_mit_dend_thresh'] = self.params['ddi_thresh']
+        self.params['autorec_mit_prim_thresh'] = self.params['ddi_thresh']
+        self.params['autorec_mit_dend_thresh'] = self.params['ddi_thresh']
+        self.params['ddi_pg_periph_thresh'] = self.params['ddi_thresh']
+        self.params['ddi_gran_periph_thresh'] = self.params['ddi_thresh']
+        self.params['ddi_pg_mit_delay'] = 1
+        self.params['ddi_mit_pg_delay'] = 1
+        self.params['ddi_mit_gran_delay'] = 1
+        self.params['ddi_gran_mit_delay'] = 1
+        self.params['mit_autoreceptor_delay'] = 1
+
+        
+
 
         # ---------------- N O I S E    P A R A M E T E R S ----------------- # 
         # dummy noise parameters
@@ -315,6 +394,20 @@ class parameter_storage(object):
         # connectivity files
         self.params['conn_list_orn_mit'] =  '%s/conn_list_orn_mit.dat' % ( self.params['conn_folder'])
         self.params['conn_list_orn_pg'] =  '%s/conn_list_orn_pg.dat' % ( self.params['conn_folder']) # for normal connectivity
+        self.params['conn_list_pg_mit_serial'] =  '%s/conn_list_pg_mit_serial.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_pg_mit_reciprocal'] =  '%s/conn_list_pg_mit_reciprocal.dat' % ( self.params['conn_folder']) # contains only PG ---o MT
+        self.params['conn_list_mit_pg_reciprocal'] =  '%s/conn_list_mit_pg_reciprocal.dat' % ( self.params['conn_folder']) # contains MT ---< PG
+        self.params['conn_list_mit_pg_serial'] =  '%s/conn_list_mit_pg_serial.dat' % ( self.params['conn_folder']) # contains MT ---< PG
+        self.params['conn_list_mit_gran_local'] =  '%s/conn_list_mit_gran_local.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_mit_gran_global'] =  '%s/conn_list_mit_gran_global.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_gran_mit_local'] =  '%s/conn_list_gran_mit_local.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_gran_mit_global'] =  '%s/conn_list_gran_mit_global.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_mit_pyr'] =  '%s/conn_list_mit_pyr.dat' % ( self.params['conn_folder']) # generated from Anders' abstract weight matrices
+        self.params['conn_list_mit_rsnp'] =  '%s/conn_list_mit_rsnp.dat' % ( self.params['conn_folder']) # generated from Anders' abstract weight matrices
+        self.params['conn_list_mit_oc'] =  '%s/conn_list_mit_oc.dat' % ( self.params['conn_folder'])
+        self.params['conn_list_mit_oc_base'] =  '%s/conn_list_mit_oc_' % (self.params['conn_folder'])
+        self.params['conn_list_layer23'] =  '%s/conn_list_layer23.dat' % ( self.params['conn_folder']) # pyr->basket, basket->pyr, rsnp->pyr, pyr->pyr within one MC
+
 
 
         # files for recording currents, membrane potential, time, ....

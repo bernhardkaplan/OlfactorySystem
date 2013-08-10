@@ -20,3 +20,12 @@ Olfactory system simulation
 
 
      
+  ORN response curves: run_epth_response_curve.py (calls
+  prepare_epth_response_curve.py and requires SetOfCurvesPlotter.py, and
+  MergeSpikefiles.py and the NEURON files -->
+  start_file_epth_response_curve.hoc)
+
+
+  OB response curve: similar to ORN response curve measurements, but with ORNs
+  projecting to the OB 
+
