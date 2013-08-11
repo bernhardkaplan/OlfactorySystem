@@ -1,6 +1,3 @@
-import matplotlib
-matplotlib.use('Agg')
-import pylab
 import numpy
 import numpy.random as rnd
 import random

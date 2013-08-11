@@ -8,11 +8,19 @@ class parameter_storage(object):
     This class contains the simulation parameters in a dictionary called params.
     """
 
-    def __init__(self):
+    def __init__(self, params_fn=None):
+        """
+        If a filename is given, it loads the json file and returns the dictionary.
+        Else, it sets the default parameters.
+        """
 
         self.params = {}
-        self.set_default_params()
-        self.set_filenames()
+        if params_fn == None:
+            self.set_default_params()
+            self.set_filenames()
+        else:
+            self.load_params(params_fn)
+
 
     def set_default_params(self):
 
@@ -20,7 +28,7 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 0
+        self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 1
         self.params['n_patterns'] = 10
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
@@ -37,7 +45,7 @@ class parameter_storage(object):
             self.params['n_patterns'] = 1
             # if concentration_sweep: n_or represents the number of different concentrations measured
             if (self.params['Cluster'] == 1):
-                self.params['n_or'] = 64
+                self.params['n_or'] = 32
             else:
                 self.params['n_or'] = 16
         else:
@@ -45,7 +53,7 @@ class parameter_storage(object):
 #            self.params['n_or'] = 40
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
-            self.params['rel_orn_mit'] = 200
+            self.params['rel_orn_mit'] = 100
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
@@ -145,7 +153,7 @@ class parameter_storage(object):
 
         # ---------------- E X P E R I M E N T A L    P A R A M E T E R S --------- #
         self.params['temperature'] = 36# [Celsius] very important! required for NEURON simulations
-        self.params['t_sim']	= 1200 # [ms] simulated time
+        self.params['t_sim']	= 1600 # [ms] simulated time
         self.params['time_step']= 0.025   # [ms] max time step
         self.params['time_step_rec']= 0.5  # [ms] time step for recording membrane potentials etc
         self.params['thresh']	= 0     # [mV] threshold for spike detection. thresh is currently the same for all cells 	
@@ -207,19 +215,20 @@ class parameter_storage(object):
         self.params['with_auto_receptors'] = 1 # flag for glutamatergic autoreceptors on mitral cells
         self.params['w_mit_ampa_autoreceptors'] = 0.002 # weight of the NetCons in the mitral cell primary dendrite representing AMPA autoreceptors
         self.params['w_mit_nmda_autoreceptors'] = self.params['w_mit_ampa_autoreceptors'] * self.params['w_nmda_mult'] # weight of the NetCons in the mitral cell primary dendrite representing NMDA autoreceptors
+#        self.params['w_orn_mit_target'] = 0.20 # target excitatory conductance received by a mitral cell
         self.params['w_orn_mit_target'] = 0.10 # target excitatory conductance received by a mitral cell
-#        self.params['w_orn_mit_target'] = 0.10 # target excitatory conductance received by a mitral cell
         self.params['w_orn_mit_sigma'] = 0.2 # sigma of the normal distribution for drawing conn weights
         self.params['w_orn_mit_mult'] = 4.0 # orns with lower sensitivity have smaller output rates at high concentrations, thus their outgoing connection weight to MT and PG cells is multiplied by this factor
 
         # the weight from some ORN groups to their target MIT is multiplied to compensate for their lower output rate
-        self.params['orn_mit_change_ids'] = [0, 1, 2, 3, 4]
-        self.params['orn_mit_change_factors'] = [2.0, 1.9, 1.6, 1.3, 1.1]
+        self.params['orn_mit_change_ids'] = range(8)
+        self.params['orn_mit_change_factors'] = [2.1, 1.9, 1.6, 1.5, 1.2, 1.1, 1.0, 1.0]
+#        self.params['orn_mit_change_ids'] = [0, 1, 2, 3, 4]
 #        self.params['orn_mit_change_factors'] = [1.9, 1.7, 1.4, 1.3, 1.1]
         assert (len(self.params['orn_mit_change_ids']) == len(self.params['orn_mit_change_factors']))
 
         # ---------------- ORN -> PG connectivity
-#        self.params['w_orn_pg_target'] = 0.001 # Sum of excitatory weights to be received by a PG cell
+#        self.params['w_orn_pg_target'] = 0.025 # Sum of excitatory weights to be received by a PG cell
         self.params['w_orn_pg_target'] = 0.025 # Sum of excitatory weights to be received by a PG cell
         self.params['w_orn_pg_sigma'] = 0.2 # sigma of the normal distribution for drawing conn weights
         self.params['w_orn_pg_mult'] = self.params['w_orn_mit_mult'] #2.0 # orns with lower sensitivity have smaller output rates at max concentration, thus their outgoing connection weight to MT and PG cells is multiplied by this factor
@@ -239,12 +248,12 @@ class parameter_storage(object):
         self.params['w_mit_pg_reciprocal'] = 0.002 # total excitatory conductance to be received by one PG cell from one MT cell
         self.params['w_mit_pg_reciprocal_sigma'] = 0.2
         # MT o----< GRAN: local
-        self.params['n_mit_gran_syn_local'] = 500 # number of reciprocal synapses between one MT cell and all granule cells within the same glomerulus
-#        self.params['w_mit_gran_local_target'] = 0.015 # total excitation received in average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
-        self.params['w_mit_gran_local_target'] = 0.05 # total excitation received on average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
+        self.params['n_mit_gran_syn_local'] = 1000 # number of reciprocal synapses between one MT cell and all granule cells within the same glomerulus
+        self.params['w_mit_gran_local_target'] = 0.015 # total excitation received in average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
+#        self.params['w_mit_gran_local_target'] = 0.02 # total excitation received on average by a granule cell through local excitatory synapses from all MT cells within this glomerulus, ampa weights
         self.params['w_mit_gran_nmda_mult'] = 3 # dendro-dendritic synapses from MT onto Gran cells are dominantly NMDA mediated (Schoppa'98), thus multiply their weight compared to AMPA weights
         self.params['w_mit_gran_local_sigma'] = 0.2   # std deviation for gaussian distributed weights
-        self.params['w_gran_mit_local_target'] = 5.0
+        self.params['w_gran_mit_local_target'] = 6.0
         self.params['w_gran_mit_local_sigma'] = 0.2
         # MT o----< GRAN: global
         if (self.params['concentration_sweep'] == 1):
@@ -338,11 +347,24 @@ class parameter_storage(object):
 
 
 
-    def set_folder_name(self, folder_name=None):
+    def set_folder_name(self, folder_name=None, use_abspath=False):
+        """
+        This function is called from set_filenames in order to update all filenames 
+        with the given folder_name
+        Keyword arguments:
+        folder_name -- string
+        use_abspath -- set to False and run from within neuron_files on the Cray
+        """
 
 #        folder_name = 'HandTuned'
-        folder_name = 'ResponseCurvesEpthOb'
-        self.params['folder_name'] = os.path.abspath(folder_name)
+        folder_name = 'ResponseCurvesEpthOb_6'
+        if self.params['Cluster']:
+            folder_name = 'Cluster_' + folder_name
+            
+        if use_abspath:
+            self.params['folder_name'] = os.path.abspath(folder_name)
+        else:
+            self.params['folder_name'] = folder_name
         print 'Folder name:', self.params['folder_name']
 
 
@@ -536,10 +558,14 @@ class parameter_storage(object):
                 print 'Creating folder:\t%s' % f
                 os.system("mkdir -p %s" % (f))
 
-    def load_params(self):
+    def load_params(self, fn):
         """
+        Load a json-parameter file and 
         return the simulation parameters in a dictionary
         """
+        f = file(fn, 'r')
+        print 'Loading parameters from', fn
+        self.params = json.load(f)
         return self.params
 
 
@@ -554,7 +580,6 @@ class parameter_storage(object):
         if not (os.path.isdir(self.params['folder_name'])):
             print 'Creating folder:\n\t%s' % self.params['folder_name']
             self.create_folders()
-
         if fn == None:
             fn = self.params['params_fn_json']
         print 'Writing parameters to: %s' % (fn)

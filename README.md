@@ -28,4 +28,11 @@ Olfactory system simulation
 
   OB response curve: similar to ORN response curve measurements, but with ORNs
   projecting to the OB 
+  
+
+Lindgren specific information
+
+  Compilation:
+  bkaplan@emil-login2:/cfs/klemming/nobackup/b/bkaplan/OlfactorySystem/neuron_files>
+  /cfs/klemming/nobackup/b/bkaplan/neuron-7.3/nrn-mpi/bin/nrnivmodl
 

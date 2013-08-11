@@ -105,7 +105,6 @@ class CreateOrnParameters(object):
             print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
             self.write_params_to_file(output_fn)
         return 1
-        # stop new
 
 
     def create_single_odorant_activation_matrix(self, normalization=False):
