@@ -1,0 +1,10 @@
+
+load_file(param_file)
+
+
+// check all connections stored in binary file and in plain file
+
+strdef fn_plain
+strdef fn_bin
+fn_plain = 
+fn_

@@ -1,0 +1,30 @@
+//@code
+objref r, g, hist, xvec
+
+r = new Random()
+r.poisson(3)
+
+n=20
+xvec = new Vector(n*3)
+for i=0,n-1 {
+	xvec.x[3*i] = i-.1
+	xvec.x[3*i+1] = i
+	xvec.x[3*i+2] = i+.1
+}
+hist = new Vector(xvec.size())
+g = new Graph()
+g.size(0, 15, 0, 120)
+hist.plot(g, xvec)
+for(i=0; i<500; i=i+1){
+	x = r.repick()
+	print i, x
+	j = int(x)
+	j = 3*j+1
+	if (j >= hist.size()) {
+		j = hist.size() -1
+	}
+	hist.x[j] = hist.x[j]+1
+	g.flush()
+	doNotify()
+}
+

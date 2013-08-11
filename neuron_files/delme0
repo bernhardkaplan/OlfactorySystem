@@ -1,0 +1,1580 @@
+numprocs=8
+	1 
+	1 
+	1 
+		1 
+	1 
+	1 
+1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+		1 
+	1 
+	1 
+1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+		1 
+	1 
+	1 
+1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+		1 
+	1 
+	1 
+	1 
+1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+		1 
+1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	0 
+	1 
+	1 
+	0 
+	1 
+	1 
+	0 
+	0 
+	1 
+	0 
+	1 
+	1 
+	0 
+		1 
+1 
+	0 
+	1 
+NEURON reads parameters from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/simulation_params.hoc
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1001 
+	1 
+	1001 
+	1001 
+	0 
+	1 
+	0 
+	0 
+	1001 
+	0 
+	1 
+	1001 
+	1 
+	0 
+	1001 
+	1 
+	0 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	0 
+	1001 
+	0 
+	1001 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	0 
+	0 
+	1 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	0 
+	0 
+	1 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	1 
+	1 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	1 
+	1 
+	1 
+	1 
+	1 
+	0 
+	1 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+	1 
+	1 
+	1 
+	0 
+Number of processes does not divide the number of ORN evenly!
+n_orn_y_p mod n_proc = 2 n_proc 8 	 n_orn_y 2
+Will distribute them equally
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+read orn params from: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Parameters/orn_params_0.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< mit via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_mit.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting ORNs ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_orn_pg.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting MIT ---< PG via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting MIT ---< GRAN via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting Gran ---o MIT serial via file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_serial.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting PG ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_pg_mit_reciprocal.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_reciprocal.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting PG ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_pg_serial.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_local.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug sample_gids_to_record gid 1104 exists 3
+debug pid 6 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 1386 exists 3
+debug pid 6 record_sample_soma 1 cells 
+debug pid 6 record_sample_soma 0 cells 
+debug sample_gids_to_record gid 3707 exists 3
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+debug sample_gids_to_record gid 3792 exists 3
+debug pid 6 record_sample_soma 2 cells 
+Connecting Mitral cell autoreceptors
+debug pid 1 record_sample_soma 0 cells 
+debug sample_gids_to_record gid 1300 exists 3
+debug sample_gids_to_record gid 1309 exists 3
+debug sample_gids_to_record gid 1305 exists 3
+debug pid 1 record_sample_soma 3 cells 
+debug pid 1 record_sample_soma 0 cells 
+debug pid 1 record_sample_soma 0 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug sample_gids_to_record gid 420 exists 3
+debug sample_gids_to_record gid 360 exists 3
+debug pid 2 record_sample_soma 2 cells 
+debug sample_gids_to_record gid 1324 exists 3
+debug pid 2 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 1734 exists 3
+debug sample_gids_to_record gid 1874 exists 3
+debug pid 2 record_sample_soma 2 cells 
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+debug sample_gids_to_record gid 3108 exists 3
+debug sample_gids_to_record gid 3061 exists 3
+debug sample_gids_to_record gid 3166 exists 3
+debug pid 2 record_sample_soma 3 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug pid 3 record_sample_soma 0 cells 
+debug sample_gids_to_record gid 1332 exists 3
+debug pid 3 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 1972 exists 3
+debug pid 3 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 3306 exists 3
+debug sample_gids_to_record gid 3306 exists 3
+debug sample_gids_to_record gid 3247 exists 3
+debug pid 3 record_sample_soma 3 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug pid 5 record_sample_soma 0 cells 
+debug pid 5 record_sample_soma 0 cells 
+debug sample_gids_to_record gid 2361 exists 3
+debug sample_gids_to_record gid 2230 exists 3
+debug pid 5 record_sample_soma 2 cells 
+Connecting GRAN ---o MIT via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_mit_gran_global.dat
+debug sample_gids_to_record gid 3563 exists 3
+debug pid 5 record_sample_soma 1 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_local.dat
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug sample_gids_to_record gid 85 exists 3
+debug pid 0 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 1283 exists 3
+debug sample_gids_to_record gid 1289 exists 3
+debug sample_gids_to_record gid 1288 exists 3
+debug pid 0 record_sample_soma 3 cells 
+debug sample_gids_to_record gid 1542 exists 3
+debug pid 0 record_sample_soma 1 cells 
+debug pid 0 record_sample_soma 0 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug pid 7 record_sample_soma 0 cells 
+debug pid 7 record_sample_soma 0 cells 
+debug sample_gids_to_record gid 2616 exists 3
+debug sample_gids_to_record gid 2591 exists 3
+debug pid 7 record_sample_soma 2 cells 
+debug sample_gids_to_record gid 3820 exists 3
+debug pid 7 record_sample_soma 1 cells 
+Connecting GRAN ---o MIT serial via DDI and file: /home/bernhard/workspace/olfactory_system/OlfactorySystem/ResponseCurvesEpthOb/Connections/conn_list_gran_mit_global.dat
+Connecting Mitral cell autoreceptors
+debug sample_gids_to_record gid 797 exists 3
+debug pid 4 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 1350 exists 3
+debug pid 4 record_sample_soma 1 cells 
+debug sample_gids_to_record gid 2185 exists 3
+debug sample_gids_to_record gid 2068 exists 3
+debug pid 4 record_sample_soma 2 cells 
+debug pid 4 record_sample_soma 0 cells 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
+	0 
