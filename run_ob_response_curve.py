@@ -37,7 +37,7 @@ else:
 
 param_tool.print_cell_gids()
 
-# clean up data folder
+# change folder and remove old data files to avoid possible confusion with old data
 os.chdir('neuron_files') # this is important to avoide problems with tabchannel files and the functions defined therein
 os.system("rm %s/*" % (params["spiketimes_folder"]))
 os.system("rm %s/*" % (params["volt_folder"]))
@@ -56,8 +56,8 @@ Merger.merge_ob_nspike_files(pattern=pn)
 
 sim_cnt = 0
 
-#SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
-#output_fn = params['figure_folder'] + '/hand_tuned_%d.png' % sim_cnt
-#SOCP.plot_set_of_curves(output_fn)
-#print 'Opening with ristretto: %s' % (output_fn)
-#os.system('ristretto %s' % output_fn)
+SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
+output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
+SOCP.plot_set_of_curves(output_fn, cell_type='mit')
+print 'Opening with ristretto: %s' % (output_fn)
+os.system('ristretto %s' % output_fn)

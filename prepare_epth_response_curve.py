@@ -31,10 +31,6 @@ param_tool.hoc_export() # write the simulation parameters to a NEURON executable
 #ConnectionClass.connect_mt_gran_global()
 
 print "Creating ORN parameters...."
-OrnParamClass = CreateOrnParameters.CreateOrnParameters(params)
-
-ok = OrnParamClass.create_params_for_response_curve()
-
 print "Folder name:", params['folder_name']
 t2 = time.time()
 print "Time: %.1f sec %.1f min" % (t2 - t1, (t2-t1)/60.)

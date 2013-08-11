@@ -6,6 +6,7 @@ import simulation_parameters # defines simulation parameters
 # classes for setting up connectivity and the individual cell parameters
 import CreateObConnections
 import CreateOrnParameters
+import CreateMitParameters
 t1 = time.time()
 
 # ------------ I N I T -----------------------------
@@ -34,6 +35,10 @@ print "Creating ORN parameters...."
 OrnParamClass = CreateOrnParameters.CreateOrnParameters(params)
 
 ok = OrnParamClass.create_params_for_response_curve()
+
+# this is required by SetOfCurvesPlotter to store the information which ORN is connected to which MIT
+MitParamClass = CreateMitParameters.CreateMitParameters(params)
+ok = MitParamClass.create_parameters()
 
 print "Folder name:", params['folder_name']
 t2 = time.time()

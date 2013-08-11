@@ -8,6 +8,12 @@ import simulation_parameters # defines simulation parameters
 import CreateOrnParameters
 t1 = time.time()
 
+
+param_tool = simulation_parameters.parameter_storage()
+param_tool.hoc_export()
+params = param_tool.params
+param_tool.write_parameters_to_file(param_fn)
+
 # ------------ I N I T -----------------------------
 # The simulation_parameters module defines a class for simulation parameter storage
 #param_tool = network_parameters_BGL.simulation_parameters_BGL()

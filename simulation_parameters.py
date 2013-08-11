@@ -49,7 +49,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 5
+            self.params['rel_orn_mit'] = 10
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
@@ -187,7 +187,7 @@ class parameter_storage(object):
         # parameters for gleak, gkcag, gcal, gained through combined hand tuning / fitting procedure 
         self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
         self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03]
-#        self.params['gleak_params'] = [4.25453912e-05, -5.18713818e+05, 3.47077557e-05]
+        self.params['gleak_params'] = [4.25453912e-05, -5.18713818e+05, 3.47077557e-05]
 
 #        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
 #        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03, 2.26738160e-03]
@@ -208,12 +208,14 @@ class parameter_storage(object):
         self.params['w_mit_ampa_autoreceptors'] = 0.002 # weight of the NetCons in the mitral cell primary dendrite representing AMPA autoreceptors
         self.params['w_mit_nmda_autoreceptors'] = self.params['w_mit_ampa_autoreceptors'] * self.params['w_nmda_mult'] # weight of the NetCons in the mitral cell primary dendrite representing NMDA autoreceptors
         self.params['w_orn_mit_target'] = 0.10 # target excitatory conductance received by a mitral cell
+#        self.params['w_orn_mit_target'] = 0.10 # target excitatory conductance received by a mitral cell
         self.params['w_orn_mit_sigma'] = 0.2 # sigma of the normal distribution for drawing conn weights
         self.params['w_orn_mit_mult'] = 4.0 # orns with lower sensitivity have smaller output rates at high concentrations, thus their outgoing connection weight to MT and PG cells is multiplied by this factor
 
         # the weight from some ORN groups to their target MIT is multiplied to compensate for their lower output rate
         self.params['orn_mit_change_ids'] = [0, 1, 2, 3, 4]
-        self.params['orn_mit_change_factors'] = [1.9, 1.7, 1.4, 1.3, 1.1]
+        self.params['orn_mit_change_factors'] = [2.0, 1.9, 1.6, 1.3, 1.1]
+#        self.params['orn_mit_change_factors'] = [1.9, 1.7, 1.4, 1.3, 1.1]
         assert (len(self.params['orn_mit_change_ids']) == len(self.params['orn_mit_change_factors']))
 
         # ---------------- ORN -> PG connectivity
@@ -338,7 +340,8 @@ class parameter_storage(object):
 
     def set_folder_name(self, folder_name=None):
 
-        folder_name = 'HandTuned'
+#        folder_name = 'HandTuned'
+        folder_name = 'ResponseCurvesEpthOb'
         self.params['folder_name'] = os.path.abspath(folder_name)
         print 'Folder name:', self.params['folder_name']
 
