@@ -1,0 +1,47 @@
+
+load_file("nrngui.hoc")		// needed to get stdrun methods
+strdef param_file
+param_file = "NeurChem_110620_np25_split/simulation_params.hoc"
+load_file(param_file)
+
+strdef fn_base	
+/*sprint(fn_base, "%s/%s", folder_name, conn_list_mit_oc_base)*/
+sprint(fn_base, "%s", conn_list_pyr_pyr_base)
+
+objref conn_file
+objref data_vec
+objref output_f
+
+strdef output_fn
+/*sprint(output_fn, "%s/%sall_debug.txt", folder_name, conn_list_mit_oc_base)*/
+sprint(output_fn, "%sall_debug.txt", conn_list_pyr_pyr_base)
+output_f = new File(output_fn)
+output_f.wopen()
+
+strdef mit_oc_conn_fn
+for (i = 0; i < n_mit_oc_conn_files; i += 1){
+	sprint(mit_oc_conn_fn, "%s%d.dat", fn_base, i)
+	conn_file = new File(mit_oc_conn_fn)
+	conn_file.ropen()
+	data_vec = new Vector(1) // 1 element
+	cnt = 0
+	while (conn_file.eof() != 1){
+		conn_file.vread(1, &data_vec.x[cnt])
+		data_vec.append(0)
+		cnt += 1
+	}
+	data_vec.remove(cnt) // remove the last 0 element
+	n_row = data_vec.size() / 3
+	n_col = 3
+	n_data = int(n_row * n_col)
+	// process the data
+	for (j = 0; j < n_row; j += 1) {
+		src_gid = data_vec.x[j]
+		tgt_gid = data_vec.x[n_row + j]
+		weight = data_vec.x[2*n_row + j]
+		output_f.printf("%f\t%f\t%.8e\n", src_gid, tgt_gid, weight)
+	}
+}
+
+print "Written to:  ", output_fn
+output_f.close()

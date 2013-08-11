@@ -1,0 +1,81 @@
+
+strdef fn
+sprint(fn, "conn_list_mit_oc_99.dat")
+111128_np25_seed3_rnd_wauto4.0e-03_norm0/conn_list_pyr_pyr_93.dat
+
+strdef param_file 
+sprint(param_file, "/home/bernhard/workspace/olfactory_system/octx_simple/111128_np25_seed3_rnd_wauto4.0e-03_norm0/simulation_params.hoc")
+load_file(param_file)
+
+
+func get_index_for_filename() {local f_id localobj file, strobj
+	fn = $s1 // filename
+	file = new File()
+	file.ropen(filename_lookup) // filename - index information is stored in file name "filename_lookup"
+	strobj = new StringFunctions()// class for string operations
+
+	strdef file_index 
+	strdef line
+	while (file.gets(line) != -1) {
+		strobj.tail(line, fn, file_index) // strobj.tail(str, "regexp", result), result contains the tail of the string from the char following regexp to the end of the string
+		if (strobj.len(file_index) > 0) { // if fn was found in this line
+			sscanf(file_index, "%d", &f_id) // put the string representing the file index in f_id
+			return f_id
+		}
+	}
+	return -1
+}
+
+obfunc get_filesize() {local f_id, n_row, n_col localobj file, strobj, return_vec
+	f_id = $1
+	return_vec = new Vector(2)
+	// convert int to string in order to search for in the file
+	strdef search_f_id
+	sprint(search_f_id, "^%d\t", f_id) // regexp: ^(beginning of line) f_id as int followed by a tab
+	file = new File()
+	file.ropen(filesize_lookup) // file_index - filesize information is stored in file name "filesize_lookup"
+	strobj = new StringFunctions()// class for string operations
+
+	strdef file_size 
+	strdef line
+	while (file.gets(line) != -1) {
+		strobj.tail(line, search_f_id, file_size) // strobj.tail(str, "regexp", result), result contains the tail of the string from the char following regexp to the end of the string
+		if (strobj.len(file_size) > 0) { // if fn was found in this line
+			sscanf(file_size, "%d\t%d", &n_row, &n_col) // put the string representing the file index in n_row
+/*            printf("get_filesize for f_id %d strobj.tail: %s \t line: %s, n_row %d n_col %d \n", f_id, file_size, line, n_row, n_col)*/
+			return_vec.x[0] = n_row
+			return_vec.x[1] = n_col
+			return return_vec
+		}
+	}
+	return return_vec
+}
+
+
+
+
+f_id = get_index_for_filename(fn)	// file index
+objref f_size
+f_size = get_filesize(f_id)						// look up the filesize
+
+objref f
+f = new File()
+sprint(fn, "%s/%s", folder_name, fn)
+f.ropen(fn)
+
+n_row = int(f_size.x[0])
+n_col = int(f_size.x[1])
+printf("debug f_size, %s f_id %d n_row %d n_col %d\n", fn, f_id, n_row, n_col)
+n_data = int(n_row * n_col)
+objref data_vec
+data_vec = new Vector(n_data)
+data_vec.fread(f, n_data)
+// process the data
+for (j = 0; j < n_row; j += 1) {
+	src_gid = data_vec.x[j]
+	tgt_gid = data_vec.x[n_row + j]
+	weight = data_vec.x[2*n_row + j]
+	printf("src %d\t tgt %d\t w %.10e\n", src_gid, tgt_gid, weight)
+}
+
+
