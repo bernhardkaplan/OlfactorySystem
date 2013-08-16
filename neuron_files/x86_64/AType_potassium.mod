@@ -1,1 +1,0 @@
-../AType_potassium.mod
