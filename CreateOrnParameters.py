@@ -203,6 +203,7 @@ class CreateOrnParameters(object):
         # c / Kd values are equally distributed on a log10 scale
         # c_Kd = 10**exp_min .. 10**exp_max
         exp_min = -1.5
+#        exp_min = -1.5
         exp_max = 2.0
         z = (exp_max - exp_min) / float(self.n_or)
         c_Kd = []
@@ -267,13 +268,17 @@ class CreateOrnParameters(object):
         x_min = self.params["gor_min"]
         x_max = self.params["gor_max"]
         p = self.params["gkcag_params"]
+        gkcag_values = self.linear_transformation(self.gor_values, self.params['gkcag_params'][0], self.params['gkcag_params'][1])
+
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
                 orn_id = i * self.n_orn_x + j
+                self.vgkcag[orn_id] = gkcag_values[j]
+
                 # map j into the interval [gor_min, gor_max] which is the x value for the function gkcag(gor)
-                x = self.vgor[orn_id]
-                gkcag = p[0] * np.log10(x) + p[1]
-                self.vgkcag[orn_id] = gkcag
+#                x = self.vgor[orn_id]
+#                gkcag = p[0] * np.log10(x) + p[1]
+#                self.vgkcag[orn_id] = gkcag
 
 
     def set_gcal_values(self):
@@ -281,13 +286,15 @@ class CreateOrnParameters(object):
         x_min = self.params["gor_min"]
         x_max = self.params["gor_max"]
         p = self.params["gcal_params"]
+        gcal_values = self.linear_transformation(self.gor_values, self.params['gcal_params'][0], self.params['gcal_params'][1])
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
                 orn_id = i * self.n_orn_x + j
+                self.vgcal[orn_id] = gcal_values[j]
                 # map j into the interval [gor_min, gor_max] which is the x value for the function gcal(gor)
-                x = self.vgor[orn_id]
-                gcal = p[0] * np.log10(x) + p[1]
-                self.vgcal[orn_id] = gcal
+#                x = self.vgor[orn_id]
+#                gcal = p[0] * np.log10(x) + p[1]
+#                self.vgcal[orn_id] = gcal
 
 
     def set_gleak_values(self):
@@ -296,13 +303,18 @@ class CreateOrnParameters(object):
         x_max = self.params["gor_max"]
         p = self.params["gleak_params"]
 
+        gleak_values = self.linear_transformation(self.gor_values, self.params['gleak_params'][0], self.params['gleak_params'][1])
+
+
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
                 orn_id = i * self.n_orn_x + j
+                self.vgleak[orn_id] = gleak_values[j]
+
                 # map j into the interval [gor_min, gor_max] which is the x value for the function gleak(gor)
-                x = self.vgor[orn_id]
-                gleak = p[0] * np.exp(p[1] * x ** 2) + p[2]
-                self.vgleak[orn_id] = gleak
+#                x = self.vgor[orn_id]
+#                gleak = p[0] * np.exp(p[1] * x ** 2) + p[2]
+#                self.vgleak[orn_id] = gleak
 
 
     def set_tau_cadec_values(self):
@@ -328,8 +340,8 @@ class CreateOrnParameters(object):
         for row in xrange(self.params["n_orn_y"]):
             for col  in xrange(self.params["n_orn_x"]):
                 orn_id = col + row * self.params["n_orn_x"]
-                line = "%d\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\n" % (orn_id, \
-                        self.voor[orn_id], self.vc_Kd[orn_id], self.vgor[orn_id], \
+                line = "%d\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\t%.6e\n" % \
+                        (orn_id, self.voor[orn_id], self.vc_Kd[orn_id], self.vgor[orn_id], \
                             self.vgna[orn_id], self.vgk[orn_id], self.vgkcag[orn_id], self.vgcal[orn_id],\
                             self.vgleak[orn_id], self.vtau_cadec[orn_id])
                 orn_pf.write(line)
@@ -362,6 +374,21 @@ class CreateOrnParameters(object):
 #                            self.vgleak[orn_id],
                             self.current_param_values[col][5])
                 orn_pf.write(line)
+        orn_pf.flush()
         orn_pf.close()
+
+
+    def linear_transformation(self, x, y_min, y_max):
+        """
+        x : the range to be transformed
+        y_min, y_max : lower and upper boundaries for the range into which x
+        is transformed to
+        Returns y = f(x), f(x) = m * x + b
+        """
+        x_min = np.min(x)
+        x_max = np.max(x)
+        if x_min == x_max:
+            x_max = x_min * 1.0001
+        return (y_min + (y_max - y_min) / (x_max - x_min) * (x - x_min))
 
 

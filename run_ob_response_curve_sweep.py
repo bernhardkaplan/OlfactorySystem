@@ -24,7 +24,7 @@ orn_mit_change_factors[0, :] = [2.5, 2.5, 1.8, 1.8, 1.3, 1.1, 1.0, 1.0]
 
 for sim_cnt in xrange(n_runs):
     sim_cnt += sim_cnt_offset
-    param_tool = simulation_parameters.parameter_storage()
+    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
     param_tool.params['orn_mit_change_ids'] = orn_mit_change_ids
     param_tool.params['orn_mit_change_factors'] = orn_mit_change_factors[sim_cnt, :].tolist()
     param_tool.hoc_export()

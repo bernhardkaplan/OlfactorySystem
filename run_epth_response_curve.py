@@ -8,18 +8,22 @@ import os
 import time
 import MergeSpikefiles
 import SetOfCurvesPlotter
+import CreateOrnParameters
 
-param_tool = simulation_parameters.parameter_storage()
+param_tool = simulation_parameters.parameter_storage(use_abspath=True)
+#param_tool = simulation_parameters.parameter_storage(use_abspath=False)
 params = param_tool.params
 param_tool.hoc_export()
 
 
 prepare = True
 if prepare:
-    os.system('python prepare_epth_response_curve.py')
+    OrnParamClass = CreateOrnParameters.CreateOrnParameters(params)
+    OrnParamClass.create_params_for_response_curve()
 
 t1 = time.time()
-pn = 0
+sim_cnt = 0
+pn = sim_cnt
 
 param_file_orns = params['orn_params_fn_base'] + '%d.dat' % pn
 assert os.path.exists(param_file_orns), 'File does not exist: %s\nPlease run prepare_epth_response_curve.py before!' % param_file_orns
@@ -39,6 +43,7 @@ param_tool.print_cell_gids()
 os.chdir('neuron_files') # this is important to avoide problems with tabchannel files and the functions defined therein
 os.system("rm %s/*" % (params["spiketimes_folder"]))
 os.system("rm %s/*" % (params["volt_folder"]))
+print 'NEURON simulation starts ...'
 os.system(neuron_command)
 
 t2 = time.time() - t1
@@ -52,11 +57,10 @@ Merger = MergeSpikefiles.MergeSpikefiles(params)
 Merger.merge_epth_spiketimes_file(pattern=pn)
 Merger.merge_epth_nspike_files(pattern=pn)
 
-sim_cnt = 7
 SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
 output_fn = params['figure_folder'] + '/hand_tuned_%d.png' % sim_cnt
 #print 'Saving figure to:', output_fn
-SOCP.plot_set_of_curves(output_fn)
+x_data, y_data = SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn)
 
 print 'Opening with ristretto: %s' % (output_fn)
 os.system('ristretto %s' % output_fn)

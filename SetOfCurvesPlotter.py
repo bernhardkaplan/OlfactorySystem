@@ -9,9 +9,17 @@ class SetOfCurvesPlotter(object):
         self.params = params
 
 
-    def plot_set_of_curves(self, output_fn=None, cell_type='orn'):
+    def plot_set_of_curves(self, pn=0, output_fn=None, cell_type='orn', ax=None):
+        """
+        Keyword arguments (optional):
+        pn -- (int) to identify the parameter and spike files to load
+        output_fn -- figure file name
+        cell_type -- 'orn' or 'mit'
+        fig = a pylab.subplot instance, if the class should paint in a certain subplot
+        """
 
         self.cell_type = cell_type
+        self.pattern_nr = pn
         if cell_type == 'orn':
             n_per_group = self.params['rel_orn_mit']
             shared_param_idx = 3
@@ -29,17 +37,21 @@ class SetOfCurvesPlotter(object):
         colorlist = ["#0000FF", "#006600", "#FF0000", "#00FFFF", "#CC00FF", "#FFFF00", "#000000", \
                 "#00FF00", "#663300", "#FF3399", "#66CCCC", "#FFCC99", "#FFFFCC"]
         
-        pylab.rcParams.update(plot_params)
-        fig = pylab.figure()
-        ax = fig.add_subplot(111)
+        if ax == None:
+            pylab.rcParams.update(plot_params)
+            fig = pylab.figure()
+            ax = fig.add_subplot(111)
         color_group_idx = 0
         n_cells = len(x_data)
         lw = 1
+        plots, labels = [], []
         for i_ in xrange(n_cells):
             if cell_type == 'orn':
                 color_group_idx = i_ / n_per_group
                 color = colorlist[color_group_idx % len(colorlist)]
-                ax.plot(x_data[i_], y_data[i_], label='%d' % color_group_idx, c=color, lw=lw)
+                p, = ax.plot(x_data[i_], y_data[i_], c=color, lw=lw)
+                plots.append(p)
+                labels.append('%d' % color_group_idx)
             else:
                 ax.plot(x_data[i_], y_data[i_], label='%d' % i_, lw=lw)
             ax.set_xscale('log')
@@ -51,8 +63,11 @@ class SetOfCurvesPlotter(object):
         ax.set_title('%s response curves' % cell_type.upper())
         ax.set_xlabel('Concentration [a.u.]')
         ax.set_ylabel('Output rate [Hz]')
-        ax.set_ylim((0, ax.get_ylim()[1]))
+#        ax.legend(plots, labels, {'legend.loc' : 'upper left', 'legend.fontsize':8})
+        ax.legend(plots, labels, loc='upper left')
 
+        ax.set_ylim((0, ax.get_ylim()[1]))
+        self.ax = ax
         if output_fn != None:
             pylab.savefig(output_fn)
         else:
@@ -89,18 +104,24 @@ class SetOfCurvesPlotter(object):
         return y_avg, y_std
 
 
+    def annotate(self, info_txt):
 
-
+        xlim, ylim = self.ax.get_xlim(), self.ax.get_ylim()
+        
+        x = xlim[0] + (xlim[1] - xlim[0]) * .0005
+        y = ylim[0] + (ylim[1] - ylim[0]) * .8
+        self.ax.annotate(info_txt, (x, y))
 
     def get_xy_data(self, shared_param_idx, x_idx):
 
-        pattern_nr = 0
 
-        param_fn = self.params['%s_params_fn_base' % (self.cell_type)] + '%d.dat' % pattern_nr
+        param_fn = self.params['%s_params_fn_base' % (self.cell_type)] + '%d.dat' % self.pattern_nr
         print 'Loading cell parameters from:', param_fn
+        import os
+        print 'debug CHECK', os.path.exists(param_fn)
         cell_params = np.loadtxt(param_fn, skiprows=1)
 
-        nspike_fn = self.params['%s_spikes_merged_fn_base' % self.cell_type] + '%d.dat' % pattern_nr
+        nspike_fn = self.params['%s_spikes_merged_fn_base' % self.cell_type] + '%d.dat' % self.pattern_nr
         print 'Loading nspike data from:', nspike_fn
         self.nspikes = np.loadtxt(nspike_fn)
 

@@ -8,13 +8,14 @@ class parameter_storage(object):
     This class contains the simulation parameters in a dictionary called params.
     """
 
-    def __init__(self, params_fn=None):
+    def __init__(self, params_fn=None, use_abspath=True):
         """
         If a filename is given, it loads the json file and returns the dictionary.
         Else, it sets the default parameters.
         """
 
         self.params = {}
+        self.use_abspath = use_abspath
         if params_fn == None:
             self.set_default_params()
             self.set_filenames()
@@ -28,10 +29,10 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 1
+        self.params['Cluster'] = 0
         self.params['concentration_sweep'] = 1
         self.params['n_patterns'] = 10
-        self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
+        self.params['n_proc'] = 2   # on how many processors do you want to run the neuron code?
 
         self.params['with_noise'] = 1
 
@@ -57,7 +58,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 10
+            self.params['rel_orn_mit'] = 5
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
@@ -181,8 +182,11 @@ class parameter_storage(object):
         # gor stands for the maximum conductance evoked by an odor
         # gor values are distributed between a min and max value
         # good values for system without noise
-        self.params['gor_min'] = 3e-5 
-        self.params['gor_max'] = 5e-4
+#        self.params['gor_min'] = 3e-5 
+#        self.params['gor_max'] = 5e-4
+        self.params['gor_min'] = 0.000050 
+        self.params['gor_max'] = 0.001000
+
         self.params['gor_exp'] = 3
         # if ORNs have all the same conductance parameters, this is the list:
         self.params['gna'] = 0.5        # [S/cm2]
@@ -193,14 +197,18 @@ class parameter_storage(object):
         self.params['tau_cadec'] = 1000 # [ms]
 
         # parameters for gleak, gkcag, gcal, gained through combined hand tuning / fitting procedure 
-        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
-        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03]
-        self.params['gleak_params'] = [4.25453912e-05, -5.18713818e+05, 3.47077557e-05]
+        self.params['gkcag_params'] = [0.005000, 0.005000]
+        self.params['gcal_params'] =  [0.000050, 0.000500]
+        self.params['gleak_params'] = [0.000050, 0.000300]
+
+#        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
+#        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03]
+#        self.params['gleak_params'] = [4.25453912e-05, -5.18713818e+05, 3.47077557e-05]
 
 #        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
 #        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03, 2.26738160e-03]
 #        self.params['gcal_params'] =  [4.99086531e-04, 2.0e-3]
-        self.params['gleak_params'] = [5.0e-05, -6.0e+05, 1.0e-05]
+#        self.params['gleak_params'] = [5.0e-05, -6.0e+05, 1.0e-05]
 
 
         # --------------- Artificial ORNs
@@ -347,7 +355,7 @@ class parameter_storage(object):
 
 
 
-    def set_folder_name(self, folder_name=None, use_abspath=False):
+    def set_folder_name(self, folder_name=None, use_abspath=None):
         """
         This function is called from set_filenames in order to update all filenames 
         with the given folder_name
@@ -356,11 +364,14 @@ class parameter_storage(object):
         use_abspath -- set to False and run from within neuron_files on the Cray
         """
 
-#        folder_name = 'HandTuned'
-        folder_name = 'ResponseCurvesEpthOb_6'
+        folder_name = 'TestOb'
+#        folder_name = 'OrnSweep'
+#        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
             folder_name = 'Cluster_' + folder_name
             
+        if use_abspath == None:
+            use_abspath = self.use_abspath
         if use_abspath:
             self.params['folder_name'] = os.path.abspath(folder_name)
         else:

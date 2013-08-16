@@ -4,7 +4,7 @@ import time
 import MergeSpikefiles
 import SetOfCurvesPlotter
 
-param_tool = simulation_parameters.parameter_storage()
+param_tool = simulation_parameters.parameter_storage(use_abspath=True)
 params = param_tool.params
 param_tool.hoc_export()
 
