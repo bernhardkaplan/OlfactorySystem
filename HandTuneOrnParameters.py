@@ -87,7 +87,7 @@ class HandTuneOrnParameters(object):
         self.gcal_values = linear_transformation(self.gor_values, self.gcal_min, self.gcal_max)
         self.gleak_values = linear_transformation(self.gor_values, self.gleak_min, self.gleak_max)
 
-        testparams = np.ones((10, 6))
+        testparams = np.ones((self.params['n_gor'], 6))
         testparams[:, 0] *= 0.5  # g_na
         testparams[:, 1] *= 0.05 # g_k
         testparams[:, 2] = self.gkcag_values
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     params = param_tool.params
 
     n_test_curves = params['n_gor']
-    assert (n_test_curves == 10), 'Please set n_gor to the same number of test curves and parameter sets you provide'
+#    assert (n_test_curves == 10), 'Please set n_gor to the same number of test curves and parameter sets you provide'
     assert (params['rel_orn_mit'] == 1), 'Please set rel_orn_mit to 1'
 
     HTOP = HandTuneOrnParameters(params)

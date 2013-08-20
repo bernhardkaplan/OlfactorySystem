@@ -58,13 +58,13 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 5
+            self.params['rel_orn_mit'] = 1
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
         # ------ C E L L     N U M B E R S ------------
-#        self.params['n_gor'] = 10# number of mitral cells per glomerulus
         self.params['n_gor'] = 8# number of mitral cells per glomerulus
+#        self.params['n_gor'] = 8# number of mitral cells per glomerulus
         self.params['n_glom'] = self.params['n_or']
         self.params['n_orn_x'] = self.params['n_gor'] * self.params['rel_orn_mit']# n_orn_x : number of orns expressing one olfactory receptor
         self.params['n_orn_y'] = self.params['n_or']# n_orn_y : number of different receptor families (each having a different affinity to an odour)
@@ -230,7 +230,9 @@ class parameter_storage(object):
 
         # the weight from some ORN groups to their target MIT is multiplied to compensate for their lower output rate
         self.params['orn_mit_change_ids'] = range(8)
-        self.params['orn_mit_change_factors'] = [2.1, 1.9, 1.6, 1.5, 1.2, 1.1, 1.0, 1.0]
+        self.params['orn_mit_change_factors'] = [1.2, 1.2, 1.1, 1.1, 1.0, 1.0, 1.0, 1.0]
+#        self.params['orn_mit_change_factors'] = [1.5, 1.5, 1.4, 1.3, 1.1, 1.0, 1.0, 1.0]
+#        self.params['orn_mit_change_factors'] = [2.1, 1.9, 1.6, 1.5, 1.2, 1.1, 1.0, 1.0]
 #        self.params['orn_mit_change_ids'] = [0, 1, 2, 3, 4]
 #        self.params['orn_mit_change_factors'] = [1.9, 1.7, 1.4, 1.3, 1.1]
         assert (len(self.params['orn_mit_change_ids']) == len(self.params['orn_mit_change_factors']))
@@ -364,8 +366,9 @@ class parameter_storage(object):
         use_abspath -- set to False and run from within neuron_files on the Cray
         """
 
-        folder_name = 'TestOb'
-#        folder_name = 'OrnSweep'
+#        folder_name = 'TestOb3'
+#        folder_name = 'OrnSweep2'
+        folder_name = 'OrnSweep3'
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
             folder_name = 'Cluster_' + folder_name

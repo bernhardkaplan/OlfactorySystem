@@ -32,16 +32,22 @@ class AnalyseResponseCurves(object):
             print 'Analysing', fn, fnv
             fitness_values[i] = fnv
 
-        n_best = 30
-        best_sims = fitness_values.argsort()[-n_best:]
+        n_best = 50
+        self.best_sims = fitness_values.argsort()[-n_best:]
         print 'Best simulations and fitness values'
-        print best_sims
-        print fitness_values[best_sims]
+        print 'sim_ids:', self.best_sims
+        print 'fitness_values:', fitness_values[self.best_sims]
+        output_fn = 'best_sim_ids.log'
+        f = file(output_fn, 'w')
+        print 'Printing best sim IDs to:', output_fn
+        json.dump(list(self.best_sims), f)
 
+
+    def show_best_sim_results(self):
         fig_fns = []
         display_command = 'ristretto '
-        for i_ in xrange(n_best):
-            fig_fn = self.params['figure_folder'] + '/hand_tuned_%d.png' % best_sims[i_]
+        for i_ in xrange(len(self.best_sims)):
+            fig_fn = self.params['figure_folder'] + '/hand_tuned_%d.png' % self.best_sims[i_]
             fig_fns.append(fig_fn)
             display_command += '%s ' % fig_fn
             print fig_fn, 
@@ -50,9 +56,10 @@ class AnalyseResponseCurves(object):
         output_f = file(output_fn, 'w')
 
 #        print 'debug', type(fig_fns)
-#        print 'Writing good figure filenames to:', output_fn
+        print 'Writing good figure filenames to:', output_fn
         os.system(display_command)
-#        json.dump(output_f, fig_fns)
+        json.dump(fig_fns, output_f)
+
 
 
     def get_orn_response_fitness(self, xy_data):
@@ -77,6 +84,7 @@ class AnalyseResponseCurves(object):
         x_mins, x_maxs = (-1) * np.ones(n_curves), (-1) * np.ones(n_curves) # negative to check if they've already been set
         y_max_global = np.zeros(n_curves)
 
+        punishment = 1
         # get the curve characteristics
         for curve_ in xrange(n_curves):
             y_max_curve = y_max * y_data[:, curve_].max()
@@ -89,8 +97,6 @@ class AnalyseResponseCurves(object):
                 if y > y_max_curve and (x_maxs[curve_] == -1.):
                     x_maxs[curve_] = x
 
-
-        punishment = 20
         # compare the curves within the set
         for curve_ in xrange(1, n_curves):
             # compare global maxima
@@ -112,25 +118,49 @@ class AnalyseResponseCurves(object):
                 fitness -= punishment
             else:
                 fitness += punishment
-#            print 'curve_ xmin, xmax, dy', curve_, x_mins[curve_], x_maxs[curve_], dy
+
+            # make sure that the curves don't cross
+            for i_ in xrange(n_x):
+                y = y_data[i_, curve_]
+                y_prv = y_data[i_, curve_-1]
+                if y < y_prv:
+                    fitness -= 100 * punishment
+                else:
+                    fitness += 10 * punishment
+
+        # ensure monotony
+        for curve_ in xrange(n_curves):
+            for i_ in xrange(1, n_x):
+                if y_data[i_, curve_] < y_data[i_-1, curve_]:
+                    fitness -= 10 * punishment
+                else:
+                    fitness += punishment
 
         # compare the highest and smallest ymax values of all curves
         dy_max_global = np.max(y_max_global) - np.min(y_max_global)
         fitness -= dy_max_global / (np.min(y_max_global) + 1e-6)
         # punish large differences in maximum output rates
-        if dy_max_global > 20:
-            fitness -= punishment
+        if dy_max_global > 60:
+            fitness -= 10 * punishment
+        else:
+            fitness += 10 * punishment
+
         # punish too small output rates
-        if np.mean(y_max_global) < 20:
-            fitness -= punishment
+        if np.min(y_max_global) < 5:
+            fitness -= 10 * punishment
+
         # punish too high max output rates
         if np.max(y_max_global) > 160:
-            fitness -= punishment
-
+            fitness -= 10 * punishment
 
         # compare the points when curves cross their y_min
         dx_min_global = x_mins[0] - x_mins[-1]
         fitness += dx_min_global * 10.
+
+        if np.max(y_max_global) < 10:
+            fitness -= 10e6 * punishment
+        else:
+            fitness += 10 * punishment
 
         return fitness
 
@@ -156,18 +186,68 @@ class AnalyseResponseCurves(object):
         return file_dict
 
 
-    def create_new_parameters_from_selected_sets(self, list_of_sim_ids, param_log_fn_base=None):
+    def create_new_parameters_from_selected_sets(self, list_of_sim_ids=None, param_log_fn_base=None, n_new_sets=None):
         """
         list_of_sim_ids: list of integer values with the simulation ids that contain good parameter sets
+        param_log_fn_base: the file which contains the sim_id and the parameters to all the simulations.
         """
+
         if param_log_fn_base == None:
-            param_log_fn_base = self.params['params_folder'] + '/params_handtuning_'
+            param_log_fn_base = 'orn_sweep_params.log'
 
-        for i_, sim_id in enumerate(list_of_sim_ids):
-            fn = param_log_fn_base + '%d.txt' % sim_id
-            print 'debug', os.path.exists(fn)
+        old_params = np.loadtxt(param_log_fn_base)
+        n_params = old_params.shape[1] - 1
+        if list_of_sim_ids == None:
+            list_of_sim_ids = self.best_sims
+        assert (len(list_of_sim_ids) > 1), 'The length of suggested simulations should be longer than one'
+        if n_new_sets == None:
+            n_new_sets = len(list_of_sim_ids)
+        new_params = np.zeros((n_new_sets, old_params.shape[1]))
+
+#        np.random.seed(0)
+        rnd_mod = .1
+        for i_ in xrange(n_new_sets):
+            old_set_id = np.random.randint(0, len(self.best_sims))
+            original_set = old_params[old_set_id, :]
+            rnd_factors = rnd_mod * 2. * np.random.random(n_params) + (1 - rnd_mod)
+            new_set = rnd_factors * original_set[1:]
+            new_params[i_, 1:] = new_set
 
 
+
+        new_params[:, 0] = np.arange(n_new_sets)
+        output_fn = 'new_orn_params.dat'
+        print 'Saving new parameters to', output_fn
+        np.savetxt(output_fn, new_params)
+
+
+    def combine_good_parameter_sets_to_new(self, n_new_sets=100, list_of_sim_ids=None, param_log_fn_base=None, output_fn=None, sim_id_offset=0):
+        if param_log_fn_base == None:
+            param_log_fn_base = 'orn_sweep_params.log'
+
+        old_params = np.loadtxt(param_log_fn_base)
+        n_params = old_params.shape[1] - 1
+        if list_of_sim_ids == None:
+            list_of_sim_ids = self.best_sims
+        assert (len(list_of_sim_ids) > 1), 'The length of suggested simulations should be longer than one'
+        if n_new_sets == None:
+            n_new_sets = len(list_of_sim_ids)
+        new_params = np.zeros((n_new_sets, old_params.shape[1]))
+
+        rnd_mod = .1
+        for i_ in xrange(n_new_sets):
+            old_set_id_0 = np.random.randint(0, len(self.best_sims))
+            original_set_0 = old_params[old_set_id_0, 1:]
+            old_set_id_1 = np.random.randint(0, len(self.best_sims))
+            original_set_1 = old_params[old_set_id_1, 1:]
+            new_set = .5 * (original_set_0 + original_set_1)
+            new_params[i_, 1:] = new_set
+
+        new_params[:, 0] = np.arange(n_new_sets) + sim_id_offset
+        if output_fn == None:
+            output_fn = 'new_combined_orn_params.dat'
+        print 'Saving new parameters to', output_fn
+        np.savetxt(output_fn, new_params)
 
 
 if __name__ == '__main__':
@@ -178,3 +258,7 @@ if __name__ == '__main__':
 
     ARC = AnalyseResponseCurves(params) 
     ARC.sweep_orn_response_fitness()
+    n_random_sets = 1000
+    ARC.create_new_parameters_from_selected_sets(n_new_sets=n_random_sets, param_log_fn_base='orn_sweep_params_2.log')
+    ARC.combine_good_parameter_sets_to_new(n_new_sets=1000, param_log_fn_base='orn_sweep_params_2.log', sim_id_offset=n_random_sets)
+    ARC.show_best_sim_results()

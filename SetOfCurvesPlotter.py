@@ -1,6 +1,7 @@
 import numpy as np
 import pylab
 from FigureCreator import plot_params
+import os
 
 
 class SetOfCurvesPlotter(object):
@@ -159,3 +160,22 @@ class SetOfCurvesPlotter(object):
             return 0
 
         
+
+
+if __name__ == '__main__':
+
+    import simulation_parameters
+    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
+    params = param_tool.params
+
+    sim_cnt = 0
+    import MergeSpikefiles
+    Merger = MergeSpikefiles.MergeSpikefiles(params)
+    Merger.merge_ob_spiketimes_file(pattern=sim_cnt)
+    Merger.merge_ob_nspike_files(pattern=sim_cnt)
+
+    SOCP = SetOfCurvesPlotter(params)
+    output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
+    SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn, cell_type='mit')
+    print 'Opening with ristretto: %s' % (output_fn)
+    os.system('ristretto %s' % output_fn)

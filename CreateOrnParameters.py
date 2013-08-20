@@ -246,7 +246,6 @@ class CreateOrnParameters(object):
 
 
     def set_gna_values(self):
-        # before this function is called set_gor_values must be called
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
                 orn_id = i * self.n_orn_x + j
@@ -255,7 +254,6 @@ class CreateOrnParameters(object):
 
 
     def set_gk_values(self):
-        # before this function is called set_gor_values must be called
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
                 orn_id = i * self.n_orn_x + j
@@ -265,9 +263,6 @@ class CreateOrnParameters(object):
 
     def set_gkcag_values(self):
         # before this function is called set_gor_values must be called
-        x_min = self.params["gor_min"]
-        x_max = self.params["gor_max"]
-        p = self.params["gkcag_params"]
         gkcag_values = self.linear_transformation(self.gor_values, self.params['gkcag_params'][0], self.params['gkcag_params'][1])
 
         for i in xrange(self.n_orn_y):  # y-axis
@@ -283,9 +278,6 @@ class CreateOrnParameters(object):
 
     def set_gcal_values(self):
         # before this function is called set_gor_values must be called
-        x_min = self.params["gor_min"]
-        x_max = self.params["gor_max"]
-        p = self.params["gcal_params"]
         gcal_values = self.linear_transformation(self.gor_values, self.params['gcal_params'][0], self.params['gcal_params'][1])
         for i in xrange(self.n_orn_y):  # y-axis
             for j in xrange(self.n_orn_x):
@@ -299,10 +291,6 @@ class CreateOrnParameters(object):
 
     def set_gleak_values(self):
         # before this function is called set_gor_values must be called
-        x_min = self.params["gor_min"]
-        x_max = self.params["gor_max"]
-        p = self.params["gleak_params"]
-
         gleak_values = self.linear_transformation(self.gor_values, self.params['gleak_params'][0], self.params['gleak_params'][1])
 
 
