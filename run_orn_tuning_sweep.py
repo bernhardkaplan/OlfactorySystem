@@ -3,7 +3,7 @@ import numpy as np
 
 
 def run_full_sweep():
-    gor_min_min_sweep = 1e-5
+    gor_min_min_sweep = 1e-6
     gor_min_max_sweep = 3e-4
     gor_max_min_sweep = 1e-3
     gor_max_max_sweep = 9e-3
@@ -31,22 +31,22 @@ def run_full_sweep():
     #gleak_min_sweep = 1e-4
     #gleak_max_sweep = 1e-5
 
-    n_gor_steps = 4
+    n_gor_steps = 5
     gor_min_range = np.linspace(gor_min_min_sweep, gor_min_max_sweep, n_gor_steps)
     gor_max_range = np.linspace(gor_max_min_sweep, gor_max_max_sweep, n_gor_steps)
-    n_gkcag_steps = 4
+    n_gkcag_steps = 5
     gkcag_min_range = np.linspace(gkcag_min_min_sweep, gkcag_min_max_sweep, n_gkcag_steps)
     gkcag_max_range = np.linspace(gkcag_max_min_sweep, gkcag_max_max_sweep, n_gkcag_steps)
-    n_gcal_steps = 4
+    n_gcal_steps = 5
     gcal_min_range = np.linspace(gcal_min_min_sweep, gcal_min_max_sweep, n_gcal_steps)
     gcal_max_range = np.linspace(gcal_max_min_sweep, gcal_max_max_sweep, n_gcal_steps)
-    n_gleak_steps = 4
+    n_gleak_steps = 5
     gleak_min_range = np.linspace(gleak_min_min_sweep, gleak_min_max_sweep, n_gleak_steps)
     gleak_max_range = np.linspace(gleak_max_min_sweep, gleak_max_max_sweep, n_gleak_steps)
 
     sim_cnt = 0
 
-    log_file = file('orn_sweep_params_2.log', 'w')
+    log_file = file('orn_sweep_params.log', 'w')
     for gor_min in gor_min_range:
         for gor_max in gor_max_range:
             for gkcag_min in gkcag_min_range:
@@ -59,9 +59,9 @@ def run_full_sweep():
                                     log_info = '%d %f %f %f %f %f %f %f %f\n' % (sim_cnt, gor_min, gor_max, gkcag_min, gkcag_max, gcal_min, gcal_max, gleak_min, gleak_max)
                                     log_file.write(log_info)
                                     log_file.flush()
-#                                    if sim_cnt > 1230:
-                                    os.system(script_cmd)
-                                    print script_cmd
+                                    if sim_cnt > 5353:
+                                        os.system(script_cmd)
+                                        print script_cmd
                                     sim_cnt += 1
                     
                     #gor_min_max = np.array([7e-5, 1e-3])
@@ -75,7 +75,7 @@ def run_new_parameters(fn=None):
     d = np.loadtxt(fn)
 
     n_sim = d[:, 0].size
-    log_file = file('orn_sweep_params_3.log', 'w')
+    log_file = file('orn_sweep_params.log', 'w')
     for i_ in xrange(n_sim):
         sim_cnt = i_
         gor_min = d[i_, 1]
@@ -95,8 +95,7 @@ def run_new_parameters(fn=None):
 
 if __name__ == '__main__':
 
-    run_new_parameters(fn='new_combined_orn_params.dat')
-    run_new_parameters(fn='new_orn_params.dat')
-
-#    run_full_sweep()
+#    run_new_parameters(fn='new_combined_orn_params.dat')
+#    run_new_parameters(fn='new_orn_params.dat')
+    run_full_sweep()
 
