@@ -68,7 +68,7 @@ class HandTuneOrnParameters(object):
         self.gleak_max = float(argv[9])
         self.params['gor_min'] = self.gor_min
         self.params['gor_max'] = self.gor_max
-        self.params['gor_exp'] = 3
+        self.params['gor_exp'] = float(argv[10])
 
 
     def set_orn_params(self):
@@ -133,7 +133,7 @@ class HandTuneOrnParameters(object):
         os.chdir('../') # move back to normal
 
 
-    def get_response_curve(self):
+    def get_response_curve(self, output_fig_fn=None):
 
         Merger = MergeSpikefiles.MergeSpikefiles(params)
         Merger.merge_epth_spiketimes_file(pattern=self.sim_cnt)
@@ -170,9 +170,10 @@ class HandTuneOrnParameters(object):
         ax8.plot(self.gor_values, self.gleak_values)
         ax8.set_xlabel('g_or')
 
-        output_fn = params['figure_folder'] + '/hand_tuned_%d.png' % self.sim_cnt
-        print 'Saving figure to:', output_fn
-        x_data, y_data = SOCP.plot_set_of_curves(pn=self.sim_cnt, output_fn=output_fn)
+        if output_fig_fn == None:
+            output_fig_fn = params['figure_folder'] + '/hand_tuned_%d.png' % self.sim_cnt
+        print 'Saving figure to:', output_fig_fn
+        x_data, y_data = SOCP.plot_set_of_curves(pn=self.sim_cnt, output_fn=output_fig_fn)
         info_txt = 'gor: (%.1e, %.1e)\n' % (self.params['gor_min'], self.params['gor_min'])
         info_txt += 'gkcag: (%.1e, %.1e)\n' % (self.gkcag_min, self.gkcag_max)
         info_txt += 'gcal: (%.1e, %.1e)\n' % (self.gcal_min, self.gcal_max)
@@ -181,9 +182,22 @@ class HandTuneOrnParameters(object):
         output_data = np.zeros((n_test_curves + 1, x_data[0].size))
         output_data[0, :] = x_data[0]
         output_data[1:, :] = y_data#.transpose()
+        for i_ in xrange(1, n_test_curves):
+            quotient = y_data[0, :] / y_data[i_, :]
+#            quotient = y_data[i_, :] / y_data[0, :]
+            quotients = []
+            for d in quotient:
+                if not np.isnan(d) and not np.isinf(d):
+                    quotients.append(d)
+            quotients = np.array(quotients)
+            print 'i_ quotients:', i_, quotients.mean(), np.median(quotients)
+    
+
+#        print 'debug y_data', y_data
         output_fn = params['other_folder'] + '/' + 'orn_response_curve_%d.dat' % (self.sim_cnt)
         print 'Saving data to:', output_fn
         np.savetxt(output_fn, output_data.transpose())
+        return output_fig_fn
 
 
 if __name__ == '__main__':
@@ -196,19 +210,45 @@ if __name__ == '__main__':
     assert (params['rel_orn_mit'] == 1), 'Please set rel_orn_mit to 1'
 
     HTOP = HandTuneOrnParameters(params)
-    HTOP.set_parameters(sys.argv)
+
+    if (len(sys.argv) == 11):
+        param_list = sys.argv
+    else:
+        print '\n\tWARNING\nsys.argv has not length 10. Will use the default parameters and sim_cnt 0'
+        gor_params = [7e-5, 1e-3]
+        gkcag_params = [5e-3, 1e-2]
+        gcal_params =  [1e-6, 1e-4]
+        gleak_params = [1.0e-4, 1e-4]
+#        gleak_params = [1e-4, 1e-4]
+        gor_exp = 2
+
+#        gor_params = [5e-5, 1e-3]
+#        gkcag_params = [5e-3, 5e-3]
+#        gcal_params =  [5e-5, 5e-4]
+#        gleak_params = [5e-5, 3e-4]
+        sim_cnt = 4
+        param_list = [None, sim_cnt, gor_params[0], gor_params[1], gkcag_params[0], gkcag_params[1], \
+                gcal_params[0], gcal_params[1], gleak_params[0], gleak_params[1], gor_exp]
+        print 'default param_list:', param_list
+
+    HTOP.set_parameters(param_list)
     param_tool.hoc_export()
+    param_tool.write_parameters_to_file()
 
     HTOP.set_orn_params()
     HTOP.run_simulation()
-    HTOP.get_response_curve()
+    
+#    fig_fn = None
+    fig_fn = 'OrnTuningFigures/gorexp%.1f_gcal_%.1e_%.1e_gkcag_%.1e_%.1e_gor_%.1e_%.1e_gleak_%.1e_%.1e.png' % \
+            (gcal_params[0], gcal_params[1], gkcag_params[0], gkcag_params[1], gor_params[0], gor_params[1], gor_exp, gleak_params[0], gleak_params[1])
+    fig_fn = HTOP.get_response_curve(output_fig_fn=fig_fn)
+    os.system('ristretto %s' % fig_fn)
 
 #SOCP.plot_set_of_curves(output_fn=output_fn, pn=sim_cnt, ax=ax2)#, output_fn=output_fn)
 
 
 #pylab.show()
 
-#os.system('ristretto %s' % output_fn)
 
 
 

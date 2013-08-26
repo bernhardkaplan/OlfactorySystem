@@ -50,7 +50,7 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 16
         else:
-            self.params['n_or'] = 20 
+            self.params['n_or'] = 32
 #            self.params['n_or'] = 40
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
@@ -368,7 +368,7 @@ class parameter_storage(object):
 
 #        folder_name = 'TestOb3'
 #        folder_name = 'OrnSweep2'
-        folder_name = 'OrnSweep3'
+        folder_name = 'OrnTest'
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
             folder_name = 'Cluster_' + folder_name

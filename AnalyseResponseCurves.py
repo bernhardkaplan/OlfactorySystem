@@ -205,7 +205,7 @@ class AnalyseResponseCurves(object):
         new_params = np.zeros((n_new_sets, old_params.shape[1]))
 
 #        np.random.seed(0)
-        rnd_mod = .1
+        rnd_mod = .05
         for i_ in xrange(n_new_sets):
             old_set_id = np.random.randint(0, len(self.best_sims))
             original_set = old_params[old_set_id, :]

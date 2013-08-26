@@ -202,7 +202,7 @@ class CreateOrnParameters(object):
     def set_oor_value_for_conc_sweep(self):
         # c / Kd values are equally distributed on a log10 scale
         # c_Kd = 10**exp_min .. 10**exp_max
-        exp_min = -1.5
+        exp_min = -2.0
 #        exp_min = -1.5
         exp_max = 2.0
         z = (exp_max - exp_min) / float(self.n_or)
