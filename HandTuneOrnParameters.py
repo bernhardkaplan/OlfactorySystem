@@ -216,9 +216,9 @@ if __name__ == '__main__':
     else:
         print '\n\tWARNING\nsys.argv has not length 10. Will use the default parameters and sim_cnt 0'
         gor_params = [7e-5, 1e-3]
-        gkcag_params = [5e-3, 1e-2]
-        gcal_params =  [1e-6, 1e-4]
-        gleak_params = [1.0e-4, 1e-4]
+        gkcag_params = [5e-3, 5e-2]
+        gcal_params =  [1e-5, 1e-5]
+        gleak_params = [1.2e-4, 8e-5]
 #        gleak_params = [1e-4, 1e-4]
         gor_exp = 2
 
