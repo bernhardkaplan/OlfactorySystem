@@ -32,7 +32,7 @@ class parameter_storage(object):
         self.params['Cluster'] = 0
         self.params['concentration_sweep'] = 1
         self.params['n_patterns'] = 10
-        self.params['n_proc'] = 2   # on how many processors do you want to run the neuron code?
+        self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
 
         self.params['with_noise'] = 1
 
@@ -50,7 +50,7 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 16
         else:
-            self.params['n_or'] = 32
+            self.params['n_or'] = 40
 #            self.params['n_or'] = 40
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
@@ -58,12 +58,12 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 1
+            self.params['rel_orn_mit'] = 10
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
         # ------ C E L L     N U M B E R S ------------
-        self.params['n_gor'] = 8# number of mitral cells per glomerulus
+        self.params['n_gor'] = 16# number of mitral cells per glomerulus
 #        self.params['n_gor'] = 8# number of mitral cells per glomerulus
         self.params['n_glom'] = self.params['n_or']
         self.params['n_orn_x'] = self.params['n_gor'] * self.params['rel_orn_mit']# n_orn_x : number of orns expressing one olfactory receptor
@@ -184,10 +184,11 @@ class parameter_storage(object):
         # good values for system without noise
 #        self.params['gor_min'] = 3e-5 
 #        self.params['gor_max'] = 5e-4
-        self.params['gor_min'] = 0.000050 
-        self.params['gor_max'] = 0.001000
+        self.params['gor_params'] = [7e-5, 1e-3]
+        self.params['gor_min'] = self.params['gor_params'][0]
+        self.params['gor_max'] = self.params['gor_params'][1]
 
-        self.params['gor_exp'] = 3
+        self.params['gor_exp'] = 2
         # if ORNs have all the same conductance parameters, this is the list:
         self.params['gna'] = 0.5        # [S/cm2]
         self.params['gk'] = 0.05        # [S/cm2]
@@ -197,9 +198,12 @@ class parameter_storage(object):
         self.params['tau_cadec'] = 1000 # [ms]
 
         # parameters for gleak, gkcag, gcal, gained through combined hand tuning / fitting procedure 
-        self.params['gkcag_params'] = [0.005000, 0.005000]
-        self.params['gcal_params'] =  [0.000050, 0.000500]
-        self.params['gleak_params'] = [0.000050, 0.000300]
+        self.params['gkcag_params'] = [5e-3, 5e-2]
+        self.params['gcal_params'] =  [1e-5, 1e-5]
+        self.params['gleak_params'] = [1.2e-4, 8e-5]
+#        self.params['gkcag_params'] = [0.005000, 0.005000]
+#        self.params['gcal_params'] =  [0.000050, 0.000500]
+#        self.params['gleak_params'] = [0.000050, 0.000300]
 
 #        self.params['gkcag_params'] = [4.99086530e-03, 2.26738160e-02, 2.26738160e-02]
 #        self.params['gcal_params'] =  [4.99086531e-04, 2.26738160e-03]
@@ -368,17 +372,18 @@ class parameter_storage(object):
 
 #        folder_name = 'TestOb3'
 #        folder_name = 'OrnSweep2'
-        folder_name = 'OrnTest'
+        folder_name = 'OrnSweepM'
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
             folder_name = 'Cluster_' + folder_name
             
         if use_abspath == None:
-            use_abspath = self.use_abspath
+            use_abspath = self.use_abspath # = True
         if use_abspath:
             self.params['folder_name'] = os.path.abspath(folder_name)
         else:
             self.params['folder_name'] = folder_name
+        print' DEBUG use_abspath:', use_abspath
         print 'Folder name:', self.params['folder_name']
 
 
