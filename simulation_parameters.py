@@ -97,7 +97,7 @@ class parameter_storage(object):
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
-        self.params['n_pyr_per_mc'] = 10
+        self.params['n_pyr_per_mc'] = 30
         print '\n\n\tWARNING\n\n n_pyr_per_mc = %d' % self.params['n_pyr_per_mc']
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
         self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
