@@ -4,7 +4,7 @@ import time
 import MergeSpikefiles
 import SetOfCurvesPlotter
 
-param_tool = simulation_parameters.parameter_storage(use_abspath=True)
+param_tool = simulation_parameters.parameter_storage()
 params = param_tool.params
 param_tool.hoc_export()
 
@@ -41,23 +41,22 @@ param_tool.print_cell_gids()
 os.chdir('neuron_files') # this is important to avoide problems with tabchannel files and the functions defined therein
 os.system("rm %s/*" % (params["spiketimes_folder"]))
 os.system("rm %s/*" % (params["volt_folder"]))
+print 'Running the NEURON simulation ...'
+print neuron_command
 os.system(neuron_command)
-
 t2 = time.time() - t1
-
 print "Simulating %d cells for %d ms took %.3f seconds or %.2f minutes" % (params['n_orn'], params["t_sim"], t2, t2/60.)
-
-#os.chdir('../')
+os.chdir('../')
 
 # ------- A N A L Y S I S --------------------
 Merger = MergeSpikefiles.MergeSpikefiles(params)
 Merger.merge_ob_spiketimes_file(pattern=pn)
 Merger.merge_ob_nspike_files(pattern=pn)
 
-sim_cnt = 0
+sim_cnt = 1
 
 SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
 output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
-SOCP.plot_set_of_curves(output_fn, cell_type='mit')
+SOCP.plot_set_of_curves(output_fn=output_fn, cell_type='mit')
 print 'Opening with ristretto: %s' % (output_fn)
 os.system('ristretto %s' % output_fn)

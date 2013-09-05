@@ -11,7 +11,6 @@ t1 = time.time()
 
 # ------------ I N I T -----------------------------
 # The simulation_parameters module defines a class for simulation parameter storage
-#param_tool = network_parameters_BGL.simulation_parameters_BGL()
 param_tool = simulation_parameters.parameter_storage()
 # params is the dictionary with all parameters
 params = param_tool.params

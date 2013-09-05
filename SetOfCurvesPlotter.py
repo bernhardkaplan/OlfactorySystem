@@ -2,6 +2,7 @@ import numpy as np
 import pylab
 from FigureCreator import plot_params
 import os
+import sys
 
 
 class SetOfCurvesPlotter(object):
@@ -164,9 +165,19 @@ class SetOfCurvesPlotter(object):
 
 if __name__ == '__main__':
 
-    import simulation_parameters
-    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
-    params = param_tool.params
+    if len(sys.argv) > 1:
+        param_fn = sys.argv[1]
+        if os.path.isdir(param_fn):
+            param_fn += '/Parameters/simulation_parameters.json'
+        import json
+        f = file(param_fn, 'r')
+        print 'Loading parameters from', param_fn
+        params = json.load(f)
+
+    else:
+        import simulation_parameters
+        param_tool = simulation_parameters.parameter_storage()
+        params = param_tool.params
 
     sim_cnt = 0
     import MergeSpikefiles

@@ -252,8 +252,7 @@ class AnalyseResponseCurves(object):
 
 if __name__ == '__main__':
 
-    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
-    #param_tool = simulation_parameters.parameter_storage(use_abspath=False)
+    param_tool = simulation_parameters.parameter_storage()
     params = param_tool.params
 
     ARC = AnalyseResponseCurves(params) 

@@ -1276,6 +1276,7 @@ proc write_spiketimes_to_file() {local i, j, n_min, n_max, n_spikes localobj spi
 			n_spikes += cell.spiketimes.size()	
 		}
 	}
+	printf("DEBUG spike filename: %s\n", spikefilename)
 
 	if (n_spikes > 0){
 		spikefile = new File()

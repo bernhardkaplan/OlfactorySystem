@@ -11,27 +11,8 @@ import SetOfCurvesPlotter
 import numpy as np
 import pylab
 
-if __name__ == '__main__':
-    info_txt = \
-    """
-    Usage:
-        python plot_response_curve.py [FOLDER] [CELLTYPE] 
-        or
-        python plot_response_curve.py [FOLDER] [CELLTYPE] [PATTERN_NUMBER]
-    """
-    assert (len(sys.argv) > 2), 'ERROR: folder and cell_type not given\n' + info_txt
-    folder = sys.argv[1]
-    cell_type = sys.argv[2]
-    try:
-        pn = int(sys.argv[3])
-    except:
-        print 'Using the default pattern number is 0'
-        pn = 0
-
-    params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
-    param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
-    params = param_tool.params
-    print 'Loading parameters from:', params['%s_spikes_merged_fn_base' % cell_type]
+def plot_raster_for_celltype(cell_type, show=True):
+    print 'Loading Spikes from:', params['%s_spikes_merged_fn_base' % cell_type]
 
     fn = params['%s_spiketimes_merged_fn_base' % (cell_type)] + str(pn) + '.dat'
     if (os.path.exists(fn) == False):
@@ -55,7 +36,41 @@ if __name__ == '__main__':
     ax.set_ylabel('Cell GID')
 
     output_fn = params['figure_folder'] + '/' + 'rasterplot_%s_%d.png' % (cell_type, pn)
-    print 'Saving to', output_fn
+    print 'Saving figure to', output_fn
     pylab.savefig(output_fn, dpi=(200))
+
+
+
+
+if __name__ == '__main__':
+    info_txt = \
+    """
+    Usage:
+        python plot_response_curve.py [FOLDER] [CELLTYPE] 
+        or
+        python plot_response_curve.py [FOLDER] [CELLTYPE] [PATTERN_NUMBER]
+    """
+    assert (len(sys.argv) > 2), 'ERROR: folder and cell_type not given\n' + info_txt
+    folder = sys.argv[1]
+    cell_type = sys.argv[2]
+    try:
+        pn = int(sys.argv[3])
+    except:
+        print 'WARNING: Using the default pattern number 0'
+        pn = 0
+
+    params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
+    param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
+    params = param_tool.params
+
+    if cell_type == 'all':
+#        cell_types = params['cell_types']
+        cell_types = ['mit', 'pg', 'gran']
+    else:
+        cell_types = [cell_type]
+
+    for cell_type in cell_types:
+        print 'Plotting raster for:', cell_type
+        plot_raster_for_celltype(cell_type)
 
     pylab.show()

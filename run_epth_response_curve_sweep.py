@@ -58,7 +58,7 @@ param_name = 'gleak_params'
 sim_cnt_offset = 0
 for sim_cnt, param_set in enumerate(param_sets):
     sim_cnt += sim_cnt_offset
-    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
+    param_tool = simulation_parameters.parameter_storage()
     param_tool.update_values({param_name : param_set})
     param_tool.hoc_export()
     params = param_tool.params

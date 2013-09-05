@@ -20,13 +20,21 @@ n_runs = 1
 orn_mit_change_ids = range(8)
 orn_mit_change_factors = np.ones((n_runs, len(orn_mit_change_ids)))
 #                                0    1    2    3    4    5   6   7                                     
-orn_mit_change_factors[0, :] = [2.5, 2.5, 1.8, 1.8, 1.3, 1.1, 1.0, 1.0]
+#orn_mit_change_factors[0, :] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+#orn_mit_change_factors[0, :] = [2.0, 2.0, 1.8, 1.8, 1.3, 1.1, 1.0, 1.0]
+#orn_mit_change_factors[0, :] = [2.5, 2.5, 1.8, 1.8, 1.3, 1.1, 1.0, 1.0]
+
+
+orn_mit_pg_mult = [2., 3., 5., 6.]
+n_runs = len(orn_mit_pg_mult)
 
 for sim_cnt in xrange(n_runs):
     sim_cnt += sim_cnt_offset
-    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
-    param_tool.params['orn_mit_change_ids'] = orn_mit_change_ids
-    param_tool.params['orn_mit_change_factors'] = orn_mit_change_factors[sim_cnt, :].tolist()
+    param_tool = simulation_parameters.parameter_storage()
+    param_too.params['w_orn_mit_mult'] = orn_mit_pg_mult[sim_cnt]
+    param_too.params['w_orn_pg_mult'] = orn_mit_pg_mult[sim_cnt]
+#    param_tool.params['orn_mit_change_ids'] = orn_mit_change_ids
+#    param_tool.params['orn_mit_change_factors'] = orn_mit_change_factors[sim_cnt, :].tolist()
     param_tool.hoc_export()
     params = param_tool.params
     param_fn = params['params_fn_json'].rsplit('.')[0] + '_%d.json' % (sim_cnt)
@@ -62,13 +70,14 @@ for sim_cnt in xrange(n_runs):
     os.chdir('neuron_files') # this is important to avoide problems with tabchannel files and the functions defined therein
     os.system("rm %s/*" % (params["spiketimes_folder"]))
     os.system("rm %s/*" % (params["volt_folder"]))
+    print 'NEURON SIM:\n', neuron_command
     os.system(neuron_command)
+    os.chdir('../')
 
     t2 = time.time() - t1
 
     print "Simulating %d cells for %d ms took %.3f seconds or %.2f minutes" % (params['n_orn'], params["t_sim"], t2, t2/60.)
 
-    os.chdir('../')
 
     # ------- A N A L Y S I S --------------------
     Merger = MergeSpikefiles.MergeSpikefiles(params)
@@ -78,7 +87,7 @@ for sim_cnt in xrange(n_runs):
     SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
     output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
     print 'Saving figure to:', output_fn
-    x_data, y_data = SOCP.plot_set_of_curves(output_fn, cell_type='mit')
+    x_data, y_data = SOCP.plot_set_of_curves(output_fn=output_fn, cell_type='mit')
     data_fn = params['other_folder'] + '/response_curve_x_%d.dat' % (sim_cnt)
     header = '# %s\n' % (str(orn_mit_change_factors[sim_cnt, :]))
     f = open(data_fn, 'w')

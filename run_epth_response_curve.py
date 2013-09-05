@@ -10,8 +10,7 @@ import MergeSpikefiles
 import SetOfCurvesPlotter
 import CreateOrnParameters
 
-param_tool = simulation_parameters.parameter_storage(use_abspath=True)
-#param_tool = simulation_parameters.parameter_storage(use_abspath=False)
+param_tool = simulation_parameters.parameter_storage()
 params = param_tool.params
 param_tool.hoc_export()
 
@@ -50,7 +49,7 @@ t2 = time.time() - t1
 
 print "Simulating %d cells for %d ms took %.3f seconds or %.2f minutes" % (params['n_orn'], params["t_sim"], t2, t2/60.)
 
-#os.chdir('../')
+os.chdir('../')
 
 # ------- A N A L Y S I S --------------------
 Merger = MergeSpikefiles.MergeSpikefiles(params)

@@ -202,7 +202,7 @@ class HandTuneOrnParameters(object):
 
 if __name__ == '__main__':
 
-    param_tool = simulation_parameters.parameter_storage(use_abspath=True)
+    param_tool = simulation_parameters.parameter_storage()
     params = param_tool.params
 
     n_test_curves = params['n_gor']
