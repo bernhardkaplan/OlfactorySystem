@@ -337,6 +337,7 @@ class MDSVQ(object):
 
         return distances
 
+
     def create_mitral_response_space(self, input_fn, activity_fn, output_fn, remove_silent_cells_fn=False, optional_mds=False, mit_mc_kmeans_trial=0):
         """
             input_fn contains the mask of mitral cells (rows) projecting to the respective hypercolumn (column), i.e. the result of the first vector quantization in the mutual information space

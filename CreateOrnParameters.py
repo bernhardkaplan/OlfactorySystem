@@ -165,13 +165,10 @@ class CreateOrnParameters(object):
         dist_range = self.params['odorant_receptor_distance_range']
         which_gauss = np.random.uniform(0, 1.)
         if which_gauss < p1:
-            print 'p1 ', 
             return np.random.normal(p[1], p[2])
         elif (which_gauss < p2 + p1):
-            print 'p2 ', 
             return np.random.normal(p[4], p[5])
         elif (which_gauss < p3 + p2 + p1):
-            print 'p3 ', 
             return np.random.normal(p[7], p[8])
 
 

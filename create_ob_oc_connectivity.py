@@ -2,8 +2,9 @@ import os
 import sys
 import time
 import MDSVQ
-import AnalyseObOutput
+import BCPNN
 import numpy as np
+import AnalyseObOutput
 import CreateObOcConnections
 
 import CreatePyrReadoutParameters
@@ -36,15 +37,112 @@ def create_connectivity_after_mds_vq(params):
     #os.system("python select_gids_to_record.py")
 
 
-def mds_vq_ob_output(params):
+def bcpnn_ob_oc(params):
+
+    bcpnn = BCPNN.BCPNN(1, params['n_mit'], params['n_hc'], \
+            params['n_mc'], params['n_patterns'], params) # 1 src HC, n_mit MC --> n_hc, n_mc
+
+    binary_oc_activation_fn = params['binary_oc_activation_fn']
+    w_ij_mit_hc = params['vq_ob_oc_output_fn']
+    print "debug loading mask from:", w_ij_mit_hc
+
+    activity_fn = params['oc_abstract_activity_fn']
+    weights_fn = params['ob_oc_abstract_weights_fn']
+    bias_fn = params['ob_oc_abstract_bias_fn']
+
     ob_activity_fn = params['mit_response_normalized']
+    bcpnn.load_input_activity(ob_activity_fn)
+    bcpnn.load_output_activity(binary_oc_activation_fn)
+    bcpnn.load_mc_hc_mask(w_ij_mit_hc, silent_units_fn=params['silent_mit_fn'])
+    bcpnn.initialize()
+
+    n_steps = params['n_bcpnn_steps']
+    for i in xrange(n_steps):
+    #    bcpnn.train_network()
+        bcpnn.train_network(activity_fn, weights_fn, bias_fn)
+    #bcpnn.train_network(activity_fn, weights_fn, bias_fn)
+
+    bcpnn.silence_mit(params['silent_mit_fn'])
+    print "debug write to ", weights_fn
+    bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
+    del bcpnn
+
+
+def bcpnn_oc_oc(params):
+    """
+    train with the recurrent connections with OC output activity after learning OB -> OC
+    """
+    n_patterns = params['n_patterns']
+    n_hc = params['n_hc']
+    n_mc = params['n_mc']
+    bcpnn = BCPNN.BCPNN(n_hc, n_mc, n_hc, n_mc, n_patterns, params)
+
+    # train with binary oc activation derived from WTA after 2nd VQ
+    binary_oc_activation_fn = params['binary_oc_activation_fn']
+    bcpnn.load_input_activity(binary_oc_activation_fn)
+    bcpnn.load_output_activity(binary_oc_activation_fn)
+    bcpnn.initialize()
+
+    activity_fn = params['oc_rec_abstract_activity_fn'] # for output 
+    weights_fn = params['oc_oc_abstract_weights_fn']
+    bias_fn = params['oc_oc_abstract_bias_fn']
+    n_steps = params['n_bcpnn_steps']
+    for i in xrange(n_steps):
+    #    bcpnn.train_network()
+        bcpnn.train_network(activity_fn, weights_fn, bias_fn)
+    bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
+    del bcpnn
+
+
+def bcpnn_oc_readout(params):
+
+    n_patterns = params['n_patterns']
+    n_hc = params['n_hc']
+    n_mc = params['n_mc']
+    n_readout = params['n_readout']
+    if params['patterns_with_multiple_conc']:
+        readout_activation = np.zeros((n_patterns, n_readout))
+        for pn in xrange(n_patterns):
+            active_readout_idx = pn / params['n_conc_per_pattern']
+            readout_activation[pn, active_readout_idx] = 1
+    else:
+        readout_activation = np.eye(n_patterns)
+
+    bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
+    oc_activity_fn = params['oc_abstract_activity_fn']
+    print 'Loading as input activity', oc_activity_fn
+    bcpnn.load_input_activity(oc_activity_fn)
+    bcpnn.load_output_activity(readout_activation)
+    bcpnn.initialize()
+
+    activity_fn = params['readout_abstract_activity_fn']
+    weights_fn = params['oc_readout_abstract_weights_fn']
+    bias_fn = params['oc_readout_abstract_bias_fn']
+
+    #n_steps = 1
+    n_steps = params['n_bcpnn_steps']
+    for i in xrange(n_steps):
+        bcpnn.train_network(activity_fn, weights_fn, bias_fn)
+    #bcpnn.train_network(activity_fn, weights_fn, bias_fn)
+    bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
+
+    # testing
+    bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
+    test_input = oc_activity_fn
+    test_output = params['readout_abstract_activity_fn'].rsplit('.dat')[0] + '_test.dat'
+    bcpnn.testing(test_input, weights_fn, bias_fn, test_output)
+    del bcpnn
+
+
+
+def mds_vq_ob_output(params):
     mdsvq = MDSVQ.MDSVQ(params)
 
     # 1) calculate mutual information (MI) between MIT cells and their distances
     # 2) run MDS in this MI-space (OB pattern reponse or mutual information (MI) space) and save mitral cell coordinates
     mds_output_fn = params['mds_ob_oc_output_fn']
     activity_fn = params['mit_mds_input_fn']
-    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-5, cell_type=cell_type)
+    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-5, cell_type='mit')
 
     # 3) run a VQ in the MI space, with n_clusters = n_hc
     # i.e. assign one or more hypercolumns to each mitral cell
@@ -56,7 +154,7 @@ def mds_vq_ob_output(params):
     #   The value of one component in such a vector is equal to the normalized activation of the respective mitral cell.
     #   The n_patterns vectors are clustered by VQ among the minicolumns in the hypercolumn.
     binary_oc_activation_fn = params['binary_oc_activation_fn']
-    mdsvq.create_mitral_response_space(vq_output_fn, activity_fn, binary_oc_activation_fn, remove_silent_cells_fn=params['silent_mit_fn'], mit_mc_kmeans_trial=mit_mc_kmeans_trial) 
+    mdsvq.create_mitral_response_space(vq_output_fn, activity_fn, binary_oc_activation_fn, remove_silent_cells_fn=params['silent_mit_fn'])
 
 
 
@@ -84,8 +182,27 @@ if __name__ == '__main__':
 
     t1 = time.time()
     mds_vq_ob_output(params)
+    t1 = time.time()
     t2 = time.time()
     print "MDS-VQ Time: %.1f sec %.1f min" % (t2 - t1, (t2-t1)/60.)
+
+    print 'BCPNN OB - OC'
+    t1 = time.time()
+    bcpnn_ob_oc(params)
+    t2 = time.time()
+    print "BCPNN-OB-OC Time: %.1f sec %.1f min" % (t2 - t1, (t2-t1)/60.)
+
+    print 'BCPNN OC - OC'
+    t1 = time.time()
+    bcpnn_oc_oc(params)
+    t2 = time.time()
+    print "BCPNN OC - OC Time: %.1f sec %.1f min" % (t2 - t1, (t2-t1)/60.)
+
+    print 'BCPNN OC - Readout'
+    t1 = time.time()
+    bcpnn_oc_readout(params)
+    t2 = time.time()
+    print "BCPNN OC - Readout %.1f sec %.1f min" % (t2 - t1, (t2-t1)/60.)
 
 
 #    mit_mc_kmeans_trial = 0

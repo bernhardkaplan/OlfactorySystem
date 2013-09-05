@@ -1,13 +1,13 @@
 import sys
 import re
-import numpy
+import numpy as np
 import numpy.random as rnd
 import random
 import os
 import pylab
 import time
 import matplotlib
-import functions
+import utils
 
 class CreateObOcConnections(object):
     def __init__(self, param_tool, comm=None, rank=0, debug=0):
@@ -33,7 +33,7 @@ class CreateObOcConnections(object):
         each line in the vq file contains the 
         '''
 
-        glom_hc_mapping = numpy.ones(n_mit_y) # to which tgt_hc in cortex does the src_hc (glom) connect to?
+        glom_hc_mapping = np.ones(n_mit_y) # to which tgt_hc in cortex does the src_hc (glom) connect to?
         glom_hc_mapping *= magic_number
         # glom_hc_mapping[src_hc] = tgt_hc
         for tgt_hc in xrange(num_tgt_hc): #tgt_hc is equivalent to a line in vq_file
@@ -68,7 +68,7 @@ class CreateObOcConnections(object):
         num_tgt_hc = len(vq_data)
         n_glom = self.params['n_mit_y']
         n_hc = self.params['n_hc']
-        conn_mat = numpy.zeros((n_glom, n_hc))
+        conn_mat = np.zeros((n_glom, n_hc))
         assert (len(vq_data) == n_hc), "Number of HC in network_parameters does not match the number of HC in the vq_file to plot"
         for hc in xrange(len(vq_data)):
             for i in xrange(len(vq_data[hc])):
@@ -111,8 +111,8 @@ class CreateObOcConnections(object):
         n_pyr = self.params["n_pyr"]
         n_mc = self.params["n_mc"]
         n_hc = self.params["n_hc"]
-        abstract_weights = numpy.zeros((n_mit, n_hc * n_mc)) # abstract weights
-        abstract_weights_log = numpy.zeros((n_mit, n_hc * n_mc)) # abstract weights
+        abstract_weights = np.zeros((n_mit, n_hc * n_mc)) # abstract weights
+        abstract_weights_log = np.zeros((n_mit, n_hc * n_mc)) # abstract weights
 
         w_min = 0.0
         w_max = 0.0
@@ -128,7 +128,7 @@ class CreateObOcConnections(object):
                 w = float(mit_mc_conns[tgt_mc][w_cnt])
 
                 if (w != 0.):
-                    w_log = numpy.log(w * self.params['ob_oc_weight_scaling'])
+                    w_log = np.log(w * self.params['ob_oc_weight_scaling'])
                     if (w_log) > 0:
                         w_max = max(w_log, w_max)
                     else:
@@ -138,9 +138,9 @@ class CreateObOcConnections(object):
                 abstract_weights[src_index, tgt_index] = w
     
         output_fn = self.params['connection_matrix_abstract_ob_oc_dat']
-        numpy.savetxt(output_fn, abstract_weights_log)
+        np.savetxt(output_fn, abstract_weights_log)
         output_fn_unscaled = self.params['connection_matrix_abstract_ob_oc_dat_unscaled']
-        numpy.savetxt(output_fn_unscaled, abstract_weights)
+        np.savetxt(output_fn_unscaled, abstract_weights)
         return abstract_weights, abstract_weights_log
 
 
@@ -150,18 +150,18 @@ class CreateObOcConnections(object):
         This functions creates the OB->OC connections files from the matrix stored in self.params['ob_oc_abstract_weights_fn']
         '''
         print "Drawing MIT - PYR connections .... "
-        abstract_weights = numpy.loadtxt(self.params['ob_oc_abstract_weights_fn'])
+        abstract_weights = np.loadtxt(self.params['ob_oc_abstract_weights_fn'])
         if random_conn:
             rnd.seed(self.params['random_ob_oc_seed'])
             rnd.shuffle(abstract_weights)
-            numpy.savetxt(self.params['ob_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
+            np.savetxt(self.params['ob_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
         assert (abstract_weights[:, 0].size == self.params['n_mit'])
         assert (abstract_weights[0, :].size == self.params['n_hc'] * self.params['n_mc'])
         # scale the abstract weights into the biophysical range
         w_max_abstract = abstract_weights.max()
         w_min_abstract = abstract_weights.min()
         w_mit_pyr_max = self.params['w_mit_pyr_max']
-        w_mit_pyr_matrix = numpy.zeros((self.params['n_mit'], self.params['n_hc'] * self.params['n_mc']))
+        w_mit_pyr_matrix = np.zeros((self.params['n_mit'], self.params['n_hc'] * self.params['n_mc']))
 
         output = ""
         line_cnt = 0
@@ -170,7 +170,7 @@ class CreateObOcConnections(object):
                 w_in = abstract_weights[mit, tgt_mc]
                 if (w_in > 0):
 #                    for tgt_pyr in xrange(int(round(self.params['n_tgt_pyr_per_mc']))):
-                    tgt_pyrs = functions.get_rnd_targets(self.params['n_pyr_per_mc'], self.params['n_tgt_pyr_per_mc'])
+                    tgt_pyrs = utils.get_rnd_targets(self.params['n_pyr_per_mc'], self.params['n_tgt_pyr_per_mc'])
                     for tgt_pyr in tgt_pyrs:
                         w_out = (w_in / w_max_abstract) * w_mit_pyr_max
                         w_noise = rnd.normal(w_out, w_out * self.params['w_mit_pyr_sigma_frac'])
@@ -190,7 +190,7 @@ class CreateObOcConnections(object):
         output_file.write(output)
         output_file.close()
 
-        numpy.savetxt(self.params['connection_matrix_detailed_ob_oc_dat'], w_mit_pyr_matrix)
+        np.savetxt(self.params['connection_matrix_detailed_ob_oc_dat'], w_mit_pyr_matrix)
 
 
     def get_mit_rsnp_connections_from_ALa(self, random_conn=False):
@@ -198,11 +198,11 @@ class CreateObOcConnections(object):
         This functions creates the OB->OC connections files from the matrix stored in self.params['ob_oc_abstract_weights_fn']
         '''
         print "Drawing MIT - RSNP connections .... "
-        abstract_weights = numpy.loadtxt(self.params['ob_oc_abstract_weights_fn'])
+        abstract_weights = np.loadtxt(self.params['ob_oc_abstract_weights_fn'])
         if random_conn:
             rnd.seed(self.params['random_ob_oc_seed'])
             rnd.shuffle(abstract_weights)
-            numpy.savetxt(self.params['ob_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
+            np.savetxt(self.params['ob_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
         assert (abstract_weights[:, 0].size == self.params['n_mit'])
         assert (abstract_weights[0, :].size == self.params['n_hc'] * self.params['n_mc'])
         # scale the abstract weights into the biophysical range
@@ -216,7 +216,7 @@ class CreateObOcConnections(object):
                 w_in = abstract_weights[mit, tgt_mc]
                 if (w_in < 0):
 #                    for tgt_rsnp in xrange(int(round(self.params['n_tgt_rsnp_per_mc']))):
-#                    tgt_rsnps = functions.get_rnd_targets(self.params['n_rsnp_per_mc'], self.params['n_tgt_rsnp_per_mc'])
+#                    tgt_rsnps = utils.get_rnd_targets(self.params['n_rsnp_per_mc'], self.params['n_tgt_rsnp_per_mc'])
                     tgt_rsnps = random.sample(range(self.params['n_rsnp_per_mc']), int(round(self.params['n_tgt_rsnp_per_mc'])))
                     for tgt_rsnp in tgt_rsnps:
                         w_out = (w_in / w_max_abstract) * w_mit_rsnp_max 
@@ -240,7 +240,7 @@ class CreateObOcConnections(object):
         '''
         '''
         print "Drawing OC - Readout connections .... "
-        abstract_weights = numpy.loadtxt(self.params['oc_readout_abstract_weights_fn'])
+        abstract_weights = np.loadtxt(self.params['oc_readout_abstract_weights_fn'])
         assert (abstract_weights[:, 0].size == self.params['n_hc'] * self.params['n_mc'])
         assert (abstract_weights[0, :].size == self.params['n_readout'])
         # scale the abstract weights into the biophysical range
@@ -271,7 +271,7 @@ class CreateObOcConnections(object):
 
 
     def get_oc_ob_connections_from_ALa(self):
-        abstract_weights = numpy.loadtxt(self.params['oc_ob_abstract_weights_fn'])
+        abstract_weights = np.loadtxt(self.params['oc_ob_abstract_weights_fn'])
         assert (abstract_weights[:,0].shape == self.params['n_hc'] * self.params['n_mc'])
         assert (abstract_weights[0,:].shape == self.params['n_mit'])
         w_max_abstract = abstract_weights.max()
@@ -288,11 +288,11 @@ class CreateObOcConnections(object):
         """
 
         print "Drawing OC - OC connections .... "
-        abstract_weights = numpy.loadtxt(self.params['oc_oc_abstract_weights_fn'])
+        abstract_weights = np.loadtxt(self.params['oc_oc_abstract_weights_fn'])
         if random_conn:
             rnd.shuffle(abstract_weights)
             rnd.seed(self.params['random_oc_oc_seed'])
-            numpy.savetxt(self.params['oc_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
+            np.savetxt(self.params['oc_oc_abstract_weights_fn'].rsplit('.dat')[0] + '_random.dat', abstract_weights)
 
         assert (abstract_weights[:,0].size == self.params['n_hc'] * self.params['n_mc'])
         assert (abstract_weights[0,:].size == self.params['n_hc'] * self.params['n_mc'])
@@ -314,7 +314,7 @@ class CreateObOcConnections(object):
                         src_tgt_dict = {} # src_tgt_dict[src_gid] = [tgt_gid_0, ...] multiple connections between the same source and the same target are forbiddden
                         w_out = (w_in / w_max_abstract) * w_pyr_pyr_global_max
                         src_pyrs = rnd.randint(0, self.params['n_pyr_per_mc'], self.params['n_pyr_pyr_between_2mc'])
-                        for src in numpy.unique(src_pyrs):
+                        for src in np.unique(src_pyrs):
                             src_tgt_dict[src] = []
                         for src in src_pyrs:
                             src_pyr = src + src_mc * self.params['n_pyr_per_mc'] + self.params['pyr_offset']
@@ -324,21 +324,21 @@ class CreateObOcConnections(object):
                         # remove multiple instances of the same src-tgt connection
                         for src in src_pyrs:
                             n1 = len(src_tgt_dict[src])
-                            src_tgt_dict[src] = numpy.unique(src_tgt_dict[src]).tolist()
+                            src_tgt_dict[src] = np.unique(src_tgt_dict[src]).tolist()
                             cnt_discarded_conn += n1 - len(src_tgt_dict[src])
                             for tgt_pyr in src_tgt_dict[src]:
-                                w_noise = functions.draw_connection(1.0, w_out, noise=self.params['w_pyr_pyr_global_sigma'])
+                                w_noise = utils.draw_connection(1.0, w_out, noise=self.params['w_pyr_pyr_global_sigma'])
                                 if (w_noise > self.params['weight_threshold']):
                                     output_pyr_pyr += "%d %d %.6e\n" % (src_pyr, tgt_pyr, w_noise)
                                     line_cnt_pyr_pyr += 1
 
                     elif (w_in < 0):
                         w_out = (w_in / w_min_abstract) * w_pyr_rsnp_max
-                        src_pyrs = functions.get_rnd_targets(self.params['n_pyr_per_mc'], self.params['n_pyr_rsnp_between_2mc']) # avoid double connections
+                        src_pyrs = utils.get_rnd_targets(self.params['n_pyr_per_mc'], self.params['n_pyr_rsnp_between_2mc']) # avoid double connections
                         for src in src_pyrs:
                             src_pyr = src + src_mc * self.params['n_pyr_per_mc'] + self.params['pyr_offset'] 
                             tgt_rsnp = rnd.randint(0, self.params['n_rsnp_per_mc']) + tgt_mc * self.params['n_rsnp_per_mc'] + self.params['rsnp_offset']
-                            w_noise = functions.draw_connection(1.0, w_out, noise=self.params['w_pyr_rsnp_sigma'])
+                            w_noise = utils.draw_connection(1.0, w_out, noise=self.params['w_pyr_rsnp_sigma'])
                             if (w_noise > self.params['weight_threshold']):
                                 output_pyr_rsnp += "%d %d %.6e\n" % (src_pyr, tgt_rsnp, w_noise)
                                 line_cnt_pyr_rsnp += 1
@@ -431,7 +431,7 @@ class CreateObOcConnections(object):
                         abstract_weights[src_index, tgt_mc + mc_offset] = 0.
 
         output_fn = self.params['connection_matrix_abstract_ob_oc_dat'].rsplit('.dat')[0] + '_randomized.dat'
-        numpy.savetxt(output_fn, abstract_weights, fmt="%.6E")
+        np.savetxt(output_fn, abstract_weights, fmt="%.6E")
 
         # ------------ draw cell-to-cell connections based on abstract_weights ----------------------------- 
         src_offset = self.params['mit_offset']
@@ -447,12 +447,12 @@ class CreateObOcConnections(object):
                 if (weight > 0):
                     # draw a number of target pyr cells within the tgt_mc
                     tgt_list = rnd.randint(0, n_pyr_per_mc, self.params['n_tgt_pyr_per_mc'])
-                    tgt_list = numpy.unique(tgt_list) # avoid multiple connections between 2 cells
+                    tgt_list = np.unique(tgt_list) # avoid multiple connections between 2 cells
                     for tgt in tgt_list:
                         w = (weight / w_max) * self.params['w_mit_pyr_max']
                         w_noise = rnd.normal(w, self.params['w_mit_pyr_max'] * self.params['w_mit_pyr_sigma_frac'])
-                        old_sign = numpy.sign(weight)
-                        if (numpy.sign(w_noise) == old_sign) and  (abs(w_noise) > self.params['weight_threshold']):
+                        old_sign = np.sign(weight)
+                        if (np.sign(w_noise) == old_sign) and  (abs(w_noise) > self.params['weight_threshold']):
                             tgt_offset = tgt_hc * n_mc * n_pyr_per_mc + (tgt_mc % n_mc) * n_pyr_per_mc + pyr_offset
                             tgt_gid = tgt + tgt_offset
                             src_list_output.append(src_gid)
@@ -466,12 +466,12 @@ class CreateObOcConnections(object):
                 elif (weight < 0): # mit -> rsnp
                     # connect to rsnp cells in the tgt_mc
                     tgt_rsnps = rnd.randint(0, self.params['n_rsnp_per_mc'], self.params['n_tgt_rsnp_per_mc'])
-                    tgt_rsnps = numpy.unique(tgt_rsnps) # avoid multiple connections between 2 cells
+                    tgt_rsnps = np.unique(tgt_rsnps) # avoid multiple connections between 2 cells
                     for tgt_rsnp in tgt_rsnps:
                         w = -1. * (weight / w_min) * self.params['w_mit_pyr_min']
                         w_noise = rnd.normal(w, abs(self.params['w_mit_pyr_min']) * self.params['w_mit_pyr_sigma_frac'])
-                        old_sign = numpy.sign(weight)
-                        if (numpy.sign(w_noise) == old_sign) and  (abs(w_noise) > self.params['weight_threshold']):
+                        old_sign = np.sign(weight)
+                        if (np.sign(w_noise) == old_sign) and  (abs(w_noise) > self.params['weight_threshold']):
                             tgt_offset = tgt_hc * n_mc * n_rsnp_per_mc + (tgt_mc % n_mc) * n_rsnp_per_mc + rsnp_offset
                             tgt_gid = tgt_rsnp + tgt_offset
                             src_list_output.append(src_gid)
@@ -485,13 +485,13 @@ class CreateObOcConnections(object):
 
             # write the connections targeting this minicolumn to a file
             output_fn_mc = '%s%d.dat' % (self.params['conn_list_mit_oc_base'], tgt_mc)
-            output_data = numpy.array((src_list_output, tgt_list_output, weight_list_output))
+            output_data = np.array((src_list_output, tgt_list_output, weight_list_output))
             # binary write
             output_file = open(output_fn_mc,'w')
             output_file.write(output_data.tostring())
             if self.debug == 1: # plain text output
                 debug_output_fn = '%s%d_debug.dat' % (self.params['conn_list_mit_oc_base'], tgt_mc)
-                numpy.savetxt(debug_output_fn, output_data.transpose(), fmt='%.10e', delimiter='\t')
+                np.savetxt(debug_output_fn, output_data.transpose(), fmt='%.10e', delimiter='\t')
             output_file.close()
 
         if (self.my_rank == 0):
@@ -557,7 +557,7 @@ class CreateObOcConnections(object):
             self.comm.send(self.weight_matrix, dest=0, tag=self.my_rank)
 
         if (self.my_rank == 0):
-            self.all_ob_oc_matrices = numpy.zeros((n_row, n_col))
+            self.all_ob_oc_matrices = np.zeros((n_row, n_col))
             r_old = 0
             c_old = 0
             for p in xrange(len(all_data)): 
@@ -608,10 +608,10 @@ class CreateObOcConnections(object):
         vq_lines = vq_file.readlines()
         num_tgt_hc = len(vq_lines)
         vq_data = [[] for i in xrange(num_tgt_hc)] 
-        weight_matrix = numpy.zeros((n_mit, n_hc * n_mc))
+        weight_matrix = np.zeros((n_mit, n_hc * n_mc))
 
         magic_number = 123456789
-        glom_hc_mapping = numpy.ones(n_mit_y) # to which tgt_hc does the src_hc connect to?
+        glom_hc_mapping = np.ones(n_mit_y) # to which tgt_hc does the src_hc connect to?
         glom_hc_mapping *= magic_number
         # hc_hc_mapping[src_hc] = tgt_hc
         for tgt_hc in xrange(num_tgt_hc): #tgt_hc is equivalent to a line in vq_file
@@ -639,7 +639,7 @@ class CreateObOcConnections(object):
             for col in xrange(len(mc_mc_conns[tgt_mc])): # col in hebbconnections 
                 weight = float(mc_mc_conns[tgt_mc][col])
                 if (weight != 0.0):
-                    weight = numpy.log(weight)
+                    weight = np.log(weight)
                     w_min = min(weight, w_min)
                     w_max = max(weight, w_max)
 
@@ -669,7 +669,7 @@ class CreateObOcConnections(object):
                 glom = vq_data[tgt_hc][src_mt / n_mit_x]
                 weight = float(mc_mc_conns[tgt_mc][src_mt])
                 if (weight != 0):
-                    weight = numpy.log(weight)
+                    weight = np.log(weight)
                     # compute the source and target gids
                     src_gid = glom * n_mit_x + src_mt % n_mit_x + mit_offset
                     weight_matrix[src_gid - mit_offset, tgt_hc * n_mc + (tgt_mc % n_mc)] = weight
@@ -679,9 +679,9 @@ class CreateObOcConnections(object):
                         for tgt in tgts:
                             w = (weight / w_max) * self.params['w_mit_pyr_max']
                             w_noise = rnd.normal(w, abs(w) * self.params['w_mit_pyr_sigma_frac'])
-                            old_sign = numpy.sign(weight)
-#                            if (numpy.sign(w_noise) == old_sign):
-                            if (numpy.sign(w_noise) == old_sign) and  (w_noise > self.params['weight_threshold']):
+                            old_sign = np.sign(weight)
+#                            if (np.sign(w_noise) == old_sign):
+                            if (np.sign(w_noise) == old_sign) and  (w_noise > self.params['weight_threshold']):
                                 tgt_offset = tgt_hc * n_mc * n_pyr_per_mc + (tgt_mc % n_mc) * n_pyr_per_mc + pyr_offset
                                 tgt_gid = tgt + tgt_offset
 #                                assert (src_gid < (self.params['n_orn'] + self.params['n_mit'])), 'Ob->Oc connection wrong, mit gid too high: %d\n' % (src_gid)
@@ -699,9 +699,9 @@ class CreateObOcConnections(object):
 #                        for tgt_rsnp in xrange(self.params['n_rsnp_per_mc']):
                         w = -1. * (weight / w_min) * self.params['w_mit_pyr_min']
                         w_noise = rnd.normal(w, abs(w) * self.params['w_mit_pyr_sigma_frac'])
-                        old_sign = numpy.sign(weight)
-#                        if (numpy.sign(w_noise) == old_sign):
-                        if (numpy.sign(w_noise) == old_sign) and  (w_noise > self.params['weight_threshold']):
+                        old_sign = np.sign(weight)
+#                        if (np.sign(w_noise) == old_sign):
+                        if (np.sign(w_noise) == old_sign) and  (w_noise > self.params['weight_threshold']):
                             tgt_offset = tgt_hc * n_mc * n_rsnp_per_mc + (tgt_mc % n_mc) * n_rsnp_per_mc + rsnp_offset
                             tgt_gid = tgt_rsnp + tgt_offset
                             lines_to_write += '%d\t%d\t%.8e\n' % (src_gid, tgt_gid, w_noise)
@@ -760,7 +760,7 @@ class CreateObOcConnections(object):
         # line[src_mc] = weight from src_mc to current readout
         conn_file_lines = conn_file.readlines()
         assert (len(conn_file_lines) == self.params['n_readout']), "Wrong filesize: %s\n Cleaned the working directory of other files? " % (conn_fn)
-        abstract_weights = numpy.zeros((n_pyr, n_readout))
+        abstract_weights = np.zeros((n_pyr, n_readout))
         # find out the max, min, mean and median for all pyr - readout weights
         weights = []
         w_max, w_min = 0.0, 0.0
@@ -772,7 +772,7 @@ class CreateObOcConnections(object):
                 w_in = float(weights[src_mc])
                 if (w_in != 0.0):
 #                if (abs(w_in) > 0.01 * abs(w_max)):
-                    w_log = numpy.log(w_in * self.params['w_pyr_readout_sf'])
+                    w_log = np.log(w_in * self.params['w_pyr_readout_sf'])
                     weights.append(w_log)
                     if (w_log > 0):
                         w_max = max(w_log, w_max)
@@ -787,7 +787,7 @@ class CreateObOcConnections(object):
                 w_in = float(weights[src_mc])
                 if (w_in != 0.0):
 #                if (abs(w_in) > 0.01 * abs(w_max)):
-                    w_log = numpy.log(w_in * self.params['w_pyr_readout_sf'])
+                    w_log = np.log(w_in * self.params['w_pyr_readout_sf'])
                     if (w_log) > 0:
                         w_out = (w_log / w_max) * self.params['w_pyr_readout']
                     else:
@@ -816,27 +816,27 @@ class CreateObOcConnections(object):
         """
         fn = self.params['pyr_pyr_conn_path']
         path = os.path.abspath(fn)
-        data = numpy.loadtxt(path, delimiter=",")
+        data = np.loadtxt(path, delimiter=",")
         n_row = data[:,0].size
         n_col = data[1,:].size
-        weights = numpy.zeros((n_row, n_col))
-        weights_log = numpy.zeros((n_row, n_col))
+        weights = np.zeros((n_row, n_col))
+        weights_log = np.zeros((n_row, n_col))
 
         mean_weight = data.mean()
         assert (n_col == self.params['n_hc'] * self.params['n_mc']), "Something went wrong in %s\n Check network params, training_params and if data folder cleaned" % (self.params['pyr_pyr_conn_path'])
         assert (n_row == self.params['n_hc'] * self.params['n_mc']), "Something went wrong in %s\n Check network params, training_params and if data folder cleaned" % (self.params['pyr_pyr_conn_path'])
-        weights = numpy.zeros((self.params['n_hc'] * self.params['n_mc'], self.params['n_hc'] * self.params['n_mc']))
+        weights = np.zeros((self.params['n_hc'] * self.params['n_mc'], self.params['n_hc'] * self.params['n_mc']))
         for i in xrange(n_row):
             for j in xrange(n_col):
                 w = data[i, j]
                 if (w != 0):
-                    weights_log[i, j] = numpy.log(data[i, j] * self.params['oc_oc_weight_scaling'])
+                    weights_log[i, j] = np.log(data[i, j] * self.params['oc_oc_weight_scaling'])
                 weights[i, j] = data[i, j]
 
         output_fn = self.params['connection_matrix_abstract_oc_oc_dat']
-        numpy.savetxt(output_fn, weights_log)
+        np.savetxt(output_fn, weights_log)
         output_fn_unscaled = self.params['connection_matrix_abstract_oc_oc_dat_unscaled']
-        numpy.savetxt(output_fn_unscaled, weights)
+        np.savetxt(output_fn_unscaled, weights)
         return weights, weights_log
 
 
@@ -896,7 +896,7 @@ class CreateObOcConnections(object):
                 if (src_mc == tgt_mc): # no additional recurrent connections within a minicolumn
                     w_in = 0.0
                 if (w_in != 0.0):
-                    w_in = numpy.log(w_in * self.params['oc_oc_weight_scaling']) # = weights_log[src_mc, tgt_mc]
+                    w_in = np.log(w_in * self.params['oc_oc_weight_scaling']) # = weights_log[src_mc, tgt_mc]
                     if (w_in > 0.0): # pyr->pyr connection
                         # w_out stands for the connection weight between minicolumns
                         # This is now translated into a cell -> cell connection weight
@@ -960,7 +960,7 @@ class CreateObOcConnections(object):
             file_index = self.param_tool.file_counter * self.n_proc + self.my_rank
             self.param_tool.update_file_lookup_tables(pyr_pyr_output_fn_mc, row_cnt, 3, file_index) # write into two files: (filename|index)  and (index|nrow|nrcol)
 
-            output_data = numpy.array((srcs_pyr_pyr, tgts_pyr_pyr, weights_pyr_pyr))
+            output_data = np.array((srcs_pyr_pyr, tgts_pyr_pyr, weights_pyr_pyr))
             pyr_pyr_output_file.write(output_data.tostring())# write the random weights in binary form to the output file
             pyr_pyr_output_file.close()
 #            print 'Process %d finished writing into file %s' % (self.my_rank, pyr_pyr_output_fn_mc)
@@ -968,7 +968,7 @@ class CreateObOcConnections(object):
                 print 'Get OC->OC connections finished %d percent' % (float(tgt_mc) / (self.params['n_hc'] * self.params['n_mc']) * 100)
 
 #        print 'Process %d writing into file %s' % (self.my_rank, pyr_rsnp_output_fn)
-        output_data_pyr_rsnp = numpy.array((srcs_pyr_rsnp, tgts_pyr_rsnp, weights_pyr_rsnp))
+        output_data_pyr_rsnp = np.array((srcs_pyr_rsnp, tgts_pyr_rsnp, weights_pyr_rsnp))
         pyr_rsnp_output_file.write(output_data_pyr_rsnp.tostring())
         pyr_rsnp_output_file.close()
 
@@ -1009,7 +1009,7 @@ class CreateObOcConnections(object):
             for w_in in weights: # w_in is the one given by Simon's learning output
 #                print 'pid ', self.my_rank, 'w_in:', w_in
                 if (float(w_in) != 0):
-                    w_in = numpy.log(float(w_in))
+                    w_in = np.log(float(w_in))
                     w_max = max(w_in, w_max)
                     w_min = min(w_in, w_min)
         input_file.close()
@@ -1036,8 +1036,8 @@ class CreateObOcConnections(object):
                 for w_in in weights: # w_in is the one given by Simon's learning output
                     w_in = float(w_in)
                     if (float(w_in) != 0.0):
-    #                    print 'debug, src_mc,', src_mc, 'tgt_mc', tgt_mc, 'w_in', w_in, 'log(win)', numpy.log(w_in)
-                        w_in = numpy.log(w_in)
+    #                    print 'debug, src_mc,', src_mc, 'tgt_mc', tgt_mc, 'w_in', w_in, 'log(win)', np.log(w_in)
+                        w_in = np.log(w_in)
                         if (w_in > 0.0): # pyr->pyr connection
                             # w_out stands for the connection weight between minicolumns
                             # This is now translated into a cell -> cell connection weight
@@ -1191,8 +1191,8 @@ class CreateObOcConnections(object):
         src_offset = self.params['%s_offset' % src_type]
         tgt_offset = self.params['%s_offset' % tgt_type]
 
-        m = numpy.zeros((n_src, n_tgt))
-        d = numpy.loadtxt(conn_list_fn, skiprows=1)
+        m = np.zeros((n_src, n_tgt))
+        d = np.loadtxt(conn_list_fn, skiprows=1)
 
         if ((tgt_type == 'pyr') or (tgt_type == 'rsnp')):
             n_tgt_per_mc = self.params['n_%s_per_mc' % tgt_type]

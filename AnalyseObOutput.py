@@ -283,25 +283,9 @@ class AnalyseObOutput(object):
                 silent_file.write(s)
             silent_file.close()
 
-#        print "AnalyseObOutput output file:", normalized_activity
+        print "AnalyseObOutput output file:", normalized_activity
         numpy.savetxt(self.params["mit_response_normalized"], normalized_activity)
 
-#        spike_column = 1 # column which contains number of spikes
-#                spike_sum = single_pattern_response[id1:id2, spike_column].sum()
-#                if ((spike_sum <= 1)):
-#                    mit_response_data[pattern, id1:id2] = numpy.zeros(id2-id1)
-#                elif (normalize):
-#                    mit_response_data[pattern, id1:id2] = single_pattern_response[id1:id2, spike_column] / spike_sum
-#                else:
-#                    mit_response_data[pattern, id1:id2] = single_pattern_response[id1:id2, spike_column]
-#            self.mit_spike_output[pattern] = mit_response_data[pattern]
-#        numpy.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
-#        if normalize:
-#            print "Normalize", self.params["mit_response_normalized"]
-#            numpy.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
-#        else:
-#            print "Not normalized ", self.params["mit_response"]
-#            numpy.savetxt(self.params["mit_response"], mit_response_data, delimiter=",")
 
     def write_active_cells_to_log_file(self):
         """

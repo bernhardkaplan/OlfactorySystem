@@ -29,10 +29,12 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 0
+        self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 0
-        self.params['n_patterns'] = 5
+        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
+        self.params['patterns_with_multiple_conc'] = False
+        self.params['n_conc_per_pattern'] = 3
 
         self.params['with_noise'] = 1
 
@@ -90,12 +92,13 @@ class parameter_storage(object):
         self.params['n_cells_ob'] = self.params['n_mit'] + self.params['n_gran'] + self.params['n_pg']
         self.params['prop_pg_mit_serial_rec'] = 3 # relation between number serial and reciprocal synapses between periglomerular and MT cells, 3 is according to Shepherd's Book "Synaptic Organization of the Brain",i.e. 25% are reciprocal synapses
 
-        self.params['n_hc'] = 20
-        self.params['n_mc'] = 20
+        self.params['n_hc'] = 2#20
+        self.params['n_mc'] = 2#20
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
-        self.params['n_pyr_per_mc'] = 30
+        self.params['n_pyr_per_mc'] = 10
+        print '\n\n\tWARNING\n\n n_pyr_per_mc = %d' % self.params['n_pyr_per_mc']
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
         self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
@@ -106,7 +109,10 @@ class parameter_storage(object):
         self.params['n_pyr'] = self.params['n_mc'] * self.params['n_hc'] * self.params['n_pyr_per_mc']
         self.params['n_basket'] = self.params['n_hc'] * self.params['n_basket_per_hc']
         self.params['n_rsnp'] = self.params['n_mc'] * self.params['n_hc'] * self.params['n_rsnp_per_mc']
-        self.params['n_readout'] = self.params['n_patterns']
+        if self.params['patterns_with_multiple_conc']:
+            self.params['n_readout'] = self.params['n_patterns'] / self.params['n_conc_per_pattern'] # TODO CHECK if this is consistent with params ...
+        else:
+            self.params['n_readout'] = self.params['n_patterns']
         self.params['n_cells_oc'] = self.params['n_pyr'] + self.params['n_rsnp'] + self.params['n_basket'] + self.params['n_readout']
         # gid offsets for various cell types
         self.params['global_offset'] = 0 # GID start value
@@ -149,6 +155,10 @@ class parameter_storage(object):
         self.params['n_test_rsnp'] = 1
         self.params['n_sample_rsnp_per_mc'] = 1
 
+        self.params['p_ij_thresh'] = 1e-8 
+        # if p_ij in BCPNN-OB-OC (i.e. the joint prob between a mitral cell and a MC is below this,
+        # the weight between MIT i and MC j will be set to: w_ij[pre, post] = numpy.log(1. / n_patterns) * mc_mc_mask[pre, post]
+        # mc_mc_mask is the binary connection matrix between MT cells and the HC it projects to
 
 
 
@@ -382,7 +392,7 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-        folder_name = 'FullSystemTest_0'
+        folder_name = 'FullSystemTest_np%d' % (self.params['n_patterns'])
 #        folder_name = 'ObTest93_seed%d%d'% (self.params['seed'], self.params['netstim_seed'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
@@ -524,8 +534,8 @@ class parameter_storage(object):
         self.params['mit_spikes_merged_fn_base'] =  '%s/mit_nspikes_merged_' % ( self.params['nspikes_folder'])
         self.params['mit_spiketimes_fn_base'] =  '%s/mit_spiketimes_' % ( self.params['spiketimes_folder'])
         self.params['mit_spiketimes_merged_fn_base'] =  '%s/mit_spiketimes_merged_' % ( self.params['spiketimes_folder'])
-        self.params['mit_response'] = '%s/mit_response_not_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
-        self.params['mit_response_normalized'] = '%s/mit_response_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
+        self.params['mit_response'] = '%s/mit_response_not_normalized_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
+        self.params['mit_response_normalized'] = '%s/mit_response_normalized_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_rescaled'] = '%s/mit_nspikes_rescaled_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_cells'] = '%s/mit_nspikes_normed_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_patterns'] = '%s/mit_nspikes_normed_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
@@ -565,6 +575,53 @@ class parameter_storage(object):
         self.params['readout_spiketimes_fn_base'] =  '%s/readout_spiketimes_' % ( self.params['spiketimes_folder'])
         self.params['readout_spiketimes_merged_fn_base'] =  '%s/readout_spiketimes_merged_' % ( self.params['spiketimes_folder'])
 #        self.params['ob_output_poisson_fn_base'] ='%s/ob_output_poisson_' % (self.params[''])
+
+        # Other files required during analysis, MDS-VQ, BCPNN, etc.
+        self.params['silent_mit_fn'] = '%s/silent_mitral_cells.txt' % (self.params['other_folder']) # stores the GIDs of mitral cells that did not fire any spike during pattern presentations
+        self.params['binary_oc_activation_fn'] = '%s/binary_oc_activation.dat' % (self.params['other_folder']) # this file is created by MDSVQ.create_mitral_response_space and stores the initial activation of minicolumns to begin the BCPNN learning
+        # machine learning output files
+        self.params['mds_ob_oc_output_fn'] = '%s/mds_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the coordinates for the mitral cells in the mutual information space
+        self.params['vq_ob_oc_output_fn'] = '%s/vq_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the binary mit - hc connection matrix, (mit_hc_mask) created after VQ in the mutual information MDS space
+        self.params['mit_mc_vq_distortion_fn'] = '%s/mit_mc_vq_distortion_' % (self.params['other_folder'])
+        self.params['abstract_binary_conn_mat_ob_oc_fn'] = '%s/binary_conn_mat_ob_oc.dat' % (self.params['other_folder'])
+        self.params['vq_ob_oc_overlap'] = 1 # before: 10 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['n_bcpnn_steps'] = 10
+
+        self.params['mds_oc_readout_output_fn'] = '%s/mds_oc_readout_output.dat' % (self.params['other_folder'])
+        self.params['vq_oc_readout_output_fn'] = '%s/vq_oc_readout_output.dat' % (self.params['other_folder'])
+        self.params['oc_readout_conn_fn'] = '%s/oc_readout_conn.dat' % (self.params['other_folder'])
+        self.params['abstract_binary_conn_mat_oc_readout_fn'] = '%s/binary_conn_mat_oc_readout.dat' % (self.params['other_folder'])
+        self.params['vq_oc_readout_overlap'] = 0 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+
+        # cell_type to be attached after _fn_base
+        self.params['mutual_information_fn_base'] = '%s/mutual_information_' % (self.params['other_folder'])# the actual mutual information between cells of a certain celltype, mi
+        self.params['joint_entropy_fn_base'] = '%s/joint_entropy_' % (self.params['other_folder']) # the joint entropy between cells of a certain type, je
+        self.params['information_distance_fn_base'] = '%s/information_distance_' % (self.params['other_folder']) # the information distance d = 1 - mi / je
+
+        # spiking cortical activity, clustered by minicolumns
+        self.params['clustered_mc_output'] = '%s/clustered_oc_output.dat' % self.params['figure_folder']
+        self.params['clustered_mc_output_timebinned_fn_base'] = '%s/clustered_oc_output_timebinned_' % self.params['figure_folder']
+        self.params['clustered_mc_output_wta'] = '%s/clustered_oc_output_wta.dat' % self.params['figure_folder']
+        self.params['clustered_mc_output_normalized'] = '%s/clustered_oc_output_normed.dat' % (self.params['figure_folder'])
+
+        # filenames for optional mds output of 2nd VQ in mitral cell response space
+        self.params['mit_response_space_fn_base'] = '%s/mit_response_space' % self.params['other_folder'] # this file contains the 3D coordinates of mitral cells projecting to the same HC
+        self.params['mit_response_space_centroids_fn_base'] = '%s/mit_response_space_centroids' % self.params['other_folder']# this file contains the 3D coordinates of mitral cells projecting to the same HC
+
+        # filenames for BCPNN results
+        # ob - oc
+        self.params['oc_abstract_activity_fn'] = '%s/oc_abstract_activity.dat' % (self.params['bcpnn_folder'])
+        self.params['ob_oc_abstract_weights_fn'] = '%s/ob_oc_abstract_weights.dat' % (self.params['bcpnn_folder'])
+        self.params['ob_oc_abstract_bias_fn'] = '%s/ob_oc_abstract_bias.dat' % (self.params['bcpnn_folder'])
+        # oc - oc : recurrent 
+        self.params['oc_rec_abstract_activity_fn'] = '%s/oc_rec_abstract_activity.dat' % (self.params['bcpnn_folder'])
+        self.params['oc_oc_abstract_weights_fn'] = '%s/oc_oc_abstract_weights.dat' % (self.params['bcpnn_folder'])
+        self.params['oc_oc_abstract_bias_fn'] = '%s/oc_oc_abstract_bias.dat' % (self.params['bcpnn_folder'])
+        # oc - readout
+        self.params['readout_abstract_activity_fn']  = '%s/readout_abstract_activity.dat' % (self.params['bcpnn_folder'])
+        self.params['oc_readout_abstract_weights_fn'] = '%s/oc_readout_abstract_weights.dat' % (self.params['bcpnn_folder'])
+        self.params['oc_readout_abstract_bias_fn'] = '%s/oc_readout_abstract_bias.dat' % (self.params['bcpnn_folder'])
+
 
 
 
