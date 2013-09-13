@@ -615,7 +615,7 @@ class parameter_storage(object):
             fn = self.params['params_fn_json']
         print 'Writing parameters to: %s' % (fn)
         output_file = file(self.params['params_fn_json'], 'w')
-        d = json.dump(self.params, output_file)
+        d = json.dump(self.params, output_file, indent=0)
 
 
     def hoc_export(self):

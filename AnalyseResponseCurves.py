@@ -40,7 +40,7 @@ class AnalyseResponseCurves(object):
         output_fn = 'best_sim_ids.log'
         f = file(output_fn, 'w')
         print 'Printing best sim IDs to:', output_fn
-        json.dump(list(self.best_sims), f)
+        json.dump(list(self.best_sims), f, indent=0)
 
 
     def show_best_sim_results(self):
@@ -58,7 +58,7 @@ class AnalyseResponseCurves(object):
 #        print 'debug', type(fig_fns)
         print 'Writing good figure filenames to:', output_fn
         os.system(display_command)
-        json.dump(fig_fns, output_f)
+        json.dump(fig_fns, output_f, indent=0)
 
 
 
