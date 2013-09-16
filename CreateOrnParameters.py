@@ -45,9 +45,9 @@ class CreateOrnParameters(object):
         """
         if noisy_patterns:
             # This requires that there already exists a odorant-OR-affinity matrix
-            self.add_pattern_noise(self.params['OR_affinity_noise'], normalization=self.params['OR_activation_normalization'])
+            self.add_pattern_noise(self.params['OR_affinity_noise'])
         else:
-            self.create_activation_matrix_for_concentration_sweep(normalization=self.params['OR_activation_normalization'])
+            self.create_activation_matrix_for_concentration_sweep()
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
@@ -81,9 +81,9 @@ class CreateOrnParameters(object):
 #        self.create_rnd_activation_matrix()
 #        self.create_trinormal_affinities()
         if noisy_patterns: # This requires that there already exists a odorant-OR-affinity matrix
-            self.add_pattern_noise(self.params['OR_affinity_noise'], normalization=self.params['OR_activation_normalization'])
+            self.add_pattern_noise(self.params['OR_affinity_noise'])
         else:
-            self.create_single_odorant_activation_matrix(normalization=self.params['OR_activation_normalization'])
+            self.create_single_odorant_activation_matrix()
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
@@ -107,7 +107,7 @@ class CreateOrnParameters(object):
         return 1
 
 
-    def create_single_odorant_activation_matrix(self, normalization=False):
+    def create_single_odorant_activation_matrix(self):
         """
         create_single_odorant_activation_matrix 
         """
@@ -140,7 +140,12 @@ class CreateOrnParameters(object):
                 affinity = 1. / (dist + eps)
                 self.activation_matrix[pn, OR] = affinity
 
-        if normalization:
+
+        if self.params['OR_activation_normalization']:
+#            for pn in xrange(self.params['n_patterns']):
+#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max()
+#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum()
+
             for OR in xrange(self.params['n_or']):
                 self.activation_matrix[:, OR] /= self.activation_matrix[:, OR].sum()
 

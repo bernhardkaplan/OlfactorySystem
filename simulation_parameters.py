@@ -26,12 +26,12 @@ class parameter_storage(object):
     def set_default_params(self):
 
 
-        self.params['OR_activation_normalization'] = False
+        self.params['OR_activation_normalization'] = True
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 0
+        self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 0
-        self.params['n_patterns'] = 5
+        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
 
         self.params['with_noise'] = 1
@@ -62,6 +62,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
+        self.params['debug'] = 1 # flag to print more or less output
         # ------ C E L L     N U M B E R S ------------
 #        self.params['n_gor'] = 16# number of mitral cells per glomerulus
         self.params['n_gor'] = 8# number of mitral cells per glomerulus
@@ -373,6 +374,12 @@ class parameter_storage(object):
         self.params['w_inh_noise_rsnp'] = 0.001
 
 
+        # -------- MDS - VQ - BCPNN  Parameters ---------------
+        self.params['vq_ob_oc_overlap'] = 10 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['n_bcpnn_steps'] = 10
+        self.params['vq_oc_readout_overlap'] = 0 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+
+
 
     def set_folder_name(self, folder_name=None):
         """
@@ -382,7 +389,9 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-        folder_name = 'FullSystemTest_0'
+#        folder_name = 'FullSystemTest_0'
+#        folder_name = 'FullSystemTest_np50'
+        folder_name = 'FullSystemTest_np%d_normalized_OrnAct' % (self.params['n_patterns'])
 #        folder_name = 'ObTest93_seed%d%d'% (self.params['seed'], self.params['netstim_seed'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
@@ -465,6 +474,35 @@ class parameter_storage(object):
         self.params['conn_list_layer23'] =  '%s/conn_list_layer23.dat' % ( self.params['conn_folder']) # pyr->basket, basket->pyr, rsnp->pyr, pyr->pyr within one MC
 
 
+        # Files for MDS - VQ - BCPNN
+        self.params['binary_oc_activation_fn'] = '%s/binary_oc_activation.dat' % (self.params['other_folder']) # this file is created by MDSVQ.create_mitral_response_space and stores the initial activation of minicolumns to begin the BCPNN learning
+        self.params['silent_mit_fn'] = '%s/silent_mitral_cells.txt' % (self.params['other_folder'])
+        # machine learning output files
+        self.params['mds_ob_oc_output_fn'] = '%s/mds_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the coordinates for the mitral cells in the mutual information space
+        self.params['vq_ob_oc_output_fn'] = '%s/vq_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the binary mit - hc connection matrix, (mit_hc_mask) created after VQ in the mutual information MDS space
+        self.params['mit_mc_vq_distortion_fn'] = '%s/mit_mc_vq_distortion_' % (self.params['other_folder'])
+        self.params['abstract_binary_conn_mat_ob_oc_fn'] = '%s/binary_conn_mat_ob_oc.dat' % (self.params['other_folder'])
+        self.params['mds_oc_readout_output_fn'] = '%s/mds_oc_readout_output.dat' % (self.params['other_folder'])
+        self.params['vq_oc_readout_output_fn'] = '%s/vq_oc_readout_output.dat' % (self.params['other_folder'])
+        self.params['oc_readout_conn_fn'] = '%s/oc_readout_conn.dat' % (self.params['other_folder'])
+        self.params['abstract_binary_conn_mat_oc_readout_fn'] = '%s/binary_conn_mat_oc_readout.dat' % (self.params['other_folder'])
+
+        # cell_type to be attached after _fn_base
+        self.params['mutual_information_fn_base'] = '%s/mutual_information_' % (self.params['other_folder'])# the actual mutual information between cells of a certain celltype, mi
+        self.params['joint_entropy_fn_base'] = '%s/joint_entropy_' % (self.params['other_folder']) # the joint entropy between cells of a certain type, je
+        self.params['information_distance_fn_base'] = '%s/information_distance_' % (self.params['other_folder']) # the information distance d = 1 - mi / je
+
+        # spiking cortical activity, clustered by minicolumns
+        self.params['clustered_mc_output'] = '%s/clustered_oc_output.dat' % self.params['figure_folder']
+        self.params['clustered_mc_output_timebinned_fn_base'] = '%s/clustered_oc_output_timebinned_' % self.params['figure_folder']
+        self.params['clustered_mc_output_wta'] = '%s/clustered_oc_output_wta.dat' % self.params['figure_folder']
+        self.params['clustered_mc_output_normalized'] = '%s/clustered_oc_output_normed.dat' % (self.params['figure_folder'])
+
+        # filenames for optional mds output of 2nd VQ in mitral cell response space
+        self.params['mit_response_space_fn_base'] = '%s/mit_response_space' % self.params['other_folder'] # this file contains the 3D coordinates of mitral cells projecting to the same HC
+        self.params['mit_response_space_centroids_fn_base'] = '%s/mit_response_space_centroids' % self.params['other_folder']# this file contains the 3D coordinates of mitral cells projecting to the same HC
+
+
 
         # files for recording currents, membrane potential, time, ....
         self.params['time_vec_fn_base'] = '%s/time_vector' % ( self.params['volt_folder'])
@@ -526,15 +564,18 @@ class parameter_storage(object):
         self.params['mit_spiketimes_merged_fn_base'] =  '%s/mit_spiketimes_merged_' % ( self.params['spiketimes_folder'])
         self.params['mit_response'] = '%s/mit_response_not_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_response_normalized'] = '%s/mit_response_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
-        self.params['mit_nspikes_rescaled'] = '%s/mit_nspikes_rescaled_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
+#            MIT - response - normalized:
+#                a) the sum of spikes fired by each cell during all patterns is normalized to 1 -> each mitral cell has a normalized activty
+#                b) if the sum of normalized activity of mitral cells within one glomerular unit > 1 -> set it to one
+        self.params['mit_nspikes_rescaled'] = '%s/mit_nspikes_rescaled_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])  # Rescaled mit_spikes so that the global maximum = 1
         self.params['mit_nspikes_normed_cells'] = '%s/mit_nspikes_normed_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_patterns'] = '%s/mit_nspikes_normed_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_glom_cells'] = '%s/mit_nspikes_normed_glom_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_patterns_then_cells'] = '%s/mit_nspikes_normed_patterns_then_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_cells_then_patterns'] = '%s/mit_nspikes_normed_cells_then_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         # decide which mit response should be used as MDS input
-#        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
-        self.params['mit_mds_input_fn'] = self.params['mit_nspikes_rescaled']
+        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
+#        self.params['mit_mds_input_fn'] = self.params['mit_nspikes_rescaled'] 
 
         self.params['gran_spike_fn_base'] =  '%s/gran_nspikes_' % ( self.params['nspikes_folder'])
         self.params['gran_spikes_merged_fn_base'] =  '%s/gran_nspikes_merged_' % ( self.params['nspikes_folder'])
