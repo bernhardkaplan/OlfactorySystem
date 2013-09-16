@@ -231,14 +231,15 @@ class AnalyseObOutput(object):
                 print "Merging nspike files for pattern", pattern
 
             assert(os.path.exists(self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')), 'ERROR:\n\tFile does not exist %s' % (self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')
-            if self.params['debug']:
+            if self.params['print_debug']:
                 print 'AnalyseObOutput: loading:', self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat'
             single_pattern_response = numpy.loadtxt(self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')
 
-            for row in xrange(single_pattern_response[:, 0].size):
-                gid = single_pattern_response[row, 0]
-                cell_index = gid - mit_offset
-                mit_spikes[pattern, cell_index] = single_pattern_response[row, 1]
+            if single_pattern_response.size > 0:
+                for row in xrange(single_pattern_response[:, 0].size):
+                    gid = single_pattern_response[row, 0]
+                    cell_index = gid - mit_offset
+                    mit_spikes[pattern, cell_index] = single_pattern_response[row, 1]
 
         # 2a) Normalization: the sum of spikes fired by each cell during all patterns is normalized to 1 -> each mitral cell has a normalized activty
         normalized_activity = numpy.zeros((n_patterns, n_mit)) # normalized_activity[:, cell_id].sum() = 1 for all cell_id (or = 0 if no spikes fired)
