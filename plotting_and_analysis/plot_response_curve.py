@@ -25,20 +25,21 @@ print 'debug', params['%s_spikes_merged_fn_base' % cell_type]
 
 pn = 0
 Merger = MergeSpikefiles.MergeSpikefiles(params)
-if cell_type.lower() == 'mit':
+if cell_type == 'mit':
     Merger.merge_ob_spiketimes_file(pattern=pn)
     Merger.merge_ob_nspike_files(pattern=pn)
-elif cell_type.lower() == 'orn':
+elif cell_type == 'orn':
     Merger.merge_epth_spiketimes_file(pattern=pn)
     Merger.merge_epth_nspike_files(pattern=pn)
 else:
     print 'ERROR: Invalid cell type given %s\n' % cell_type
+    print 'Use lower case, e.g. orn or mit for cell_type'
 
 
 sim_cnt = 0
 SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
 output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
-SOCP.plot_set_of_curves(output_fn, cell_type='mit')
+SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn, cell_type='mit')
 print 'Opening with ristretto: %s' % (output_fn)
 os.system('ristretto %s' % output_fn)
 

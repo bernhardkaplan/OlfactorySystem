@@ -133,13 +133,18 @@ class CreateOrnParameters(object):
 
         eps = 1e-12
         rnd.seed(self.params['seed_activation_matrix'])
+        distances = np.zeros((self.params['n_patterns'], self.params['n_or']))
         for pn in xrange(self.params['n_patterns']):
             for OR in xrange(self.params['n_or']):
                 # draw a random distance from the fitted distance distribution
                 dist = self.odorant_odor_distance_distribution((p1, p2, p3))
-                affinity = 1. / (dist + eps)
+                distances[pn, OR] = dist
+                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter'])
+#                print 'DEBUG pn %d OR %d \tdist = %.6f\taffinity = %.6f' % (pn, OR, dist, affinity)
                 self.activation_matrix[pn, OR] = affinity
 
+        print 'Distances.mean:', distances.mean()
+        print 'Distances.median:', np.median(distances)
 
         if self.params['OR_activation_normalization']:
 #            for pn in xrange(self.params['n_patterns']):

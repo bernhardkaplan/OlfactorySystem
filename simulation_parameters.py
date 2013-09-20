@@ -26,7 +26,7 @@ class parameter_storage(object):
     def set_default_params(self):
 
 
-        self.params['OR_activation_normalization'] = True
+        self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 1
@@ -35,6 +35,7 @@ class parameter_storage(object):
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
+        self.params['with_oc_oc_rec'] = 1
 
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 0: you should remove insert gk_ka from the pyr_rs template! and recompile the neuron_files
@@ -56,8 +57,8 @@ class parameter_storage(object):
                 self.params['n_or'] = 24
         else:
 #            self.params['n_or'] = 40
-#            self.params['n_or'] = 40
-            self.params['n_or'] = self.params['n_patterns']
+            self.params['n_or'] = 60
+#            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
             self.params['rel_orn_mit'] = 200
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
@@ -97,7 +98,7 @@ class parameter_storage(object):
         self.params['prop_pg_mit_serial_rec'] = 3 # relation between number serial and reciprocal synapses between periglomerular and MT cells, 3 is according to Shepherd's Book "Synaptic Organization of the Brain",i.e. 25% are reciprocal synapses
 
         self.params['n_hc'] = 20
-        self.params['n_mc'] = 20
+        self.params['n_mc'] = 36
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
@@ -143,11 +144,11 @@ class parameter_storage(object):
         self.params['n_cell_per_glom'] = self.params['n_orn_x'] + self.params['n_mit_x'] + self.params['n_pg_x'] + self.params['n_gran_x']
 
         # number of randomly selected testcells from which membrane potentials will be recorded
-        self.params['n_test_orn'] = 5
-        self.params['n_test_mit'] = 10
-        self.params['n_test_gran'] = 10
-        self.params['n_test_pg'] = 20
-        self.params['n_test_pyr'] = 5
+        self.params['n_test_orn'] = 1
+        self.params['n_test_mit'] = 1
+        self.params['n_test_gran'] = 1
+        self.params['n_test_pg'] = 1
+        self.params['n_test_pyr'] = 2
         self.params['n_sample_pyr_per_mc'] = 1
         self.params['n_test_basket'] = 1
         self.params['n_sample_basket_per_hc'] = 1
@@ -180,9 +181,31 @@ class parameter_storage(object):
         # The odorant_receptor_distance_range marks the range of possible distances between ORs and odorants based
         # on the clustering results obtained from average_OR_affinity_distributions.py
         self.params['odorant_receptor_distance_range'] = (0, 4.330310991999920844e+01)
-        self.params['odorant_receptor_distance_distribution_parameters'] = [1.631787e+02, 6.670855e+00, 1.977871e+00, \
-         1.909487e+01, 1.110809e+01, 3.353855e+00, \
-         4.188897e+00, 4.088460e+01, 4.966478e-01] # these values are taken from clustering the odorant space with 40 ORs
+#        self.params['odorant_receptor_distance_distribution_parameters'] = [1.631787e+02, 6.670855e+00, 1.977871e+00, \
+#         1.909487e+01, 1.110809e+01, 3.353855e+00, \
+#         4.188897e+00, 4.088460e+01, 4.966478e-01] # these values are taken from clustering the odorant space with 40 ORs
+        self.params['odorant_receptor_distance_distribution_parameters'] = [162.310869565, 6.67080434783, 1.98630434783,\
+         19.8056521739, 10.8089130435, 3.32682608696, \
+         4.4382173913, 40.8932608696, 0.456293478261] # these values are the mean values for the fit parameters to the distance distribution for 20 - 65 ORs
+        self.params['distance_affinity_transformation_parameter'] = 2 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
+        """
+        The values of the parameters for the fit to the OR-distance distribution do not change qualitatively for the range
+        between 20 and 65 ORs (centroids). That's why we chose to take the mean values for those distributions to generate the activation matrix.
+         fn = 'OR_placement/fit_parameters_abs.txt'
+         d = np.loadtxt(fn)
+        for col in xrange(0, n_cols):
+            print col, d[18:, col].mean()
+                   0 42.5
+                   1 162.310869565
+                   2 6.67080434783
+                   3 1.98630434783
+                   4 19.8056521739
+                   5 10.8089130435
+                   6 3.32682608696
+                   7 4.4382173913
+                   8 40.8932608696
+                   9 0.456293478261
+        """
 
         # ---------------- C E L L    P A R A M E T E R S --------- # 
         # ---------------- ORN cell parameters:
@@ -326,7 +349,7 @@ class parameter_storage(object):
         self.params['w_basket_basket'] = 0.002
         self.params['w_rsnp_pyr'] = 0.002       # -0.8 mV
         self.params['w_nmda_mult_oc'] = 1.0     # for oc - oc connections
-        self.params['w_pyr_readout'] = 0.001
+        self.params['w_pyr_readout'] = 0.002
 
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
@@ -455,9 +478,9 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 6 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 8 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_bcpnn_steps'] = 1
-        self.params['vq_oc_readout_overlap'] = 0 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
 
 
 
@@ -469,8 +492,10 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-#        folder_name = 'FullSystemTest_0'
-        folder_name = 'FullSystemTest_np50_postLearning'
+#        folder_name = 'OrnTesting'
+        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
+#        folder_name = 'FullSystemTest_np50_postLearning'
+#        folder_name = 'FullSystemTest_np50_postLearning_nhc%d_nmc%d' % (self.params['n_hc'], self.params['n_mc'])
 #        folder_name = 'FullSystemTest_np%d_normalized_OrnAct' % (self.params['n_patterns'])
 #        folder_name = 'ObTest93_seed%d%d'% (self.params['seed'], self.params['netstim_seed'])
 
@@ -524,6 +549,8 @@ class parameter_storage(object):
         self.params['hoc_file'] = '%s/simulation_params.hoc' % (os.path.abspath(self.params['params_folder']))
         self.params['info_file'] =  '%s/simulation_parameters.info' % (self.params['folder_name']) # human readable file, format: parameter = value
 
+        self.params['gids_to_record_fn_base'] = '%s/%s' % (self.params['other_folder'], 'gids_to_record_') # file storing the gids from which the membrane potential will be recorded after the learning part
+
         self.params['activation_matrix_fn'] = '%s/activation_matrix.dat' % (self.params['params_folder'])
         self.params['activation_matrix_fig'] = '%s/activation_matrix.png' % (self.params['figure_folder'])
 
@@ -576,6 +603,8 @@ class parameter_storage(object):
         self.params['vq_oc_readout_output_fn'] = '%s/vq_oc_readout_output.dat' % (self.params['other_folder'])
         self.params['oc_readout_conn_fn'] = '%s/oc_readout_conn.dat' % (self.params['other_folder'])
         self.params['abstract_binary_conn_mat_oc_readout_fn'] = '%s/binary_conn_mat_oc_readout.dat' % (self.params['other_folder'])
+        self.params['incorrect_patterns_without_silent'] = '%s/incorrect_patterns_without_silent.dat' % ( self.params['figure_folder'])
+        self.params['silent_patterns'] = '%s/silent_patterns.dat' % ( self.params['figure_folder'])
 
         # cell_type to be attached after _fn_base
         self.params['mutual_information_fn_base'] = '%s/mutual_information_' % (self.params['other_folder'])# the actual mutual information between cells of a certain celltype, mi
@@ -732,7 +761,14 @@ class parameter_storage(object):
         self.params['connection_matrix_detailed_oc_ob_fig'] = '%s/connection_matrix_detailed_oc_ob.png' % (self.params['conn_folder'])
         self.params['connection_matrix_detailed_oc_readout_fig'] = '%s/connection_matrix_detailed_oc_readout.png' % (self.params['conn_folder'])
 
-
+        # readout activity for spiking network
+        self.params['readout_rasterplot_movie'] = '%s/readout_rasterplots.mp4' % self.params['figure_folder']
+        self.params['readout_activity_cmap'] =  '%s/readout_activity.png' % ( self.params['figure_folder'])
+        self.params['readout_activity_interval_cmap'] =  '%s/readout_activity_interval.png' % ( self.params['figure_folder'])
+        self.params['readout_activity_data'] =  '%s/readout_activity.dat' % ( self.params['figure_folder'])
+        self.params['readout_activity_interval_data'] =  '%s/readout_activity_interval.dat' % ( self.params['figure_folder'])
+        self.params['readout_activity_data_normalized'] =  '%s/readout_activity_normalized.dat' % ( self.params['figure_folder'])
+        self.params['readout_activity_data_wta'] =  '%s/readout_activity_wta.dat' % ( self.params['figure_folder'])
 
     def check_folders(self):
         """

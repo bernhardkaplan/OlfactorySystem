@@ -1,8 +1,21 @@
+info_txt = \
+"""
+    Before running this script, you should have:
+    - the simulation results of a 'pre-learning' run 
+
+    - chosen a new folder name and run this script 
+    only creating the new folder structure and parameter files by running (see below)
+        param_tool.write_parameters_to_file() # 
+    - then, copy the nspike files of mitral cells into the new NumberOfSpikes folder:
+     cp PRE_LEARNING/NumberOfSpikes/mit*merged* POST_LEARNING/NumberOfSpikes/
+"""
+
 import os
 import sys
 import time
 import numpy
 import simulation_parameters # defines simulation parameters
+import prepare_epth_ob_prelearning
 import MergeSpikefiles
 import MDSVQ
 import BCPNN
@@ -12,7 +25,6 @@ import CreateHyperAndMinicolumns
 import TransformAbstractToDetailedConnectivity
 # classes for setting up connectivity and the individual cell parameters
 t_init = time.time()
-
 
 def mds_vq_ob_output(params):
     ob_activity_fn = params['mit_response_normalized']
@@ -59,10 +71,11 @@ def bcpnn_ob_oc(params):
 
     ob_activity_fn = params['mit_response_normalized']
     activity_fn = params['oc_abstract_activity_fn']
-    weights_fn = params['ob_oc_abstract_weights_fn']
+    
     bias_fn = params['ob_oc_abstract_bias_fn']
     binary_oc_activation_fn = params['binary_oc_activation_fn']
     w_ij_mit_hc = params['vq_ob_oc_output_fn']
+    weights_fn = params['ob_oc_abstract_weights_fn']
     print "BCPNN OB -> OC loading files:", ob_activity_fn, '\n', activity_fn, '\n', weights_fn, '\n', bias_fn, '\n', binary_oc_activation_fn, '\n', w_ij_mit_hc
 
 
@@ -78,7 +91,7 @@ def bcpnn_ob_oc(params):
     #bcpnn.train_network(activity_fn, weights_fn, bias_fn)
 
     bcpnn.silence_mit(params['silent_mit_fn'])
-    print "debug write to ", weights_fn
+#    print 'bcpnn_ob_oc: input = %s\tweights = %s\tbias = %s\ttest_output = %s' % (test_input, weights_fn, bias_fn, test_output)
     bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
     del bcpnn
 
@@ -158,6 +171,7 @@ def bcpnn_oc_readout(params):
     bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
     test_input = oc_activity_fn
     test_output = params['readout_abstract_activity_fn'].rsplit('.dat')[0] + '_test.dat'
+    print 'BCPNN.testing(input=%s, weights=%s, bias=%s, test_output=%s' % (test_input, weights_fn, bias_fn, test_output)
     bcpnn.testing(test_input, weights_fn, bias_fn, test_output)
 
 
@@ -193,26 +207,30 @@ def create_connections(params):
 
 
 if __name__ == '__main__':
+    print info_txt
     # ------------ I N I T -----------------------------
     # The simulation_parameters module defines a class for simulation parameter storage
     param_tool = simulation_parameters.parameter_storage()
     # params is the dictionary with all parameters
     params = param_tool.params
-    param_tool.write_parameters_to_file(params["info_file"]) # human readable
+    param_tool.write_parameters_to_file(params["info_file"])
     param_tool.write_parameters_to_file() # 
+    param_tool.hoc_export() # 
 
 
-    # ------------ MDS + VQ of OB output ---------------
-#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-#    ObAnalyser.get_output_file()
-#    ObAnalyser.get_output_activity()
-#    ObAnalyser.rescale_activity()
-#    (ob_activity_fn, binary_oc_activation_fn, vq_output_fn) = mds_vq_ob_output(params)
+#    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
-#    bcpnn_ob_oc(params)
-#    bcpnn_oc_oc(params)
-#    bcpnn_oc_readout(params)
-#    create_pyr_parameters(params)
-#    create_connections(params)
+#     ------------ MDS + VQ of OB output ---------------
+    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+    ObAnalyser.get_output_file()
+    ObAnalyser.get_output_activity()
+    ObAnalyser.rescale_activity()
+    mds_vq_ob_output(params)
 
-    
+    bcpnn_ob_oc(params)
+    bcpnn_oc_oc(params)
+    bcpnn_oc_readout(params)
+
+    create_pyr_parameters(params)
+    create_connections(params)
+

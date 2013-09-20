@@ -117,6 +117,7 @@ class SetOfCurvesPlotter(object):
     def get_xy_data(self, shared_param_idx, x_idx):
 
 
+        print 'DEBUG', self.pattern_nr, type(self.pattern_nr), type(str(self.cell_type))
         param_fn = self.params['%s_params_fn_base' % (self.cell_type)] + '%d.dat' % self.pattern_nr
         print 'Loading cell parameters from:', param_fn
         import os

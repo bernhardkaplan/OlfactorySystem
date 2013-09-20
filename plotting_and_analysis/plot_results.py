@@ -13,6 +13,9 @@ if (data.ndim == 1):
     x_axis = numpy.arange(data.size)
     pylab.plot(x_axis, data)
 else:
-    pylab.scatter(data[:,3], data[:,6])
+    pylab.errorbar(data[:,0], data[:,1], yerr=data[:, 2])
+    print 'mean y-value:', data[:, 1].mean()
+#    pylab.plot(data[:,0], data[:,1])
+#    pylab.scatter(data[:,3], data[:,6])
 #    pylab.plot(data[:,3], data[:,6])
 pylab.show()

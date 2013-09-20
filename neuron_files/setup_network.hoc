@@ -2125,7 +2125,7 @@ proc connect_cells_with_oc_ALa() {
 	connect_cells_via_file(conn_list_mit_rsnp)
 	connect_cells_via_file(conn_list_layer23) // hc and mc connections: pyr <-> pyr, pyr <-> basket
 	connect_cells_via_file(conn_list_pyr_readout) // pyr -> readout cells
-	if (with_rec){
+	if (with_oc_oc_rec){
 		connect_cells_via_file(conn_list_pyr_pyr)
 		connect_cells_via_file(conn_list_pyr_rsnp)
 	}
@@ -2151,7 +2151,7 @@ proc connect_cells_ob_oc() {
 	connect_cells_via_file(conn_list_layer23) // hc and mc connections: pyr <-> pyr, pyr <-> basket
 	connect_cells_via_file(conn_list_pyr_readout) // pyr -> readout cells
 
-	if (with_rec){
+	if (with_oc_oc_rec){
 		connect_cells_via_file(conn_list_pyr_pyr)
 		connect_cells_via_file(conn_list_pyr_rsnp)
 	}
@@ -2163,7 +2163,7 @@ proc connect_cells_ob_oc() {
 
 proc connect_cells_oc_only() {
 	connect_cells_via_file(conn_list_layer23) // hc and mc connections: pyr <-> pyr within a minicolumn, pyr <-> basket, rsnp -> pyr
-	if (with_rec){
+	if (with_oc_oc_rec){
 		connect_cells_via_file(conn_list_pyr_pyr) // pyr <-> pyr connections across hypercolumns
 		connect_cells_via_file(conn_list_pyr_rsnp) // pyr <-> rsnp across hypercolumns
 	}
