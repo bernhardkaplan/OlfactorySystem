@@ -43,11 +43,10 @@ class CreateOrnParameters(object):
         """
         orthogonal patterns means a single odorant is presented to the system
         """
-        if noisy_patterns:
-            # This requires that there already exists a odorant-OR-affinity matrix
-            self.add_pattern_noise(self.params['OR_affinity_noise'])
-        else:
-            self.create_activation_matrix_for_concentration_sweep()
+        self.create_activation_matrix_for_concentration_sweep()
+
+        if self.params['OR_affinity_noise'] != 0.0:
+            self.add_pattern_noise()
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
@@ -78,12 +77,10 @@ class CreateOrnParameters(object):
         """
         orthogonal patterns means a single odorant is presented to the system
         """
-#        self.create_rnd_activation_matrix()
-#        self.create_trinormal_affinities()
-        if noisy_patterns: # This requires that there already exists a odorant-OR-affinity matrix
-            self.add_pattern_noise(self.params['OR_affinity_noise'])
-        else:
-            self.create_single_odorant_activation_matrix()
+        self.create_single_odorant_activation_matrix()
+
+        if self.params['OR_affinity_noise'] != 0.0:
+            self.add_pattern_noise()
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
@@ -156,6 +153,37 @@ class CreateOrnParameters(object):
 
         print "Activation matrix fn:", self.params['activation_matrix_fn']
         np.savetxt(self.params['activation_matrix_fn'], self.activation_matrix)
+
+
+
+    def add_pattern_noise(self):
+        """
+        This function loads an existing OR - odorant - affinity matrix 
+        and adds noise to each pattern:
+            each value in the matrix gets +- rand(0, degree_of_noise)
+        """
+        dgn = self.params['OR_affinity_noise']
+        rnd.seed(self.params['OR_pattern_noise_seed'])
+#        assert (os.path.exists(self.params['activation_matrix_fn'])), "Activation matrix does not exist in given filename: %s\n Check sim_id, etc... or rerun without noisy_patterns" % (self.params['activation_matrix'])
+#        M = np.loadtxt(self.params['activation_matrix_fn'])
+        M = self.activation_matrix.copy()
+        for pn in xrange(self.params['n_patterns']):
+            for OR in xrange(self.params['n_or']):
+                M[pn, OR] += rnd.uniform(-dgn, dgn)
+                if (M[pn, OR] > 1):
+                    M[pn, OR] = 1
+                elif (M[pn, OR] < 0):
+                    M[pn, OR] = 0.
+
+        if self.params['OR_activation_normalization']:
+#            for pn in xrange(self.params['n_patterns']):
+#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max()
+#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum()
+            for OR in xrange(self.params['n_or']):
+                M[:, OR] /= M[:, OR].sum()
+
+        np.savetxt(self.params['activation_matrix_fn_with_noise'], M)
+        self.activation_matrix = M
 
 
 

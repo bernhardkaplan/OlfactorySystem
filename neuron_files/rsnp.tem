@@ -34,7 +34,9 @@ begintemplate Rsnp// create a new template object
 	// synlist stores the synapses
 	// netconlist: list of NetCon objects, stores connections
 	public soma, ampa, gabaa, nmda, netconlist, noise_netconlist, synlist
+	public ampa_netconlist, nmda_netconlist, gabaa_netconlist
 	public add_connection_to_soma, connect2target, record_v, print_v, spiketimes, spikecount
+	public add_ampa_synapse_to_soma, add_nmda_synapse_to_soma, add_gabaa_synapse_to_soma
 	public add_random_exc_spikes_to_soma, add_random_inh_spikes_to_soma
 	public add_random_exc_spikes_to_soma_with_seed, add_random_inh_spikes_to_soma_with_seed
 	public add_iclamp_input, iclamp
@@ -44,6 +46,7 @@ begintemplate Rsnp// create a new template object
 	create soma[1]
 
 	objref  spikecount, spiketimes, synlist, recv, rect, netconlist, noise_netconlist, ampa, gabaa, nmda
+	objref ampa_netconlist, nmda_netconlist, gabaa_netconlist
 	objref  syn, nc, ns, ns_exc, ns_inh, nullobject // needed for adding a synapse and spiketrain as input
 	objref ns_exc_input, nc_exc_input // for artificial extra stimulus
 	objref v_netstim_exc, v_netstim_inh
@@ -63,6 +66,9 @@ begintemplate Rsnp// create a new template object
         reci_ampa = new Vector()
         reci_nmda = new Vector()
         reci_gaba = new Vector()
+		ampa_netconlist = new List()
+		nmda_netconlist = new List()
+		gabaa_netconlist = new List()
 
 		  v_potassium = -100		// potassium reversal potential 
 		  v_sodium = 50			// sodium reversal potential 
@@ -201,6 +207,37 @@ begintemplate Rsnp// create a new template object
         m.setcol(0, reci_gaba)
         m.fprint(file, "\t%f") //with a stupid first line
     }
+
+
+	proc add_ampa_synapse_to_soma() {local threshold, delay
+		threshold = 10
+		delay = 0
+		weight = $1
+		// create a new synapse on the target section
+		// if synlist.o(0) => excitatory synapse
+		// if synlist.o(1) => inhibitory synapse
+		nc = new NetCon(nullobject, synlist.o(0), threshold, delay, weight)
+		ampa_netconlist.append(nc)
+	}
+
+	proc add_nmda_synapse_to_soma() {local threshold, delay
+		threshold = 10
+		delay = 0
+		weight = $1
+		// create a new synapse on the target section
+		// if synlist.o(0) => excitatory synapse
+		// if synlist.o(1) => inhibitory synapse
+		nc = new NetCon(nullobject, synlist.o(2), threshold, delay, weight)
+		nmda_netconlist.append(nc)
+	}
+
+	proc add_gabaa_synapse_to_soma() {local threshold, delay
+		threshold = 10
+		delay = 0
+		weight = $1
+		nc = new NetCon(nullobject, synlist.o(1), threshold, delay, weight)
+		gabaa_netconlist.append(nc)
+	}
 
 
 	proc add_connection_to_soma() {local threshold, delay, weight

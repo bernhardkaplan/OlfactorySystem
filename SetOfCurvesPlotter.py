@@ -180,6 +180,7 @@ if __name__ == '__main__':
         param_tool = simulation_parameters.parameter_storage()
         params = param_tool.params
 
+
     sim_cnt = 0
     import MergeSpikefiles
     Merger = MergeSpikefiles.MergeSpikefiles(params)

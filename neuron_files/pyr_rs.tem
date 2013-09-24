@@ -22,6 +22,7 @@
 begintemplate Pyr_rs // create a new template object
 
 	public soma, ampa, gabaa, nmda, netconlist, noise_netconlist, synlist
+	public ampa_netconlist, nmda_netconlist, gabaa_netconlist
 	public add_ampa_synapse_to_soma, add_nmda_synapse_to_soma, add_gabaa_synapse_to_soma
 	public connect2target, record_v, record_ca, print_v, print_ca, spiketimes, spikecount
 	public add_random_exc_spikes_to_soma, add_random_inh_spikes_to_soma
@@ -35,6 +36,7 @@ begintemplate Pyr_rs // create a new template object
 	create soma//[1]
 
 	objref spikecount, spiketimes, synlist, recv, rect, rec_ca, netconlist, noise_netconlist, ampa, nmda, gabaa
+	objref ampa_netconlist, nmda_netconlist, gabaa_netconlist
 	objref syn, nc, ns_exc, ns_inh, nullobject // needed for adding a synapse and spiketrain as input
 	objref ns_exc_input, nc_exc_input // for artificial extra stimulus
 	objref v_netstim_exc, v_netstim_inh
@@ -56,6 +58,9 @@ begintemplate Pyr_rs // create a new template object
         reci_ampa = new Vector()
         reci_nmda = new Vector()
         reci_gaba = new Vector()
+		ampa_netconlist = new List()
+		nmda_netconlist = new List()
+		gabaa_netconlist = new List()
 
 	    v_potassium = -100		// potassium reversal potential 
 	    v_sodium = 50			// sodium reversal potential 
@@ -226,7 +231,7 @@ begintemplate Pyr_rs // create a new template object
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
 		nc = new NetCon(nullobject, synlist.o(0), threshold, delay, weight)
-		netconlist.append(nc)
+		ampa_netconlist.append(nc)
 	}
 
 	proc add_nmda_synapse_to_soma() {local threshold, delay
@@ -237,7 +242,7 @@ begintemplate Pyr_rs // create a new template object
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
 		nc = new NetCon(nullobject, synlist.o(2), threshold, delay, weight)
-		netconlist.append(nc)
+		nmda_netconlist.append(nc)
 	}
 
 	proc add_gabaa_synapse_to_soma() {local threshold, delay
@@ -245,7 +250,7 @@ begintemplate Pyr_rs // create a new template object
 		delay = 0
 		weight = $1
 		nc = new NetCon(nullobject, synlist.o(1), threshold, delay, weight)
-		netconlist.append(nc)
+		gabaa_netconlist.append(nc)
 	}
 
 	proc connect2target() {

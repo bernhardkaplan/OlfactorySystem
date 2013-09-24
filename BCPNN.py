@@ -401,7 +401,6 @@ class BCPNN(object):
         for pn in xrange(self.n_patterns):
             most_active_unit_test = post_activity_test[pn, :].argmax()
             most_active_unit_train = self.post_activity[pn, :].argmax()
-            print 'Debug testing mau test %d mau train %d' % (most_active_unit_test, most_active_unit_train)
             if (most_active_unit_test != most_active_unit_train):
                 print "Pattern: %d Activity_test[man_test=%d]=%.2e, Activity_train[man_test=%d]=%.2e, activity_test[man_train=%d]=%.2e activity_train[man_train=%d]=%.2e" \
                         % (pn, most_active_unit_test, post_activity_test[pn, most_active_unit], most_active_unit_test, self.post_activity[pn, most_active_unit_test], \

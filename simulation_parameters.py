@@ -37,6 +37,9 @@ class parameter_storage(object):
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
 
+#        self.params['noisy_affinity_matrix'] = 0
+        self.params['OR_affinity_noise'] = 0.2
+
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 0: you should remove insert gk_ka from the pyr_rs template! and recompile the neuron_files
         self.params['with_cond_bias'] = 1 # if 0: there's a constant negative current into some pyr cells
@@ -45,7 +48,8 @@ class parameter_storage(object):
         self.params['seed_activation_matrix'] = 312
         self.params['seed'] = 9 # this is for pattern generation, weight randomization, etc
         self.params['seed_connections'] = 0
-        self.params['netstim_seed'] = 10 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
+        self.params['netstim_seed'] = 11 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
+        self.params['OR_pattern_noise_seed'] = self.params['seed'] + 2
 
         # ------ N E T W O R K    S I Z E -----------
         if (self.params['concentration_sweep'] == 1):  # it's a concentration sweep
@@ -56,7 +60,7 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 24
         else:
-#            self.params['n_or'] = 40
+#            self.params['n_or'] = 12
             self.params['n_or'] = 60
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
@@ -64,7 +68,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 20
+            self.params['rel_orn_mit'] = 10
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
@@ -148,7 +152,7 @@ class parameter_storage(object):
         self.params['n_test_mit'] = 1
         self.params['n_test_gran'] = 1
         self.params['n_test_pg'] = 1
-        self.params['n_test_pyr'] = 2
+        self.params['n_test_pyr'] = 1
         self.params['n_sample_pyr_per_mc'] = 1
         self.params['n_test_basket'] = 1
         self.params['n_sample_basket_per_hc'] = 1
@@ -163,6 +167,7 @@ class parameter_storage(object):
 
         # ---------------- E X P E R I M E N T A L    P A R A M E T E R S --------- #
         self.params['temperature'] = 36# [Celsius] very important! required for NEURON simulations
+#        self.params['t_sim']	= 400# [ms] simulated time
         self.params['t_sim']	= 1600 # [ms] simulated time
         self.params['time_step']= 0.025   # [ms] max time step
         self.params['time_step_rec']= 0.5  # [ms] time step for recording membrane potentials etc
@@ -349,7 +354,7 @@ class parameter_storage(object):
         self.params['w_basket_basket'] = 0.002
         self.params['w_rsnp_pyr'] = 0.002       # -0.8 mV
         self.params['w_nmda_mult_oc'] = 1.0     # for oc - oc connections
-        self.params['w_pyr_readout'] = 0.002
+        self.params['w_pyr_readout'] = 0.001
 
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
@@ -478,7 +483,7 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 8 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 3 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_bcpnn_steps'] = 1
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
 
@@ -492,8 +497,10 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-#        folder_name = 'OrnTesting'
-        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
+#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_postLearning_fullSystem' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'])
+        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning_nhc%d_nmc%d' % (self.params['n_hc'], self.params['n_mc'])
 #        folder_name = 'FullSystemTest_np%d_normalized_OrnAct' % (self.params['n_patterns'])
@@ -553,6 +560,8 @@ class parameter_storage(object):
 
         self.params['activation_matrix_fn'] = '%s/activation_matrix.dat' % (self.params['params_folder'])
         self.params['activation_matrix_fig'] = '%s/activation_matrix.png' % (self.params['figure_folder'])
+        self.params['activation_matrix_fn_with_noise'] = '%s/activation_matrix_with_noise.dat' % (self.params['params_folder'])
+        self.params['activation_matrix_with_noise_fig'] = '%s/activation_matrix_with_noise.png' % (self.params['figure_folder'])
 
         # parameter files
         self.params['orn_params_fn_base'] =  '%s/orn_params_' % (self.params['params_folder'])
@@ -589,6 +598,20 @@ class parameter_storage(object):
         self.params['conn_list_pyr_rsnp'] =  '%s/conn_list_pyr_rsnp.dat' % ( self.params['conn_folder']) # pyr->rsnp connections 
         self.params['conn_list_pyr_readout'] =  '%s/conn_list_pyr_readout.dat' % ( self.params['conn_folder']) # pyr -> readout layer
 
+        # In order to not re-simulate the EPTH and the OB, the spikes from the connections from OB are stored and processed
+        # so that OC cells receive the spikes via input_spike_files. Connections are stored in netcon_files
+        self.params['mit_pyr_tgt_netcon_weight_fn'] = '%s/mit_pyr_netcon_list_' % (self.params['netcon_folder'])
+        self.params['mit_rsnp_tgt_netcon_weight_fn'] = '%s/mit_rsnp_netcon_list_' % (self.params['netcon_folder'])
+        # these files contain the time of all spikes with , the gids of all the cells receiving this spike and the corresponding netcon index,
+        # via which this spike has to be transmitted
+        self.params['mit_pyr_spiketimes_tgt_netcon_fn'] = '%s/mit_pyr_spiketimes_tgt_netcon_' % (self.params['netcon_folder'])
+        self.params['mit_rsnp_spiketimes_tgt_netcon_fn'] = '%s/mit_rsnp_spiketimes_tgt_netcon_' % (self.params['netcon_folder'])
+
+        # As the above named files might be produced by several cores, a different filename is required to store the merged data
+        self.params['mit_pyr_tgt_netcon_weight_fn_merged'] = '%s/merged_mit_pyr_netcon_list.dat' % (self.params['netcon_folder'])
+        self.params['mit_rsnp_tgt_netcon_weight_fn_merged'] = '%s/merged_mit_rsnp_netcon_list.dat' % (self.params['netcon_folder'])
+        self.params['mit_pyr_spiketimes_tgt_netcon_fn_merged'] = '%s/merged_mit_pyr_spiketimes_tgt_netcon_' % (self.params['netcon_folder'])
+        self.params['mit_rsnp_spiketimes_tgt_netcon_fn_merged'] = '%s/merged_mit_rsnp_spiketimes_tgt_netcon_' % (self.params['netcon_folder'])
 
 
         # Files for MDS - VQ - BCPNN

@@ -221,16 +221,16 @@ if __name__ == '__main__':
 #    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-    ObAnalyser.get_output_file()
-    ObAnalyser.get_output_activity()
-    ObAnalyser.rescale_activity()
-    mds_vq_ob_output(params)
+#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+#    ObAnalyser.get_output_file()
+#    ObAnalyser.get_output_activity()
+#    ObAnalyser.rescale_activity()
+#    mds_vq_ob_output(params)
 
-    bcpnn_ob_oc(params)
-    bcpnn_oc_oc(params)
-    bcpnn_oc_readout(params)
+#    bcpnn_ob_oc(params)
+#    bcpnn_oc_oc(params)
+#    bcpnn_oc_readout(params)
 
-    create_pyr_parameters(params)
-    create_connections(params)
+#    create_pyr_parameters(params)
+#    create_connections(params)
 

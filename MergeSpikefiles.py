@@ -231,18 +231,19 @@ if __name__ == '__main__':
         python MergeSpikeFiles.py [FOLDER] [CELLTYPE] 
         or
         python MergeSpikeFiles.py [FOLDER] [CELLTYPE] [PATTERN_NUMBER]
+
     """
     assert (len(sys.argv) > 2), 'ERROR: folder and cell_type not given\n' + info_txt
     folder = sys.argv[1]
     cell_type = sys.argv[2]
+    params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
+    param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
+    params = param_tool.params
     try:
         pn_max = int(sys.argv[3])
     except:
         print 'Merging all patterns'
         pn_max = params['n_patterns']
-    params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
-    param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
-    params = param_tool.params
 
     if cell_type == 'all':
         cell_types = params['cell_types']

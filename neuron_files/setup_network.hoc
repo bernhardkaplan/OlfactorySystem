@@ -46,8 +46,10 @@ objref fih_noise_orn, fih_noise_pyr, fih_noise_basket, fih_stim_pyr, fih_stim_ba
 objref fih_spikes_from_epth_to_mit
 objref fih_spikes_from_epth_to_pg
 objref fih_spikes_from_oc_to_readout
-objref fih_spikes_from_ob_to_oc
+objref fih_spikes_from_mit_to_pyr
+objref fih_spikes_from_mit_to_rsnp
 objref fih_spikes	// initialization handler for putting spikes into a NetCons event queue
+objref input_spike_container
 objref fih_v		// init handler for setting initial membrane voltages
 objref id_vec
 objref nil // NULLobject
@@ -74,7 +76,7 @@ gran_gid_vec = new Vector()
 pg_gid_vec = new Vector()
 ddi_netcons = new List()
 auto_recs = new List()
-
+input_spike_container = new List()
 
 // arrays of vectors for recording membrane voltages
 /*objref volt_pg[n_pg]*/
@@ -134,7 +136,6 @@ proc init_spikes() {
 	fih_noise_pyr = new FInitializeHandler("setup_noise_pyr()") // reads in the noise files
 	fih_noise_basket = new FInitializeHandler("setup_noise_basket()")
 /*    if ((f_stim_pyr > 0) && (dur_stim_pyr > 0)) {*/
-/*        printf("DEBUG HUHU\n")*/
 /*        fih_stim_pyr = new FInitializeHandler("setup_stim_pyr()")*/
 /*    }*/
 	// basket cells should not get stimulus specific input [Ref, Poo & Isaacson 2009]
@@ -642,147 +643,6 @@ proc distribute_pg_equally(){ local gid, gid_offset, offset, limit_min, limit_ma
 }
 
 
-/*proc distribute_pg(){local i, gid, gid_offset, lim_min, lim_max, p, x, y*/
-/*    if (n_pg % n_proc) {*/
-/*        printf("Number of processes does not divide the number of glom evenly!\n")*/
-/*        printf("n_proc %d \t n_glom %d\n", n_proc, n_glom)*/
-/*        printf("Will distribute them equally\n")*/
-/*        distribute_pg_equally()*/
-/*        return*/
-/*    }*/
-/*    p = pnm.pc.id()*/
-/*    // BULBAR LAYER: pgRAL CELLS*/
-/*    gid_offset = pg_offset + global_offset*/
-/*    n_pg_y_p = n_pg_y / n_proc //num rows in pg array belonging to each process*/
-/*    lim_max = (p + 1) * n_pg_y_p*/
-/*    lim_min = p * n_pg_y_p*/
-/*    for (y = 0; y < n_pg_y; y += 1) { // y = glomerulus = n_pg_y*/
-/*        for (x = 0; x < n_pg_x; x += 1) { // column iteration*/
-/*            //calculate gid*/
-/*            gid = x + y * n_pg_x + gid_offset*/
-/*            if (id_vec.indwhere("==", gid) != -1) {*/
-/*                i = id_vec.indwhere("==", gid)*/
-/*                printf("ERROR p %d: gid for pg: %d already assigned to a cell %d\n", p, gid, i)*/
-/*                quit()*/
-/*            }*/
-/*            // now decide whether this gid should be assigned to the process*/
-/*            if ( (id_vec.indwhere("==", gid) == -1) && (y < lim_max) && (y >= lim_max)) {*/
-/*                printf("Assigning pg %d from glomerulus %d with gid %d to process %d\n", x, y, gid, p)*/
-/*                pnm.set_gid2node(gid, p)*/
-/*                pg_gid_vec.append(gid)*/
-/*                id_vec.append(gid)*/
-
-/*                // gids for additional NetCon objects for DDI*/
-/*                pnm.set_gid2node(gid + n_cells, p)*/
-/*                id_vec.append(gid + n_cells)*/
-/*            }*/
-/*        }*/
-/*    }*/
-/*}*/
-
-/*proc distribute_pg_equally(){ local gid, gid_offset, offset, lim_min, lim_max, n_pg_p, i, R, p*/
-/*    p = pnm.pc.id()*/
-/*    // CORTICAL LAYER: pg CELLS*/
-/*    gid_offset = pg_offset + global_offset*/
-/*    n_pg_p = int(n_pg / n_proc)*/
-/*    R = n_pg % n_proc*/
-/*    offset = min(p, R) //possibly some processes have to deal with more cells*/
-/*    lim_min = int(p * n_pg_p + offset)*/
-/*    if (p < R) {*/
-/*        lim_max = int(lim_min + n_pg_p + 1)*/
-/*    } else { */
-/*        lim_max = int(lim_min + n_pg_p)*/
-/*    }*/
-/*    for (i = 0; i < n_pg; i += 1) {*/
-/*        //calculate gid*/
-/*        gid = i + gid_offset*/
-/*        if (id_vec.indwhere("==", gid) != -1) {*/
-/*            printf("ERROR: gid for pg: %d already assigned to a cell!\n", gid)*/
-/*                    printf("ERROR: gid for pg: %d already assigned to a cell %d!\n", gid, id_vec.indwhere("==", gid))*/
-/*            quit()*/
-/*        }*/
-/*        // now decide whether this gid should be assigned to the process*/
-/*        if ( (id_vec.indwhere("==", gid) == -1) && (i < lim_max) && (i >= lim_min)) {*/
-/*            printf("Assigning cell %d with gid %d to process %d\n", i , gid, p)*/
-/*            pnm.set_gid2node(gid, p)*/
-/*            pg_gid_vec.append(gid)*/
-/*            id_vec.append(gid)*/
-/*            // gids for additional NetCon objects for DDI*/
-/*            pnm.set_gid2node(gid + n_cells, p)*/
-/*            id_vec.append(gid + n_cells)*/
-/*        }*/
-/*    }*/
-/*}*/
-
-
-
-/*proc distribute_pg(){local gid, gid_offset, lim_min, lim_max, p, x, y, n_pg_y_p, i, R*/
-/*    if (n_pg % n_proc) {*/
-/*        printf("Number of processes does not divide the number of pg evenly!\n")*/
-/*        printf("n_proc %d \t n_glom %d\n", n_proc, n_glom)*/
-/*        printf("Will distribute them equally\n")*/
-/*        distribute_pg_equally()*/
-/*        return*/
-/*    }*/
-/*    p = pnm.pc.id()*/
-/*    gid_offset = pg_offset + global_offset*/
-/*    n_pg_y_p = n_pg_y / n_proc //num rows in pg array belonging to each process*/
-/*    lim_max = (p + 1) * n_pg_y_p*/
-/*    lim_min = p * n_pg_y_p*/
-/*    for (y = 0; y < n_pg_y; y += 1) { // y = glomerulus = n_pg_y*/
-/*        for (x = 0; x < n_pg_x; x += 1) { // column iteration*/
-/*            //calculate gid*/
-/*            gid = x + y * n_pg_x + gid_offset*/
-/*            if (id_vec.indwhere("==", gid) != -1) {*/
-/*                printf("ERROR on proc %d: gid for pg: %d already assigned to a cell!\n", p, gid)*/
-/*                quit()*/
-/*            }*/
-/*            // now decide whether this gid should be assigned to the process*/
-/*            if ( (id_vec.indwhere("==", gid) == -1) && (y < lim_max) && (y >= lim_min)) {*/
-/*                printf("Assigning pg %d from glomerulus %d with gid %d to process %d\n", x, y, gid, p)*/
-/*                pnm.set_gid2node(gid, p)*/
-/*                pg_gid_vec.append(gid)*/
-/*                id_vec.append(gid)*/
-/*                // gids for additional NetCon objects for DDI*/
-/*                pnm.set_gid2node(gid + n_cells, p)*/
-/*                id_vec.append(gid + n_cells)*/
-/*            }*/
-/*        }*/
-/*    }*/
-/*}*/
-
-/*proc distribute_pg_equally(){ local gid, gid_offset, offset, lim_min, lim_max, n_pg_p, i, R, p*/
-/*    p = pnm.pc.id()*/
-/*    // CORTICAL LAYER: pg CELLS*/
-/*    gid_offset = pg_offset + global_offset*/
-/*    n_pg_p = int(n_pg / n_proc)*/
-/*    R = n_pg % n_proc*/
-/*    offset = min(p, R) //possibly some processes have to deal with more cells*/
-/*    lim_min = int(p * n_pg_p + offset)*/
-/*    if (p < R) {*/
-/*        lim_max = int(lim_min + n_pg_p + 1)*/
-/*    } else { */
-/*        lim_max = int(lim_min + n_pg_p)*/
-/*    }*/
-/*    for (i = 0; i < n_pg; i += 1) {*/
-/*        //calculate gid*/
-/*        gid = i + gid_offset*/
-/*        if (id_vec.indwhere("==", gid) != -1) {*/
-/*            printf("ERROR: gid for pg: %d already assigned to a cell!\n", gid)*/
-/*            quit()*/
-/*        }*/
-/*        // now decide whether this gid should be assigned to the process*/
-/*        if ( (id_vec.indwhere("==", gid) == -1) && (i < lim_max) && (i >= lim_min)) {*/
-/*            // printf("Assigning cell %d with gid %d to process %d\n", i , gid, p)*/
-/*            pnm.set_gid2node(gid, p)*/
-/*            pg_gid_vec.append(gid)*/
-/*            id_vec.append(gid)*/
-/*            // gids for additional NetCon objects for DDI*/
-/*            pnm.set_gid2node(gid + n_cells, p)*/
-/*            id_vec.append(gid + n_cells)*/
-/*        }*/
-/*    }*/
-/*}*/
 
 
 proc distribute_pyr(){ local gid, gid_offset, offset, limit_min, limit_max, \
@@ -812,7 +672,7 @@ proc distribute_pyr(){ local gid, gid_offset, offset, limit_min, limit_max, \
 				}
 				// now decide whether this gid should be assigned to the process
 				if ( (id_vec.indwhere("==", gid) == -1) && (pyr_cnt < limit_max) && (pyr_cnt >= limit_min)) {
-					printf("Assigning cell %d with gid %d to process %d\n", pyr_cnt, gid, p)
+/*                    printf("Assigning pyr %d with gid %d to process %d\n", pyr_cnt, gid, p)*/
 					pnm.set_gid2node(gid, p)
 					pyr_gid_vec.append(gid)
 					id_vec.append(gid)
@@ -850,7 +710,7 @@ proc distribute_rsnp(){ local gid, gid_offset, offset, limit_min, limit_max, \
 				}
 				// now decide whether this gid should be assigned to the process
 				if ( (id_vec.indwhere("==", gid) == -1) && (rsnp_cnt < limit_max) && (rsnp_cnt >= limit_min)) {
-/*                    printf("Assigning cell %d with gid %d to process %d\n", rsnp_cnt, gid, p)*/
+/*                    printf("Assigning rsnp %d with gid %d to process %d\n", rsnp_cnt, gid, p)*/
 					pnm.set_gid2node(gid, p)
 					rsnp_gid_vec.append(gid)
 					id_vec.append(gid)
@@ -1276,7 +1136,6 @@ proc write_spiketimes_to_file() {local i, j, n_min, n_max, n_spikes localobj spi
 			n_spikes += cell.spiketimes.size()	
 		}
 	}
-	printf("DEBUG spike filename: %s\n", spikefilename)
 
 	if (n_spikes > 0){
 		spikefile = new File()
@@ -1433,37 +1292,124 @@ proc create_cells_oc_only() {
 	}
 
 	// this is for simulations with the OB input but without simulating the epth and OB again
-/*    add_netcons_to_pyrs_and_rsnp()*/
-	add_stim_to_mcs()
+	//
+	strdef fn1 	
+	sprint(fn1, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)
+	add_netcons_with_spiketimes_to_cortex(mit_pyr_tgt_netcon_weight_fn_merged, fn1)
+	strdef fn2
+	sprint(fn2, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)
+	add_netcons_with_spiketimes_to_cortex(mit_rsnp_tgt_netcon_weight_fn_merged, fn2)
+/*    add_netcons_to_cortex_cells(mit_pyr_tgt_netcon_weight_fn_merged)*/
+/*    add_netcons_to_cortex_cells(mit_rsnp_tgt_netcon_weight_fn_merged)*/
+/*    add_stim_to_mcs()*/
 
 	// insertion of spikes into the netcons happens by the respective FInitializeHandler
+/*    fih_spikes_from_mit_to_pyr = new FInitializeHandler(3, "add_netcons_to_pyr_cells()") // will be called before the simulation*/
+/*    fih_spikes_from_mit_to_rsnp = new FInitializeHandler(3, "add_netcons_to_rsnp_cells()") // will be called before the simulation*/
+/*    fih_spikes_from_mit_to_pyr = new FInitializeHandler(3, "insert_exc_spikes_from_mit_to_pyr()") // will be called before the simulation*/
+/*    fih_spikes_from_mit_to_rsnp = new FInitializeHandler(3, "insert_exc_spikes_from_mit_to_rsnp()") // will be called before the simulation*/
+/*    insert_exc_spikes_from_mit_to_pyr()*/
+/*    insert_exc_spikes_from_mit_to_rsnp()*/
+	waittime = pnm.pc.barrier()
+	printf("waittime after create_cells_oc_only = %f\n", waittime)
 }
 
-proc add_netcons_to_pyrs_and_rsnp() { local gid, ncol, nrow, weight localobj cell, read_data, mat
+
+proc add_netcons_to_cortex_cells() { local gid, ncol, nrow, weight localobj cell, read_data, mat
 	// This function is called when the OC is simulated with input from OB, without resimulating the EPTH and the OB
-    read_data = new File()
-	strdef fn 	
-	sprint(fn, "%s%d.dat", ob_oc_tgt_weight_netcon_fn_base, pattern_nr)
+	strdef fn
+	fn = $s1
+	print "Adding netcons via file: ", fn
+	read_data = new File()
     read_data.ropen(fn)
-    mat = new Matrix()      // the data to be read
-    mat.scanf(read_data)    // read spike data from file
+    mat = new Matrix()		// connectivity matrix
+    mat.scanf(read_data)	// read data from file
     nrow = mat.nrow()		// n_spikes
-    ncol = mat.ncol()		// id
+    ncol = mat.ncol()
 
     for (i = 0; i < nrow; i += 1) {
 		gid = mat.x[i][0]
+/*        printf("DEBUG BBBB pnm.gid_exist(%d) on pid %d = %d\n", gid, pnm.pc.id(), pnm.gid_exists(gid))*/
 		if (pnm.gid_exists(gid)) {
 			cell = pnm.pc.gid2cell(gid)
-			weight = mat.x[i][1]
+			weight = mat.x[i][2]
 			if (weight > 0) {
-				cell.add_exc_connection_to_soma(weight)
+/*                printf("DEBUG_ADD_AMPA_SYNAPSE %d weight= %.6e\n", gid, weight)*/
+				cell.add_ampa_synapse_to_soma(weight)
+				cell.add_nmda_synapse_to_soma(weight)
 			} else { // weight < 0
-				cell.add_inh_connection_to_soma(weight)
+				// should never occur ...
+				cell.add_gabaa_synapse_to_soma(-weight)
 			}
+/*            printf("DEBUG add_netcons_to_cortex_cells on proc %d: row=%d cell=%d weight=%.2e netconlist len %d \n", pnm.pc.id(), i, gid, weight, cell.ampa_netconlist.count())*/
 		}
     }
-	fih_spikes_from_ob_to_oc = new FInitializeHandler("insert_spikes_from_ob_to_oc()") // draws events according to a Poisson distribution
 }
+
+
+
+proc add_netcons_with_spiketimes_to_cortex() { local gid, ncol_nc, nrow_nc, ncol_st, nrow_st, weight localobj cell, read_data_nc, mat_nc, read_data_st, mat_st
+	// This function is called when the OC is simulated with input from OB, without resimulating the EPTH and the OB
+	
+	// Read the netcons and connection weights
+	strdef fn_nc
+	fn_nc = $s1
+	print "Adding netcons via file: ", fn_nc
+	read_data_nc = new File()
+    read_data_nc.ropen(fn_nc)
+    mat_nc = new Matrix()
+    mat_nc.scanf(read_data_nc)	
+    nrow_nc = mat_nc.nrow()		
+    ncol_nc = mat_nc.ncol()
+
+	// read in the spikes for this pattern
+	strdef fn_st
+	fn_st = $s2
+	print "Reading spikes from file: ", fn_st
+	read_data_st = new File()
+    read_data_st.ropen(fn_st)
+    mat_st = new Matrix()		
+    mat_st.scanf(read_data_st)	
+    nrow_st = mat_st.nrow()		
+    ncol_st = mat_st.ncol()
+
+    for (i = 0; i < nrow_nc; i += 1) {
+		gid = mat_nc.x[i][0]
+/*        printf("DEBUG BBBB pnm.gid_exist(%d) on pid %d = %d\n", gid, pnm.pc.id(), pnm.gid_exists(gid))*/
+		if (pnm.gid_exists(gid)) {
+			cell = pnm.pc.gid2cell(gid)
+			weight = mat_nc.x[i][2]
+			if (weight > 0) {
+/*                printf("DEBUG_ADD_AMPA_SYNAPSE %d weight= %.6e\n", gid, weight)*/
+				cell.add_ampa_synapse_to_soma(weight)
+				cell.add_nmda_synapse_to_soma(weight)
+/*                printf("DEBUG valid %d\n", cell.ampa_netconlist.o(cell.ampa_netconlist.count()-1).valid())*/
+			} else { // weight < 0
+				// should never occur ...
+				cell.add_gabaa_synapse_to_soma(-weight)
+			}
+/*            printf("DEBUG add_netcons_to_cortex_cells on proc %d: row=%d cell=%d weight=%.2e netconlist len %d \n", pnm.pc.id(), i, gid, weight, cell.ampa_netconlist.count())*/
+		}
+    }
+
+
+	// 
+    for (i = 0; i < nrow_st; i += 1) {
+		gid = mat_st.x[i][0]
+		if (pnm.gid_exists(gid)) {
+			cell = pnm.pc.gid2cell(gid)
+			t_event = mat_st.x[i][1]
+			netcon_id = mat_st.x[i][2]
+/*            if (netcon_id == cell.ampa_netconlist.count()){*/
+/*            printf("DEBUG CORTEX CELL gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
+/*            }*/
+
+			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+		}
+    }
+}
+
 
 proc add_netcons_to_mit() { local gid, ncol, nrow, weight localobj cell, read_data, mat
 	// This function is called when the OB is simulated and EPTH input is inserted to OB via files
@@ -1602,6 +1548,7 @@ proc insert_spikes_to_cell_from_file() { local tgt_gid, i, nrow, ncol, netcon_id
 	strdef input_fn
 	tgt_gid = $1
 	input_fn = $s2
+	printf("DEBUG insert_spikes_to_cell_from_file(%d) fn = %s\n", tgt_gid, input_fn)
 	if (pnm.gid_exists(tgt_gid)) { // just an extra check
 		read_data = new File()
 		printf("DEBUG %d reading spikes to cell %d from %s\n", pnm.pc.id(), tgt_gid, input_fn)
@@ -1612,8 +1559,8 @@ proc insert_spikes_to_cell_from_file() { local tgt_gid, i, nrow, ncol, netcon_id
 		ncol = mat.ncol()
 		for (i = 0; i < nrow; i += 1) {
 			cell = pnm.pc.gid2cell(tgt_gid)
-			netcon_id = mat.x[i][0]
-			t_event = mat.x[i][1]
+			netcon_id = mat.x[i][1]
+			t_event = mat.x[i][0]
 			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
 			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
 /*            printf("DEBUG inserting spike into cell: %d at time %.2f via netcon_id %d and new %d len netconlist:%d\n", tgt, t_event, mat.x[i][0], netcon_id, cell.ampa_netconlist.count())*/
@@ -1853,23 +1800,55 @@ proc insert_spikes_to_mit_from_file() { local i, nrow, ncol, netconid, t_event l
 
 
 
-proc insert_spikes_from_ob_to_oc() { local i, nrow, ncol, netconid, t_event localobj read_data, mat, cell
+proc insert_exc_spikes_from_mit_to_pyr() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
+	// This function assumes that spikes will be inserted via two 
+	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
     read_data = new File()
 	strdef fn 	
-	sprint(fn, "%s%d.dat", ob_oc_spiketimes_tgt_netcon_fn_base, pattern_nr)
+	sprint(fn, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)
     read_data.ropen(fn)
     mat = new Matrix()      // the data to be read
     mat.scanf(read_data)    // read spike data from file
     nrow = mat.nrow()		// n_spikes
     ncol = mat.ncol()
 
+/*    printf("DEBUG AAAA fn: %s\n", fn)*/
     for (i = 0; i < nrow; i += 1) {
-		gid = mat.x[i][1]
+		gid = mat.x[i][0]
 		if (pnm.gid_exists(gid)) {
 			cell = pnm.pc.gid2cell(gid)
-			t_event = mat.x[i][0]
+			t_event = mat.x[i][1]
 			netcon_id = mat.x[i][2]
-			cell.netconlist.o(netcon_id).event(t_event) //put it into netconlist
+/*            if (netcon_id == cell.ampa_netconlist.count()){*/
+/*            printf("DEBUG PYR gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
+/*            }*/
+			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+		}
+    }
+}
+
+proc insert_exc_spikes_from_mit_to_rsnp() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
+	// This function assumes that spikes will be inserted via two 
+	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
+    read_data = new File()
+	strdef fn 	
+	sprint(fn, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)
+    read_data.ropen(fn)
+    mat = new Matrix()      // the data to be read
+    mat.scanf(read_data)    // read spike data from file
+    nrow = mat.nrow()		// n_spikes
+    ncol = mat.ncol()
+
+/*    printf("DEBUG AAAA-RSNP fn: %s\n", fn)*/
+    for (i = 0; i < nrow; i += 1) {
+		gid = mat.x[i][0]
+		if (pnm.gid_exists(gid)) {
+			cell = pnm.pc.gid2cell(gid)
+			t_event = mat.x[i][1]
+			netcon_id = mat.x[i][2]
+			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
 		}
     }
 }
