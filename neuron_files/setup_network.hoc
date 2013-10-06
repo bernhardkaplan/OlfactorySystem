@@ -49,7 +49,6 @@ objref fih_spikes_from_oc_to_readout
 objref fih_spikes_from_mit_to_pyr
 objref fih_spikes_from_mit_to_rsnp
 objref fih_spikes	// initialization handler for putting spikes into a NetCons event queue
-objref input_spike_container
 objref fih_v		// init handler for setting initial membrane voltages
 objref id_vec
 objref nil // NULLobject
@@ -62,6 +61,11 @@ objref rnd_int // random number generator for integers
 objref rnd_testcells // random number generator for test cells (creates same 'random' ints in each run)
 objref testcells_gids
 objref volt_vec	// for recording voltages 'outside' the cell with coarser temporal resolution
+objref mit_pyr_connlist_w // list of lists storing the weights going out of each mitral cell
+objref mit_pyr_connlist_tgt // list of lists storing the target gids for each mitral cell
+objref mit_rsnp_connlist_w // list of lists storing the weights going out of each mitral cell
+objref mit_rsnp_connlist_tgt // list of lists storing the target gids for each mitral cell
+objref mit_spikes // list of lists storing the target gids for each mitral cell
 testcells_gids = new Vector()
 objref rnd_volt // random number generator for setting the initial voltages randomly
 objref orn_gid_vec, mit_gid_vec, gran_gid_vec, pg_gid_vec, pyr_gid_vec, basket_gid_vec, rsnp_gid_vec, readout_gid_vec
@@ -76,7 +80,12 @@ gran_gid_vec = new Vector()
 pg_gid_vec = new Vector()
 ddi_netcons = new List()
 auto_recs = new List()
-input_spike_container = new List()
+mit_pyr_connlist_w = new List()
+mit_pyr_connlist_tgt = new List()
+mit_rsnp_connlist_w = new List()
+mit_rsnp_connlist_tgt = new List()
+mit_spikes = new List()
+
 
 // arrays of vectors for recording membrane voltages
 /*objref volt_pg[n_pg]*/
@@ -1293,12 +1302,15 @@ proc create_cells_oc_only() {
 
 	// this is for simulations with the OB input but without simulating the epth and OB again
 	//
-	strdef fn1 	
-	sprint(fn1, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)
-	add_netcons_with_spiketimes_to_cortex(mit_pyr_tgt_netcon_weight_fn_merged, fn1)
-	strdef fn2
-	sprint(fn2, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)
-	add_netcons_with_spiketimes_to_cortex(mit_rsnp_tgt_netcon_weight_fn_merged, fn2)
+/*    strdef fn1 	*/
+/*    sprint(fn1, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)*/
+	add_vecstims_to_cortex()
+/*    strdef fn2*/
+/*    sprint(fn2, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)*/
+/*    add_netcons_with_spiketimes_to_cortex(mit_rsnp_tgt_netcon_weight_fn_merged, fn2)*/
+	// first load the spike times to be inserted into the cortical cells
+	//
+	
 /*    add_netcons_to_cortex_cells(mit_pyr_tgt_netcon_weight_fn_merged)*/
 /*    add_netcons_to_cortex_cells(mit_rsnp_tgt_netcon_weight_fn_merged)*/
 /*    add_stim_to_mcs()*/
@@ -1312,6 +1324,190 @@ proc create_cells_oc_only() {
 /*    insert_exc_spikes_from_mit_to_rsnp()*/
 	waittime = pnm.pc.barrier()
 	printf("waittime after create_cells_oc_only = %f\n", waittime)
+}
+
+
+
+
+proc load_mit_pyr_conn_list(){local i, src_gid, tgt_gid, nrow, ncol, weight localobj read_data, mat
+	strdef fn
+	fn = conn_list_mit_pyr
+	read_data = new File()
+    read_data.ropen(fn)
+    mat = new Matrix()
+    mat.scanf(read_data)	
+    nrow = mat.nrow()		
+    ncol = mat.ncol()
+	for (i = 0; i < n_mit; i += 1){
+		mit_pyr_connlist_w.append(new Vector())
+		mit_pyr_connlist_tgt.append(new Vector())
+	}
+	for (i = 0; i < nrow; i += 1){
+		src_gid = int(mat.x[i][0])
+		tgt_gid = int(mat.x[i][1])
+		weight = mat.x[i][2]
+		mit_pyr_connlist_w.o(src_gid - mit_offset).append(weight)
+		mit_pyr_connlist_tgt.o(src_gid - mit_offset).append(tgt_gid)
+	}
+}
+
+proc load_mit_spiketimes(){local i, src_gid, spiketime, nrow, ncol localobj read_data, mat
+	strdef fn
+	fn = conn_list_mit_pyr
+	read_data = new File()
+    read_data.ropen(fn)
+    mat = new Matrix()
+    mat.scanf(read_data)	
+    nrow = mat.nrow()		
+    ncol = mat.ncol()
+	for (i = 0; i < n_mit; i += 1){
+		mit_spikes.append(new Vector())
+	}
+	for (i = 0; i < nrow; i += 1){
+		spiketime = int(mat.x[i][0]
+		src_gid = int(mat.x[i][1]
+		mit_spikes.o(src_gid - mit_offset).append(spiketime)
+	}
+}
+
+objref vecstim // the vecstim is a container for the input spike train
+objref local_mit_ctx_conns // container for the netcons to be created when connecting the spike trains to the cortical cells (necessary?)
+local_mit_ctx_conns = new List()
+proc add_vecstims_to_cortex() { local i, tgt, tgt_gid, weight localobj spike_vec, cell
+	// This function is called when the OC is simulated with input from OB, without resimulating the EPTH and the OB
+	
+	// first load the outgoing connections from mitral cells
+	printf("Loading mitral - pyr connections\n")
+	load_mit_pyr_conn_list()
+	printf("Loading mitral - rsnp connections\n")
+/*    load_mit_rsnp_conn_list()*/
+
+	// load the spikes fired by mitral cells during pre-learning 
+	printf("Loading mitral cells' spiketimes\n")
+	load_mit_spiketimes()
+	printf("Adding VecStim objects to pyr cells\n")
+	for (i = 0; i < n_mit; i += 1){
+		for (tgt = 0; tgt < mit_pyr_connlist_w.size()){
+		// size or count or len ???!?!?!?!
+			tgt_gid = mit_pyr_connlist_tgt.o(i).x[tgt]
+			if (pnm.gid_exists(tgt_gid)) {
+				vecstim = new VecStim()
+				vecstim.play(mit_spikes.o(i))
+				cell = pnm.pc.gid2cell(tgt_gid)
+				weight = mit_pyr_connlist_w.o(i).x[tgt]
+				local_mit_ctx_conns.append(cell.add_ampa_synapse_to_soma(vecstim, weight))
+				local_mit_ctx_conns.append(cell.add_nmda_synapse_to_soma(vecstim, weight))
+			}
+		}
+	}
+}
+
+/*proc add_netcons_with_spiketimes_to_cortex() { local i, tgt, ncol_nc, nrow_nc, ncol_st, nrow_st, weight localobj cell, read_data_nc, mat_nc, read_data_st, mat_st*/
+/*    // Read the netcons and connection weights*/
+/*    strdef fn_nc*/
+/*    fn_nc = $s1*/
+/*    print "Adding netcons via file: ", fn_nc*/
+/*    read_data_nc = new File()*/
+/*    read_data_nc.ropen(fn_nc)*/
+/*    mat_nc = new Matrix()*/
+/*    mat_nc.scanf(read_data_nc)	*/
+/*    nrow_nc = mat_nc.nrow()		*/
+/*    ncol_nc = mat_nc.ncol()*/
+/*    // read in the spikes for this pattern*/
+/*    strdef fn_st*/
+/*    fn_st = $s2*/
+/*    print "Reading spikes from file: ", fn_st*/
+/*    read_data_st = new File()*/
+/*    read_data_st.ropen(fn_st)*/
+/*    mat_st = new Matrix()		*/
+/*    mat_st.scanf(read_data_st)	*/
+/*    nrow_st = mat_st.nrow()		*/
+/*    ncol_st = mat_st.ncol()*/
+/*    for (i = 0; i < nrow_nc; i += 1) {*/
+/*        gid = mat_nc.x[i][0]*/
+/*        printf("DEBUG BBBB pnm.gid_exist(%d) on pid %d = %d\n", gid, pnm.pc.id(), pnm.gid_exists(gid))*/
+/*        if (pnm.gid_exists(gid)) {*/
+/*            cell = pnm.pc.gid2cell(gid)*/
+/*            weight = mat_nc.x[i][2]*/
+/*            if (weight > 0) {*/
+/*                printf("DEBUG_ADD_AMPA_SYNAPSE %d weight= %.6e\n", gid, weight)*/
+/*                cell.add_ampa_synapse_to_soma(weight)*/
+/*                cell.add_nmda_synapse_to_soma(weight)*/
+/*                printf("DEBUG valid %d\n", cell.ampa_netconlist.o(cell.ampa_netconlist.count()-1).valid())*/
+/*            } else { // weight < 0*/
+/*                // should never occur ...*/
+/*                cell.add_gabaa_synapse_to_soma(-weight)*/
+/*            }*/
+/*            printf("DEBUG add_netcons_to_cortex_cells on proc %d: row=%d cell=%d weight=%.2e netconlist len %d \n", pnm.pc.id(), i, gid, weight, cell.ampa_netconlist.count())*/
+/*        }*/
+/*    }*/
+/*    // */
+/*    for (i = 0; i < nrow_st; i += 1) {*/
+/*        gid = mat_st.x[i][0]*/
+/*        if (pnm.gid_exists(gid)) {*/
+/*            cell = pnm.pc.gid2cell(gid)*/
+/*            t_event = mat_st.x[i][1]*/
+/*            netcon_id = mat_st.x[i][2]*/
+/*            if (netcon_id == cell.ampa_netconlist.count()){*/
+/*            printf("DEBUG CORTEX CELL gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
+/*            }*/
+/*            cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist*/
+/*            cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist*/
+/*        }*/
+/*    }*/
+
+
+proc insert_exc_spikes_from_mit_to_pyr() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
+	// This function assumes that spikes will be inserted via two 
+	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
+    read_data = new File()
+	strdef fn 	
+	sprint(fn, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)
+    read_data.ropen(fn)
+    mat = new Matrix()      // the data to be read
+    mat.scanf(read_data)    // read spike data from file
+    nrow = mat.nrow()		// n_spikes
+    ncol = mat.ncol()
+
+/*    printf("DEBUG AAAA fn: %s\n", fn)*/
+    for (i = 0; i < nrow; i += 1) {
+		gid = mat.x[i][0]
+		if (pnm.gid_exists(gid)) {
+			cell = pnm.pc.gid2cell(gid)
+			t_event = mat.x[i][1]
+			netcon_id = mat.x[i][2]
+/*            if (netcon_id == cell.ampa_netconlist.count()){*/
+/*            printf("DEBUG PYR gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
+/*            }*/
+			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+		}
+    }
+}
+
+proc insert_exc_spikes_from_mit_to_rsnp() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
+	// This function assumes that spikes will be inserted via two 
+	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
+    read_data = new File()
+	strdef fn 	
+	sprint(fn, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)
+    read_data.ropen(fn)
+    mat = new Matrix()      // the data to be read
+    mat.scanf(read_data)    // read spike data from file
+    nrow = mat.nrow()		// n_spikes
+    ncol = mat.ncol()
+
+/*    printf("DEBUG AAAA-RSNP fn: %s\n", fn)*/
+    for (i = 0; i < nrow; i += 1) {
+		gid = mat.x[i][0]
+		if (pnm.gid_exists(gid)) {
+			cell = pnm.pc.gid2cell(gid)
+			t_event = mat.x[i][1]
+			netcon_id = mat.x[i][2]
+			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
+		}
+    }
 }
 
 
@@ -1347,68 +1543,6 @@ proc add_netcons_to_cortex_cells() { local gid, ncol, nrow, weight localobj cell
 }
 
 
-
-proc add_netcons_with_spiketimes_to_cortex() { local gid, ncol_nc, nrow_nc, ncol_st, nrow_st, weight localobj cell, read_data_nc, mat_nc, read_data_st, mat_st
-	// This function is called when the OC is simulated with input from OB, without resimulating the EPTH and the OB
-	
-	// Read the netcons and connection weights
-	strdef fn_nc
-	fn_nc = $s1
-	print "Adding netcons via file: ", fn_nc
-	read_data_nc = new File()
-    read_data_nc.ropen(fn_nc)
-    mat_nc = new Matrix()
-    mat_nc.scanf(read_data_nc)	
-    nrow_nc = mat_nc.nrow()		
-    ncol_nc = mat_nc.ncol()
-
-	// read in the spikes for this pattern
-	strdef fn_st
-	fn_st = $s2
-	print "Reading spikes from file: ", fn_st
-	read_data_st = new File()
-    read_data_st.ropen(fn_st)
-    mat_st = new Matrix()		
-    mat_st.scanf(read_data_st)	
-    nrow_st = mat_st.nrow()		
-    ncol_st = mat_st.ncol()
-
-    for (i = 0; i < nrow_nc; i += 1) {
-		gid = mat_nc.x[i][0]
-/*        printf("DEBUG BBBB pnm.gid_exist(%d) on pid %d = %d\n", gid, pnm.pc.id(), pnm.gid_exists(gid))*/
-		if (pnm.gid_exists(gid)) {
-			cell = pnm.pc.gid2cell(gid)
-			weight = mat_nc.x[i][2]
-			if (weight > 0) {
-/*                printf("DEBUG_ADD_AMPA_SYNAPSE %d weight= %.6e\n", gid, weight)*/
-				cell.add_ampa_synapse_to_soma(weight)
-				cell.add_nmda_synapse_to_soma(weight)
-/*                printf("DEBUG valid %d\n", cell.ampa_netconlist.o(cell.ampa_netconlist.count()-1).valid())*/
-			} else { // weight < 0
-				// should never occur ...
-				cell.add_gabaa_synapse_to_soma(-weight)
-			}
-/*            printf("DEBUG add_netcons_to_cortex_cells on proc %d: row=%d cell=%d weight=%.2e netconlist len %d \n", pnm.pc.id(), i, gid, weight, cell.ampa_netconlist.count())*/
-		}
-    }
-
-
-	// 
-    for (i = 0; i < nrow_st; i += 1) {
-		gid = mat_st.x[i][0]
-		if (pnm.gid_exists(gid)) {
-			cell = pnm.pc.gid2cell(gid)
-			t_event = mat_st.x[i][1]
-			netcon_id = mat_st.x[i][2]
-/*            if (netcon_id == cell.ampa_netconlist.count()){*/
-/*            printf("DEBUG CORTEX CELL gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
-/*            }*/
-
-			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
-			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
-		}
-    }
-}
 
 
 proc add_netcons_to_mit() { local gid, ncol, nrow, weight localobj cell, read_data, mat
@@ -1794,61 +1928,6 @@ proc insert_spikes_to_mit_from_file() { local i, nrow, ncol, netconid, t_event l
 			cell = pnm.pc.gid2cell(gid)
 			t_event = mat.x[i][1]
 			cell.netconlist_ext.o(0).event(t_event) //put it into netconlist
-		}
-    }
-}
-
-
-
-proc insert_exc_spikes_from_mit_to_pyr() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
-	// This function assumes that spikes will be inserted via two 
-	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
-    read_data = new File()
-	strdef fn 	
-	sprint(fn, "%s%d.dat", mit_pyr_spiketimes_tgt_netcon_fn_merged, pattern_nr)
-    read_data.ropen(fn)
-    mat = new Matrix()      // the data to be read
-    mat.scanf(read_data)    // read spike data from file
-    nrow = mat.nrow()		// n_spikes
-    ncol = mat.ncol()
-
-/*    printf("DEBUG AAAA fn: %s\n", fn)*/
-    for (i = 0; i < nrow; i += 1) {
-		gid = mat.x[i][0]
-		if (pnm.gid_exists(gid)) {
-			cell = pnm.pc.gid2cell(gid)
-			t_event = mat.x[i][1]
-			netcon_id = mat.x[i][2]
-/*            if (netcon_id == cell.ampa_netconlist.count()){*/
-/*            printf("DEBUG PYR gid %d netconid %d t_event %.2f \n", gid, netcon_id, t_event)*/
-/*            }*/
-			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
-			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
-		}
-    }
-}
-
-proc insert_exc_spikes_from_mit_to_rsnp() { local i, nrow, ncol, netcon_id, t_event localobj read_data, mat, cell
-	// This function assumes that spikes will be inserted via two 
-	// excitatory synapses represented by ampa_netconlist and nmda_netconlist owned by the target cell
-    read_data = new File()
-	strdef fn 	
-	sprint(fn, "%s%d.dat", mit_rsnp_spiketimes_tgt_netcon_fn_merged, pattern_nr)
-    read_data.ropen(fn)
-    mat = new Matrix()      // the data to be read
-    mat.scanf(read_data)    // read spike data from file
-    nrow = mat.nrow()		// n_spikes
-    ncol = mat.ncol()
-
-/*    printf("DEBUG AAAA-RSNP fn: %s\n", fn)*/
-    for (i = 0; i < nrow; i += 1) {
-		gid = mat.x[i][0]
-		if (pnm.gid_exists(gid)) {
-			cell = pnm.pc.gid2cell(gid)
-			t_event = mat.x[i][1]
-			netcon_id = mat.x[i][2]
-			cell.ampa_netconlist.o(netcon_id).event(t_event) //put it into netconlist
-			cell.nmda_netconlist.o(netcon_id).event(t_event) //put it into netconlist
 		}
     }
 }
