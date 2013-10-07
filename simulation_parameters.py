@@ -30,7 +30,7 @@ class parameter_storage(object):
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 1
-        self.params['concentration_sweep'] = 0
+        self.params['concentration_sweep'] = 1
         self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
@@ -500,7 +500,8 @@ class parameter_storage(object):
 
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_postLearning_fullSystem' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'])
-        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+        folder_name = 'CheckResponseCurves'
 #        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning_nhc%d_nmc%d' % (self.params['n_hc'], self.params['n_mc'])

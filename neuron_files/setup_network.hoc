@@ -1364,8 +1364,8 @@ proc load_mit_spiketimes(){local i, src_gid, spiketime, nrow, ncol localobj read
 		mit_spikes.append(new Vector())
 	}
 	for (i = 0; i < nrow; i += 1){
-		spiketime = int(mat.x[i][0]
-		src_gid = int(mat.x[i][1]
+		spiketime = int(mat.x[i][0])
+		src_gid = int(mat.x[i][1])
 		mit_spikes.o(src_gid - mit_offset).append(spiketime)
 	}
 }
@@ -1387,7 +1387,7 @@ proc add_vecstims_to_cortex() { local i, tgt, tgt_gid, weight localobj spike_vec
 	load_mit_spiketimes()
 	printf("Adding VecStim objects to pyr cells\n")
 	for (i = 0; i < n_mit; i += 1){
-		for (tgt = 0; tgt < mit_pyr_connlist_w.size()){
+		for (tgt = 0; tgt < mit_pyr_connlist_w.size(); tgt += 1){
 		// size or count or len ???!?!?!?!
 			tgt_gid = mit_pyr_connlist_tgt.o(i).x[tgt]
 			if (pnm.gid_exists(tgt_gid)) {
