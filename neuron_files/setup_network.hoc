@@ -2128,26 +2128,13 @@ proc connect_cells_ob_dendrodendritic() {
 proc connect_orns_to_ob(){
 	connect_orn_mit(conn_list_orn_mit)
 	connect_orn_pg(conn_list_orn_pg)
-	connect_pg_mit(conn_list_pg_mit_serial)
-	connect_pg_mit(conn_list_pg_mit_reciprocal)
-	connect_mit_pg(conn_list_mit_pg_reciprocal)
-	connect_mit_gran(conn_list_mit_gran_local)
-	connect_mit_gran(conn_list_mit_gran_global)
-	connect_gran_mit(conn_list_gran_mit_local)
-	connect_gran_mit(conn_list_gran_mit_global)
-}
-
-proc connect_cells_orn_to_ob_dendrodendritic(){
-	connect_orn_mit(conn_list_orn_mit)
-	connect_orn_pg(conn_list_orn_pg)
-	connect_pg_mit_dd(conn_list_pg_mit_serial)
-	connect_pg_mit_dd(conn_list_pg_mit_reciprocal)
-	connect_mit_pg_dd(conn_list_mit_pg_reciprocal)
-	connect_mit_pg_dd(conn_list_mit_pg_serial)
-	connect_mit_gran_dd(conn_list_mit_gran_local)
-	connect_mit_gran_dd(conn_list_mit_gran_global)
-	connect_gran_mit_dd(conn_list_gran_mit_local)
-	connect_gran_mit_dd(conn_list_gran_mit_global)
+/*    connect_pg_mit(conn_list_pg_mit_serial)*/
+/*    connect_pg_mit(conn_list_pg_mit_reciprocal)*/
+/*    connect_mit_pg(conn_list_mit_pg_reciprocal)*/
+/*    connect_mit_gran(conn_list_mit_gran_local)*/
+/*    connect_mit_gran(conn_list_mit_gran_global)*/
+/*    connect_gran_mit(conn_list_gran_mit_local)*/
+/*    connect_gran_mit(conn_list_gran_mit_global)*/
 }
 
 

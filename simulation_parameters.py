@@ -263,6 +263,7 @@ class parameter_storage(object):
         # ---------------- OB connectivity parameters
         # ---------------- ORN -> MIT connectivity
         self.params['w_nmda_mult'] = 3 # ORN - MT and ORN - PG: NMDA weights are multiplied by this factor compared to AMPA weights
+        # the same multiplication factor is used for MT - PG connectivity
 #        self.params['w_nmda_mult'] = 2 # ORN - MT and ORN - PG: NMDA weights are multiplied by this factor compared to AMPA weights
         self.params['with_auto_receptors'] = 1 # flag for glutamatergic autoreceptors on mitral cells
         self.params['w_mit_ampa_autoreceptors'] = 0.005 # weight of the NetCons in the mitral cell primary dendrite representing AMPA autoreceptors

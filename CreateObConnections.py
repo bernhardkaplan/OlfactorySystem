@@ -73,8 +73,6 @@ class CreateObConnections(object):
 
         # Each mitral cell gets excitatory input from a set of ORNs
         n_orn_mit = self.params['rel_orn_mit']
-#        self.conn_mat_orn_mit = numpy.zeros((self.n_orn, self.n_mit))
-#        self.conn_mat_orn_mit = [[] for i in xrange(self.n_orn)]
         self.conn_mat_orn_mit = [[] for i in xrange(self.n_mit)]
 
         n_mit_x = self.params['n_mit_x']
@@ -92,12 +90,11 @@ class CreateObConnections(object):
                 for src in xrange(n_orn_mit):
                     src_gid = src + src_offset
                     orn_id_x = src_gid % n_orn_x
+                    # as the output rate of ORNs projecting to the same glom is different, the weight is modified to compensate for this
                     w_mult = w_orn_mult + ((1. -  w_orn_mult) / (n_orn_x - 1)) * orn_id_x
                     w = rnd.normal(w_orn_mit * w_mult, w_orn_mit_sigma)
                     if (w > 0.0):
-#                        self.conn_mat_orn_mit[src_gid - orn_offset].append((tgt_gid, w))
                         self.conn_mat_orn_mit[tgt_gid - mit_offset].append((src_gid, w))
-#                        self.conn_mat_orn_mit[src_gid - orn_offset, tgt_gid - mit_offset] = w
 
 
     def connect_orn_mit(self):
@@ -120,6 +117,7 @@ class CreateObConnections(object):
         n_mit_y = self.params['n_mit_y']
         n_mit_x = self.params['n_mit_x']
 
+        # change the ORN -< MT projections for some certain MT cells
         for j in xrange(len(self.params['orn_mit_change_ids'])):
             col = self.params['orn_mit_change_ids'][j]
             tgt_mts_to_increase = [mit_offset + col + i * n_mit_x for i in xrange(n_mit_y)]
@@ -136,11 +134,6 @@ class CreateObConnections(object):
         for tgt in xrange(n_mit):
             for src in xrange(len(self.conn_mat_orn_mit[tgt])):
                 (src_gid, w) = self.conn_mat_orn_mit[tgt][src]
-#        for src in xrange(n_orn):
-#            for tgt in xrange(len(self.conn_mat_orn_mit[src])):
-#                (tgt_gid, w) = self.conn_mat_orn_mit[src][tgt]
-#            for tgt in xrange(n_mit):
-#                w = self.conn_mat_orn_mit[src, tgt]
                 if (w > 0.0):
                     conn_cnt += 1
 #                    src_gid = src + orn_offset
@@ -261,6 +254,8 @@ class CreateObConnections(object):
         n_pg_y = self.params['n_pg_y']
         n_orn_x = self.params['n_orn_x']
         pg_offset = self.params['pg_offset']
+
+        # certain PG cells may get modified excitatory weights from ORNs to extra-compensate for ORN output rates
         for j in xrange(len(self.params['orn_pg_change_ids'])):
             col = self.params['orn_pg_change_ids'][j]
             tgt_pgs_to_increase = [pg_offset + col + i * n_pg_x for i in xrange(n_pg_y)]
@@ -329,7 +324,7 @@ class CreateObConnections(object):
                 tgt_gid = group + tgt_offset
                 src_gid = src + src_offset
                 w = rnd.normal(w_pg_mit_serial, w_pg_mit_serial_sigma)
-                if (w > 0.0): # even inhibitory weights are positive, inhibition is handled via the reversal potential of the synapse in NEURON
+                if (w > 0.0): # inhibitory weights are positive, inhibition is handled via the reversal potential of the synapse in NEURON
                     lines_to_write_pg_mit += "%d\t%d\t%.6E\n" % (src_gid, tgt_gid, w)
                     conn_cnt_pg_mit += 1
                 
@@ -373,7 +368,7 @@ class CreateObConnections(object):
         Within each glomerulus there is a population of PG cells having reciprocal dendro-dendritic connections with MT cells.
         This population is split up in two:
             1) one having only local reciprocal ddi connections with a single MT cell
-            2) cells of the other have additionally ddi connections with all the other mitral cells
+            2) cells of the other have additionally ddi connections with all the other mitral cells in this glomerulus
             
         These PG cells also have serial connections to the MT cells to which they do not have DDI connections.
         """
@@ -397,7 +392,12 @@ class CreateObConnections(object):
         for glom in xrange(n_pg_y):
             src_offset = glom * n_pg_x + self.params['pg_offset']# + round(self.params['alpha_pg_serial'] * self.params['n_pg_x']) # additional offset because of the population of 'serial' PG in that row of the PG array
             tgt_offset = glom * n_mit_x + self.params['mit_offset']
+            # TODO: this is currently obsolete,
+            # should be:
+#            for src in xrange(self.params['n_pg_x_serial'], self.params['n_pg_x_serial'] + n_pg_rec_local): # these cells have local reciprocal ddi connections
             for src in xrange(self.params['n_pg_x_serial'], self.params['n_pg_x_serial']): # these cells have local reciprocal ddi connections
+                print '\n\nDEBUG\n will now quit\n'
+                exit(1)
                 # source PG cells are assigned to a distinct MT cell 'round-robin'
                 tgt_mt = src % n_mit_x
                 tgt_gid = tgt_mt + tgt_offset
@@ -414,7 +414,8 @@ class CreateObConnections(object):
                     lines_to_write_mit_pg += "%d\t%d\t%.6E\n" % (tgt_gid, src_gid, w_mit_pg) #tgt and source swapped
                     conn_cnt_mit_pg += 1
 
-            for src in xrange(self.params['n_pg_x_serial'] + n_pg_rec_local, self.params['n_pg_x']): # these cells have both local reciprocal ddi connections and intraglomerular, i.e. with other mitral cells, too
+            # these cells have BOTH local reciprocal ddi connections and intraglomerular, i.e. with other mitral cells, too
+            for src in xrange(self.params['n_pg_x_serial'] + n_pg_rec_local, self.params['n_pg_x']): 
                 src_gid = src + src_offset
                 tgt_mts = range(0, n_mit_x)
                 tgt_mts.remove(src % n_mit_x) # remove the one mt cell with which this cell already has a reciprocal connection to
