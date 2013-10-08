@@ -7,7 +7,6 @@ class CreateMitParameters(object):
         self.params = param_dict
         self.conn_list_orn_mit = self.params['conn_list_orn_mit']
         self.global_offset = self.params['global_offset']
-        self.seed = self.params['seed']
 
     def create_parameters(self, test=0):
         """

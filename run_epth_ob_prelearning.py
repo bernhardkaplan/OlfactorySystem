@@ -34,11 +34,12 @@ if prepare:
 
 
 t_all_0 = time.time()
-for pn in xrange(params['n_patterns']):
-    os.system("rm %s/*" % (params["spiketimes_folder"]))
-    os.system("rm %s/*" % (params["volt_folder"]))
+#for pn in xrange(params['n_patterns']):
+#    os.system("rm %s/*" % (params["spiketimes_folder"]))
+#    os.system("rm %s/*" % (params["volt_folder"]))
 
-for pn in xrange(params['n_patterns']):
+for pn in [0]:
+#for pn in xrange(params['n_patterns']):
     t1 = time.time()
     param_file_orns = params['orn_params_fn_base'] + '%d.dat' % pn
     assert os.path.exists(param_file_orns), 'File does not exist: %s\nPlease run prepare_epth_response_curve.py before!' % param_file_orns

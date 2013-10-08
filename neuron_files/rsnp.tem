@@ -211,7 +211,7 @@ begintemplate Rsnp// create a new template object
 
 	obfunc add_ampa_synapse_to_soma() {local threshold, delay
 		threshold = 10
-		delay = 0
+		delay = 1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
@@ -223,19 +223,19 @@ begintemplate Rsnp// create a new template object
 
 	obfunc add_nmda_synapse_to_soma() {local threshold, delay
 		threshold = 10
-		delay = 0
+		delay = 1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
-		soma nc = new NetCon($o1, synlist.o(2), threshold, delay, weight)
+		soma nc = new NetCon($o1, synlist.o(1), threshold, delay, weight)
 		nmda_netconlist.append(nc)
 		return nc
 	}
 
 	obfunc add_gabaa_synapse_to_soma() {local threshold, delay
 		threshold = 10
-		delay = 0
+		delay = 1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
