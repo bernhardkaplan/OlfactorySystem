@@ -223,38 +223,58 @@ begintemplate Pyr_rs // create a new template object
         m.fprint(file, "\t%f") //with a stupid first line
     }
 
-	obfunc add_ampa_synapse_to_soma() {local threshold, delay
-		threshold = 10
-		delay = 0
+/*    proc add_ampa_synapse_to_soma() {local delay, weight localobj nc*/
+/*        delay = 0*/
+/*        weight = $2*/
+/*        // create a new synapse on the target section*/
+/*        // if synlist.o(0) => excitatory synapse*/
+/*        // if synlist.o(1) => inhibitory synapse*/
+/*        soma nc = new NetCon($o1, synlist.o(0), 1, delay, weight)*/
+/*        ampa_netconlist.append(nc)*/
+/*    }*/
+
+	obfunc add_ampa_synapse_to_soma() {local delay, weight localobj nc, src
+		delay = 1
+		src = $o1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
-		soma nc = new NetCon($o1, synlist.o(0), threshold, delay, weight)
+		soma nc = new NetCon(src, synlist.o(0), 1, delay, weight)
 		ampa_netconlist.append(nc)
 		return nc
 	}
 
-	obfunc add_nmda_synapse_to_soma() {local threshold, delay
-		threshold = 10
-		delay = 0
+	obfunc add_nmda_synapse_to_soma() {local delay, weight localobj nc, src
+		delay = 1
+		src = $o1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
-		soma nc = new NetCon($o1, synlist.o(2), threshold, delay, weight)
+		soma nc = new NetCon(src, synlist.o(1), 1, delay, weight)
 		nmda_netconlist.append(nc)
 		return nc
 	}
 
-	obfunc add_gabaa_synapse_to_soma() {local threshold, delay
-		threshold = 10
-		delay = 0
+/*    obfunc add_nmda_synapse_to_soma() {local delay, weight localobj nc*/
+/*        delay = 0*/
+/*        weight = $2*/
+/*        // create a new synapse on the target section*/
+/*        // if synlist.o(0) => excitatory synapse*/
+/*        // if synlist.o(1) => inhibitory synapse*/
+/*        soma nc = new NetCon($o1, synlist.o(2), 1, delay, weight)*/
+/*        nmda_netconlist.append(nc)*/
+/*        return nc*/
+/*    }*/
+
+	obfunc add_gabaa_synapse_to_soma() {local delay, weight localobj nc
+		delay = 1
 		weight = $2
 		// create a new synapse on the target section
 		// if synlist.o(0) => excitatory synapse
 		// if synlist.o(1) => inhibitory synapse
-		soma nc = new NetCon($o1, synlist.o(1), threshold, delay, weight)
+		soma nc = new NetCon($o1, synlist.o(1), 1, delay, weight)
 		gabaa_netconlist.append(nc)
 		return nc
 	}

@@ -392,12 +392,7 @@ class CreateObConnections(object):
         for glom in xrange(n_pg_y):
             src_offset = glom * n_pg_x + self.params['pg_offset']# + round(self.params['alpha_pg_serial'] * self.params['n_pg_x']) # additional offset because of the population of 'serial' PG in that row of the PG array
             tgt_offset = glom * n_mit_x + self.params['mit_offset']
-            # TODO: this is currently obsolete,
-            # should be:
-#            for src in xrange(self.params['n_pg_x_serial'], self.params['n_pg_x_serial'] + n_pg_rec_local): # these cells have local reciprocal ddi connections
-            for src in xrange(self.params['n_pg_x_serial'], self.params['n_pg_x_serial']): # these cells have local reciprocal ddi connections
-                print '\n\nDEBUG\n will now quit\n'
-                exit(1)
+            for src in xrange(self.params['n_pg_x_serial'], self.params['n_pg_x_serial'] + n_pg_rec_local): # these cells have local reciprocal ddi connections
                 # source PG cells are assigned to a distinct MT cell 'round-robin'
                 tgt_mt = src % n_mit_x
                 tgt_gid = tgt_mt + tgt_offset

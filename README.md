@@ -18,16 +18,48 @@ Olfactory system simulation
     to a file, which can be displayed by plot_OR_placement_fit_params.py.
     
 
-
      
   ORN response curves: run_epth_response_curve.py (calls
   prepare_epth_response_curve.py and requires SetOfCurvesPlotter.py, and
-  MergeSpikefiles.py and the NEURON files -->
-  start_file_epth_response_curve.hoc)
-
+  MergeSpikefiles.py and the NEURON files --> start_file_epth_response_curve.hoc)
 
   OB response curve: similar to ORN response curve measurements, but with ORNs
   projecting to the OB 
+  
+  
+  For the system simulations:
+  First, run prepare_epth_ob_prelearning.py, then run_epth_ob_prelearning.py.
+  
+  After that, create a new folder e.g. use the old folder name ("Folder") with
+  the post fix "postLearning" (--> "Folder_postLearning"), i.e. in
+  simulation_parameters.py set_folder_name function:
+    params['folder_name'] = 'Folder_postLearning'
+  and after that, create a new folder structure by doing:
+    python CreateObOcConnections.py new
+  Make sure the new folders are created as you expect.
+    
+  Then, copy all files storing the number of spikes fired by mitral cells to the new folder:
+    cp Folder/NumberOfSpikes/mit_nspikes_* Folder_postLearning/NumberOfSpikes/
+    
+  Then, do
+    python CreateObOcConnections.py 
+  and 
+    python run_full_system_recognition_task.py
+  
+  
+  To run the system without resimulating the epithelium and the OB, again in
+  simulation_parameters.py set 
+    params['folder_name'] = 'Folder_OcOnly'
+    
+  Then, copy all files storing the merged mitral cell spiketimes to the new folder:
+  Merge all the spike time files:
+    python MergeSpikefiles.py Folder/ mit
+  Copy to new folder:
+    cp Folder/Spiketimes/mit_spiketimes_merged* Folder_OcOnly/Spiketimes/
+    cp Folder/NumberOfSpikes/mit_nspikes_merged* Folder_OcOnly/NumberOfSpikes/
+  Prepare and create connections:
+    python CreateObOcConnections.py 
+    
   
 
 Lindgren specific information
@@ -35,4 +67,7 @@ Lindgren specific information
   Compilation:
   bkaplan@emil-login2:/cfs/klemming/nobackup/b/bkaplan/OlfactorySystem/neuron_files>
   /cfs/klemming/nobackup/b/bkaplan/neuron-7.3/nrn-mpi/bin/nrnivmodl
+
+
+
 

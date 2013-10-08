@@ -57,19 +57,19 @@ distribute_all_cells()
 
 init_rnd()
 create_cells_with_oc()
-connect_cells_with_oc_ALa()
+connect_cells_with_oc()
 
 record_time_vec()
 // record_orn_testcells()
-record_readout_voltages()
 // record_mit_testcells()
 // record_gran_testcells()
 // record_pg_testcells()
+record_readout_voltages()
 record_pyr_sample()
 /*record_pyr_ca_sample()*/
 record_basket_sample()
 record_rsnp_sample()
-record_pyr_testcells()
+/*record_pyr_testcells()*/
 /*record_basket_testcells()*/
 /*record_rsnp_testcells()*/
 record_cells_from_file()
@@ -100,7 +100,7 @@ print_pyr_sample()
 /*print_pyr_ca_sample()*/
 print_basket_sample()
 print_rsnp_sample()
-print_pyr_testcells()
+/*print_pyr_testcells()*/
 /*print_basket_testcells()*/
 /*print_rsnp_testcells()*/
 print_cells_from_file()

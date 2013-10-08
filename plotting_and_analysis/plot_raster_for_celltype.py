@@ -19,9 +19,9 @@ def plot_raster_for_celltype(cell_type, show=True):
         Merger = MergeSpikefiles.MergeSpikefiles(params)
         Merger.merge_spiketimes_files(params['%s_spiketimes_fn_base' % (cell_type)], params['%s_spiketimes_merged_fn_base' % (cell_type)], pn)
 
-
     print 'Loading ', fn
     data = np.loadtxt(fn)
+    assert (data.size > 0), 'ERROR file %s has 0 size\nIf there was a problem when merging them, delete the empty one and rerun' % (fn)
 
     from FigureCreator import plot_params
     pylab.rcParams.update(plot_params)

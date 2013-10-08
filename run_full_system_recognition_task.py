@@ -17,19 +17,21 @@ for pn in xrange(params['n_patterns']):
     os.system("rm %s/*" % (params["spiketimes_folder"]))
     os.system("rm %s/*" % (params["volt_folder"]))
 
-for pn in xrange(params['n_patterns']):
+
+for pn in [0]:
+#for pn in xrange(params['n_patterns']):
     t1 = time.time()
 
-    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \
-            -c \"x=%d\" -c \"strdef param_file\" -c \"sprint(param_file, \\\"%s\\\")\" start_file_oc_only_recognition_task.hoc "\
-            % (params['n_proc'], pn, params['hoc_file'])
+#    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \
+#            -c \"x=%d\" -c \"strdef param_file\" -c \"sprint(param_file, \\\"%s\\\")\" start_file_oc_only_recognition_task.hoc "\
+#            % (params['n_proc'], pn, params['hoc_file'])
 #    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \
 #            -c \"x=%d\" -c \"strdef param_file\" -c \"sprint(param_file, \\\"%s\\\")\" start_file_oc_only_recognition_task.hoc > delme%d" \
 #            % (params['n_proc'], pn, params['hoc_file'], pn)
 
-#    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \
-#            -c \"x=%d\" -c \"strdef param_file\" -c \"sprint(param_file, \\\"%s\\\")\" start_file_full_system_recognition_task.hoc" \
-#            % (params['n_proc'], pn, params['hoc_file'])
+    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \
+            -c \"x=%d\" -c \"strdef param_file\" -c \"sprint(param_file, \\\"%s\\\")\" start_file_full_system_recognition_task.hoc" \
+            % (params['n_proc'], pn, params['hoc_file'])
 
     os.chdir('neuron_files') # this is important to avoide problems with tabchannel files and the functions defined therein
     print 'NEURON simulation starts for pattern %d ...' % pn

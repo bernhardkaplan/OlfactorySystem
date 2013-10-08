@@ -29,16 +29,17 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 1
-        self.params['concentration_sweep'] = 1
-        self.params['n_patterns'] = 50
+        self.params['Cluster'] = 0
+        self.params['concentration_sweep'] = 0
+        self.params['n_patterns'] = 5
+#        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
 
 #        self.params['noisy_affinity_matrix'] = 0
-        self.params['OR_affinity_noise'] = 0.2
+        self.params['OR_affinity_noise'] = 0.0
 
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 0: you should remove insert gk_ka from the pyr_rs template! and recompile the neuron_files
@@ -47,8 +48,8 @@ class parameter_storage(object):
         # ------ S E E D S -------------
         self.params['seed_activation_matrix'] = 312
         self.params['seed'] = 9 # this is for pattern generation, weight randomization, etc
-        self.params['seed_connections'] = 0
-        self.params['netstim_seed'] = 11 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
+        self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
+        self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
         self.params['OR_pattern_noise_seed'] = self.params['seed'] + 2
 
         # ------ N E T W O R K    S I Z E -----------
@@ -61,7 +62,7 @@ class parameter_storage(object):
                 self.params['n_or'] = 24
         else:
 #            self.params['n_or'] = 12
-            self.params['n_or'] = 60
+            self.params['n_or'] = 20
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
             self.params['rel_orn_mit'] = 200
@@ -70,7 +71,7 @@ class parameter_storage(object):
         else:
             self.params['rel_orn_mit'] = 10
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
-            self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
+            self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
         self.params['print_debug'] = 1 # flag to print more or less output
         # ------ C E L L     N U M B E R S ------------
@@ -101,12 +102,15 @@ class parameter_storage(object):
         self.params['n_cells_ob'] = self.params['n_mit'] + self.params['n_gran'] + self.params['n_pg']
         self.params['prop_pg_mit_serial_rec'] = 3 # relation between number serial and reciprocal synapses between periglomerular and MT cells, 3 is according to Shepherd's Book "Synaptic Organization of the Brain",i.e. 25% are reciprocal synapses
 
-        self.params['n_hc'] = 20
-        self.params['n_mc'] = 36
+        self.params['n_hc'] = 5
+        self.params['n_mc'] = 10
+#        self.params['n_hc'] = 20
+#        self.params['n_mc'] = 36
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
-        self.params['n_pyr_per_mc'] = 30
+        self.params['n_pyr_per_mc'] = 10
+#        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
         self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
@@ -148,16 +152,13 @@ class parameter_storage(object):
         self.params['n_cell_per_glom'] = self.params['n_orn_x'] + self.params['n_mit_x'] + self.params['n_pg_x'] + self.params['n_gran_x']
 
         # number of randomly selected testcells from which membrane potentials will be recorded
-        self.params['n_test_orn'] = 1
-        self.params['n_test_mit'] = 1
-        self.params['n_test_gran'] = 1
-        self.params['n_test_pg'] = 1
-        self.params['n_test_pyr'] = 1
+        self.params['n_sample_orn'] = 0
+        self.params['n_sample_mit'] = 0
+        self.params['n_sample_gran'] = 0
+        self.params['n_sample_pg'] = 1
         self.params['n_sample_pyr_per_mc'] = 1
-        self.params['n_test_basket'] = 1
         self.params['n_sample_basket_per_hc'] = 1
 #        self.params['n_sample_basket_per_hc'] = int(round(self.params['n_basket_per_hc'] / 10.0))
-        self.params['n_test_rsnp'] = 1
         self.params['n_sample_rsnp_per_mc'] = 1
 
         # BCPNN parameters
@@ -499,9 +500,14 @@ class parameter_storage(object):
         """
 
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning_nonoise' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_OcOnly' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_postLearning_fullSystem' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'])
 #        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-        folder_name = 'CheckResponseCurves'
+#        folder_name = 'CheckResponseCurves'
+#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
+#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
 #        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning'
 #        folder_name = 'FullSystemTest_np50_postLearning_nhc%d_nmc%d' % (self.params['n_hc'], self.params['n_mc'])
@@ -887,4 +893,14 @@ class parameter_storage(object):
         print "BASKET:%d\t\t%d -\t%d\n" % (self.params['n_basket'], self.params['basket_offset'], self.params['basket_offset'] + self.params['n_basket'] - 1)
         print "RSNP: %d\t\t%d -\t%d\n" % (self.params['n_rsnp'], self.params['rsnp_offset'], self.params['rsnp_offset'] + self.params['n_rsnp'] - 1)
         print "READOUT:%d\t%d -\t%d\n" % (self.params['n_readout'], self.params['readout_offset'], self.params['readout_offset'] + self.params['n_readout'] - 1)
+
+
+    def set_gids_to_record(self, gids_to_record=None):
+
+        n_gids_to_record = 5
+        if gids_to_record == None:
+            gids_to_record = np.random.randint(self.params['pyr_offset'], self.params['pyr_offset'] + self.params['n_pyr'], n_gids_to_record)
+
+        np.savetxt(self.params['gids_to_record_fn_base'] + '.dat', gids_to_record)
+
 
