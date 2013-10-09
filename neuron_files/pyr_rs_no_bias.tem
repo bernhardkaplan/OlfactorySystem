@@ -45,7 +45,7 @@ begintemplate Pyr_rs_no_bias
 
 	proc init() { local v_potassium, v_sodium, AMPAtau, AMPArev, GABAAtau, GABAArev
 
-		my_seed = $5
+		my_seed = $4
 		synlist = new List()
 		spiketimes = new Vector()
 		netconlist = new List()

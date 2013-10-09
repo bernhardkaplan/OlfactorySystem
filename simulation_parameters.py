@@ -42,8 +42,9 @@ class parameter_storage(object):
         self.params['OR_affinity_noise'] = 0.0
 
         self.params['with_noise'] = 1
-        self.params['with_bias'] = 1 #if 0: you should remove insert gk_ka from the pyr_rs template! and recompile the neuron_files
-        self.params['with_cond_bias'] = 1 # if 0: there's a constant negative current into some pyr cells
+        self.params['with_bias'] = 1 #if 1: pyramidal and readout neurons have an extra inhibitory ion channel to mimic intrinsic excitability
+        self.params['with_curr_bias'] = 0 # means that instead of the ion channel (giving dynamic inhibition) a static negative current is inserted in pyr and readout
+        # if with_bias == 0: it doesn't matter what with_curr_bias is
         self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
 
         # ------ S E E D S -------------

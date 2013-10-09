@@ -101,8 +101,7 @@ begintemplate Pyr_rs // create a new template object
 			insert cagk2		// calcium activated K channel (cagk.mod)
 			gkbar_cagk2=$2
 
-			// intrinsic excitability
-			insert ka
+			insert ka	// bias current for intrinsic excitability
 			gkabar_ka = $4
 			
 			// synapses

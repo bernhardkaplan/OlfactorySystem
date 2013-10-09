@@ -2097,18 +2097,17 @@ proc create_pyr() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 		gid = i + pyr_offset
 		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
 			if (with_bias){
-				if (with_cond_bias) {
+				if (with_curr_bias) {
 				// with conductance input
 					g_ka = v_pyr_gka[i]
 					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
-				} else { // you should remove insert gk_ka from the pyr_rs template!
-					cell = new Pyr_rs_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+				} else { 
+					cell = new Pyr_rs_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 					iclamp_amp = v_pyr_gka[i]
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
 				}
 			} else {
-				// you should remove insert gk_ka from the pyr_rs template!
-					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_rs_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 			}
 			pnm.register_cell(gid, cell)
 		}
@@ -2123,17 +2122,17 @@ proc create_pyr_lts() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 		gid = i + pyr_offset
 		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
 			if (with_bias){
-				if (with_cond_bias) {
+				if (with_curr_bias) {
 				// with conductance input
 					g_ka = v_pyr_gka[i]
-					cell = new Pyr_lts(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_lts(gid * (pattern_nr + 1), g_m_pyr, g_ka) // seed value is depending on pattern_nr in order to get different noise for different patterns
 				} else { // you should remove insert gk_ka from the pyr_rs template!
-					cell = new Pyr_lts_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_lts_no_bias(gid * (pattern_nr + 1), g_m_pyr) // seed value is depending on pattern_nr in order to get different noise for different patterns
 					iclamp_amp = v_pyr_gka[i]
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
 				}
 			} else {
-					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_lts_no_bias(gid * (pattern_nr + 1), g_m_pyr) // seed value is depending on pattern_nr in order to get different noise for different patterns
 			}
 			pnm.register_cell(gid, cell)
 		}
@@ -2169,17 +2168,17 @@ proc create_readout() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 		gid = i + readout_offset
 		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
 			if (with_bias){
-				if (with_cond_bias) { // with conductance input
+				if (with_curr_bias) { // with conductance input
 					g_ka = v_readout_gka[i]
 					cell = new Readout_spiking(g_leak_readout, tau_syn_exc, tau_syn_inh, g_ka)
 				} else { // you should remove insert gk_ka from the readout_rs template!
-					cell = new Readout_spiking(g_leak_readout, tau_syn_exc, tau_syn_inh, 0)
+					cell = new Readout_spiking_no_bias(g_leak_readout, tau_syn_exc, tau_syn_inh)
 					iclamp_amp = v_readout_gka[i]
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
 				}
 			} else {
 				// you should remove insert gk_ka from the readout template!
-				cell = new Readout_spiking(g_leak_readout, tau_syn_exc, tau_syn_inh, 0)
+				cell = new Readout_spiking_no_bias(g_leak_readout, tau_syn_exc, tau_syn_inh)
 			}
 			pnm.register_cell(gid, cell)
 		}
