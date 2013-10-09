@@ -29,9 +29,9 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 0
+        self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 0
-        self.params['n_patterns'] = 5
+        self.params['n_patterns'] = 50
 #        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
@@ -44,10 +44,11 @@ class parameter_storage(object):
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 0: you should remove insert gk_ka from the pyr_rs template! and recompile the neuron_files
         self.params['with_cond_bias'] = 1 # if 0: there's a constant negative current into some pyr cells
+        self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
 
         # ------ S E E D S -------------
         self.params['seed_activation_matrix'] = 312
-        self.params['seed'] = 9 # this is for pattern generation, weight randomization, etc
+        self.params['seed'] = 0 # this is for pattern generation, weight randomization, etc
         self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
         self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
         self.params['OR_pattern_noise_seed'] = self.params['seed'] + 2
@@ -62,10 +63,10 @@ class parameter_storage(object):
                 self.params['n_or'] = 24
         else:
 #            self.params['n_or'] = 12
-            self.params['n_or'] = 20
+            self.params['n_or'] = 40
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
-            self.params['rel_orn_mit'] = 200
+            self.params['rel_orn_mit'] = 100
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
@@ -102,14 +103,14 @@ class parameter_storage(object):
         self.params['n_cells_ob'] = self.params['n_mit'] + self.params['n_gran'] + self.params['n_pg']
         self.params['prop_pg_mit_serial_rec'] = 3 # relation between number serial and reciprocal synapses between periglomerular and MT cells, 3 is according to Shepherd's Book "Synaptic Organization of the Brain",i.e. 25% are reciprocal synapses
 
-        self.params['n_hc'] = 5
-        self.params['n_mc'] = 10
-#        self.params['n_hc'] = 20
-#        self.params['n_mc'] = 36
+#        self.params['n_hc'] = 5
+#        self.params['n_mc'] = 10
+        self.params['n_hc'] = 25
+        self.params['n_mc'] = 16
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
-        self.params['n_pyr_per_mc'] = 10
+        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
         self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
@@ -485,7 +486,7 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 3 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 8 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_bcpnn_steps'] = 1
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
 
@@ -499,13 +500,15 @@ class parameter_storage(object):
         folder_name -- string
         """
 
+        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning_nonoise' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_OcOnly' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_OcOnly' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_postLearning_fullSystem' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'])
 #        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'CheckResponseCurves'
+#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
 #        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
 #        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
 #        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'

@@ -19,7 +19,7 @@
 
 --------------------------------------------------------------*/
 
-begintemplate Pyr_rs // create a new template object
+begintemplate Pyr_rs_no_bias
 
 	public soma, ampa, gabaa, nmda, netconlist, noise_netconlist, synlist
 	public ampa_netconlist, nmda_netconlist, gabaa_netconlist
@@ -101,9 +101,7 @@ begintemplate Pyr_rs // create a new template object
 			insert cagk2		// calcium activated K channel (cagk.mod)
 			gkbar_cagk2=$2
 
-			// intrinsic excitability
-			insert ka
-			gkabar_ka = $4
+			// no bias, no intrinsic excitability
 			
 			// synapses
 			AMPAtau	= 10		//ms
@@ -408,7 +406,7 @@ begintemplate Pyr_rs // create a new template object
 
 
  
-endtemplate Pyr_rs
+endtemplate Pyr_rs_no_bias
 
 
 

@@ -14,10 +14,14 @@ load_file("periglomerular.tem")
 load_file("orn.tem")
 load_file("granule.tem")
 load_file("pyr_rs.tem")
+load_file("pyr_rs_no_bias.tem")
+load_file("pyr_lts.tem")
+load_file("pyr_lts_no_bias.tem")
 load_file("basket.tem")
 load_file("rsnp.tem")
 load_file("readout_cell.tem")
 load_file("readout_spiking.tem")
+load_file("readout_spiking_no_bias.tem")
 load_file("MyRandomStream.hoc")
 
 // file names for cell parameters
@@ -2098,10 +2102,9 @@ proc create_pyr() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 					g_ka = v_pyr_gka[i]
 					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 				} else { // you should remove insert gk_ka from the pyr_rs template!
-					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_rs_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 					iclamp_amp = v_pyr_gka[i]
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
-/*                cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, rnd_int.repick() * (pattern_nr+1))// seed value is depending on pattern_nr in order to get different noise for different patterns*/
 				}
 			} else {
 				// you should remove insert gk_ka from the pyr_rs template!
@@ -2111,6 +2114,32 @@ proc create_pyr() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 		}
 	}
 }
+
+
+proc create_pyr_lts() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
+	// Create Low-Threshold-Spiking neurons http://senselab.med.yale.edu/ModelDb/ShowModel.asp?model=123623&file=\PospischilEtAl2008\sPYr_template
+	with_bias = $1
+	for (i = 0; i < n_pyr; i += 1){
+		gid = i + pyr_offset
+		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
+			if (with_bias){
+				if (with_cond_bias) {
+				// with conductance input
+					g_ka = v_pyr_gka[i]
+					cell = new Pyr_lts(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+				} else { // you should remove insert gk_ka from the pyr_rs template!
+					cell = new Pyr_lts_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					iclamp_amp = v_pyr_gka[i]
+					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
+				}
+			} else {
+					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, 0, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+			}
+			pnm.register_cell(gid, cell)
+		}
+	}
+}
+
 
 proc create_basket() { local gid, i localobj cell
 	for (i = 0; i < n_basket; i += 1){
