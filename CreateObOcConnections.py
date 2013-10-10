@@ -26,6 +26,10 @@ import TransformAbstractToDetailedConnectivity
 # classes for setting up connectivity and the individual cell parameters
 t_init = time.time()
 
+
+from run_oc_only import add_first_line
+
+
 def mds_vq_ob_output(params):
     ob_activity_fn = params['mit_response_normalized']
 
@@ -36,7 +40,8 @@ def mds_vq_ob_output(params):
     # 2) run MDS in this MI-space (OB pattern reponse or mutual information (MI) space) and save mitral cell coordinates
     mds_output_fn = params['mds_ob_oc_output_fn']
     cell_type = 'mit'
-#    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
+    assert (os.path.exists(activity_fn)), 'ERROR: File does not exist %s\n\t Have you run mds_vq_ob_output properly?\n'
+    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
 
     t_2 = time.time()
     t_diff = t_2 - t_init
@@ -220,9 +225,14 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         if sys.argv[1] == 'new':
             print 'Created folder structure, will now quit'
+            print 'New folder:', params['folder_name']
+
             exit(1)
 
-    prepare_epth_ob_prelearning.prepare_epth_ob(params)
+    for pn in xrange(params['n_patterns']):
+        add_first_line(pn)
+
+#    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
 #    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)

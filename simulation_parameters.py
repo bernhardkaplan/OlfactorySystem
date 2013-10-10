@@ -491,7 +491,7 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 30 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 20 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_bcpnn_steps'] = 1
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_dim_mds'] = 3
@@ -506,24 +506,10 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
+#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
+        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_postL' % (self.params['n_or'], \
                 self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning_nonoise' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_OcOnly' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_postLearning_fullSystem' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'])
-#        folder_name = 'ExpDisAffMapping_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
-#        folder_name = 'CheckResponseCurves'
-#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
-#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
-#        folder_name = 'PaperData_ObResponseCurves_seed%d' % (self.params['seed'])
-#        folder_name = 'ExponentialDistanceAffinityMapping_postLearning'
-#        folder_name = 'FullSystemTest_np50_postLearning'
-#        folder_name = 'FullSystemTest_np50_postLearning_nhc%d_nmc%d' % (self.params['n_hc'], self.params['n_mc'])
-#        folder_name = 'FullSystemTest_np%d_normalized_OrnAct' % (self.params['n_patterns'])
-#        folder_name = 'ObTest93_seed%d%d'% (self.params['seed'], self.params['netstim_seed'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:

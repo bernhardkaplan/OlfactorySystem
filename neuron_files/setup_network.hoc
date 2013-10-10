@@ -2167,12 +2167,12 @@ proc create_readout() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
 			if (with_bias){
 				if (with_curr_bias) { // with current input
-					g_ka = v_readout_gka[i]
-					cell = new Readout_spiking(g_leak_readout, tau_syn_exc, tau_syn_inh, g_ka)
-				} else {  // the AType K channel is used to provide a bias modelling intrinsic excitability
 					cell = new Readout_spiking_no_bias(g_leak_readout, tau_syn_exc, tau_syn_inh)
 					iclamp_amp = v_readout_gka[i]
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
+				} else {  // the AType K channel is used to provide a bias modelling intrinsic excitability
+					g_ka = v_readout_gka[i]
+					cell = new Readout_spiking(g_leak_readout, tau_syn_exc, tau_syn_inh, g_ka)
 				}
 			} else { // no current, no ion channel used
 				cell = new Readout_spiking_no_bias(g_leak_readout, tau_syn_exc, tau_syn_inh)

@@ -48,8 +48,6 @@ sprint(testfile_name, "%s/delme_testfile", folder_name)
 testfile.wopen(testfile_name)
 testfile.printf("delme")
 
-read_orn_parameters(orn_params_file) // file created by create_parameterfile_for_simple_OB.py
-/*read_mit_parameters(mit_params_file) // file created by create_parameterfile_for_simple_OB.py*/
 read_pyr_parameters(pyr_params_file) // file created by CreatePyrParameters
 read_readout_parameters(readout_params_file) // file created by CreatereadoutParameters
 

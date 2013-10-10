@@ -48,7 +48,7 @@ except:
     data = np.loadtxt(path)
 
 get_mean_max_min_median(data)
-thresh = 0.0001
+thresh = 0.4
 get_units_above_thresh(data, thresh)
 
 # if you want to take the log of the data to plot
