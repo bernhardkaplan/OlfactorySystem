@@ -37,7 +37,7 @@ class MDSVQ(object):
         dist_mat = Orange.core.SymMatrix(distances)
 
         # without initial guess
-        n_dim = 3
+        n_dim = self.params['n_dim_mds']
         mds = Orange.projection.mds.MDS(dist_mat, dim=n_dim)
         # Optimization loop; calculate the stress only after each 10 optimization steps:
         for i in xrange(n_steps):
@@ -397,6 +397,7 @@ class MDSVQ(object):
 #            centroids, distortions = scvq.kmeans(d, n_mc, thresh=1e-8)
 
 #            centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
+            print 'DEBUG d', d
             centroids, distortions = scvq.kmeans2(d, n_mc, minit='points')
             codes, dist = scvq.vq(d, centroids)
 

@@ -1,3 +1,8 @@
+"""
+1) cluster_odorant_space.py
+2) average_OR_affinity_distributions.py
+
+"""
 
 import pylab
 import numpy as np

@@ -136,7 +136,13 @@ class CreateOrnParameters(object):
                 # draw a random distance from the fitted distance distribution
                 dist = self.odorant_odor_distance_distribution((p1, p2, p3))
                 distances[pn, OR] = dist
-                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter'])
+#                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter'])
+                affinity = 1. / dist
+                affinity -= self.params['distance_affinity_transformation_parameter']
+                if affinity > 1.:
+                    affinity = 1.
+                if affinity < 0.:
+                    affinity = 0.
 #                print 'DEBUG pn %d OR %d \tdist = %.6f\taffinity = %.6f' % (pn, OR, dist, affinity)
                 self.activation_matrix[pn, OR] = affinity
 

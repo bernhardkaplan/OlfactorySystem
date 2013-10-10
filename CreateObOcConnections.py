@@ -36,7 +36,7 @@ def mds_vq_ob_output(params):
     # 2) run MDS in this MI-space (OB pattern reponse or mutual information (MI) space) and save mitral cell coordinates
     mds_output_fn = params['mds_ob_oc_output_fn']
     cell_type = 'mit'
-    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
+#    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
 
     t_2 = time.time()
     t_diff = t_2 - t_init
@@ -76,7 +76,7 @@ def bcpnn_ob_oc(params):
     binary_oc_activation_fn = params['binary_oc_activation_fn']
     w_ij_mit_hc = params['vq_ob_oc_output_fn']
     weights_fn = params['ob_oc_abstract_weights_fn']
-    print "BCPNN OB -> OC loading files:", ob_activity_fn, '\n', activity_fn, '\n', weights_fn, '\n', bias_fn, '\n', binary_oc_activation_fn, '\n', w_ij_mit_hc
+    print "BCPNN OB -> OC loading files:", ob_activity_fn
 
 
     bcpnn.load_input_activity(ob_activity_fn)
@@ -222,19 +222,19 @@ if __name__ == '__main__':
             print 'Created folder structure, will now quit'
             exit(1)
 
-#    prepare_epth_ob_prelearning.prepare_epth_ob(params)
+    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-    ObAnalyser.get_output_file()
-    ObAnalyser.get_output_activity()
-    ObAnalyser.rescale_activity()
-    mds_vq_ob_output(params)
+#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+#    ObAnalyser.get_output_file()
+#    ObAnalyser.get_output_activity()
+#    ObAnalyser.rescale_activity()
+#    mds_vq_ob_output(params)
 
-    bcpnn_ob_oc(params)
-    bcpnn_oc_oc(params)
-    bcpnn_oc_readout(params)
+#    bcpnn_ob_oc(params)
+#    bcpnn_oc_oc(params)
+#    bcpnn_oc_readout(params)
 
-    create_pyr_parameters(params)
-    create_connections(params)
+#    create_pyr_parameters(params)
+#    create_connections(params)
 

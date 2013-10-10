@@ -23,6 +23,7 @@ class parameter_storage(object):
 
         self.print_cell_gids()
 
+
     def set_default_params(self):
 
 
@@ -48,7 +49,7 @@ class parameter_storage(object):
         self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
 
         # ------ S E E D S -------------
-        self.params['seed_activation_matrix'] = 312
+        self.params['seed_activation_matrix'] = 5234
         self.params['seed'] = 0 # this is for pattern generation, weight randomization, etc
         self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
         self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
@@ -106,15 +107,15 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 25
-        self.params['n_mc'] = 16
+        self.params['n_hc'] = 40
+        self.params['n_mc'] = 9
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
         self.params['n_pyr_per_mc'] = 30
 #        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
-        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
+        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 3.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
         self.params['n_pyr_pyr_between_2mc'] =  self.params['n_pyr_per_mc'] ** 2 * 0.05 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern)
         self.params['n_pyr_rsnp_between_2mc'] = self.params['n_pyr_per_mc'] / 3.0 # number of pyr->rsnp connections between two minicolumns (belonging to different patterns)
@@ -195,7 +196,10 @@ class parameter_storage(object):
         self.params['odorant_receptor_distance_distribution_parameters'] = [162.310869565, 6.67080434783, 1.98630434783,\
          19.8056521739, 10.8089130435, 3.32682608696, \
          4.4382173913, 40.8932608696, 0.456293478261] # these values are the mean values for the fit parameters to the distance distribution for 20 - 65 ORs
-        self.params['distance_affinity_transformation_parameter'] = 2 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
+        self.params['distance_affinity_transformation_parameter'] = .1 # this value is subtracted from the activation_matrix when createing ORN parameters
+        # .1 is subtracted to model the inhibitory response: 11% of all odorant-receptor combinations resulted in inhibitory responses (Hallem 2006)
+        # if nothing is subtracted the model would give ~12 % of all activations are below .1 Thus, inhibition is modeled as effective 0 activation for those 11-12% or odorant receptor pairs
+#        self.params['distance_affinity_transformation_parameter'] = 1 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
         """
         The values of the parameters for the fit to the OR-distance distribution do not change qualitatively for the range
         between 20 and 65 ORs (centroids). That's why we chose to take the mean values for those distributions to generate the activation matrix.
@@ -389,8 +393,8 @@ class parameter_storage(object):
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.005             # max weight for exc mit -> pyr connection
-        self.params['w_mit_rsnp_max'] = 0.002             # max weight for exc mit -> rsnp connection, new 
+        self.params['w_mit_pyr_max'] = 0.001             # max weight for exc mit -> pyr connection
+        self.params['w_mit_rsnp_max'] = 0.0005             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
         self.params['w_mit_pyr_sigma_frac'] = self.params['w_sigma']
@@ -487,9 +491,10 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 8 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 30 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
         self.params['n_bcpnn_steps'] = 1
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['n_dim_mds'] = 3
 
 
 
@@ -501,7 +506,9 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
+        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
+                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
+#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_postLearning_nonoise' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])
 #        folder_name = 'Testing_nGlom%d_nHC%d_nMC%d_rORN%d_ORnoise%.1f_OcOnly' % (self.params['n_or'], self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['OR_affinity_noise'])

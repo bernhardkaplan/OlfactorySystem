@@ -10,6 +10,10 @@ import CreateOrnParameters
 
 def prepare_epth_ob(params):
 
+    print "Creating ORN parameters...."
+    OrnParamClass = CreateOrnParameters.CreateOrnParameters(params)
+    ok = OrnParamClass.create_single_odorant_patterns()
+
     # EPTH -> OB connections are not affected by the pattern
     #print "Creating connections: orn -> mit"
     ConnectionClass = CreateObConnections.CreateObConnections(params)
@@ -20,9 +24,6 @@ def prepare_epth_ob(params):
     ConnectionClass.connect_mt_gran_local()
     ConnectionClass.connect_mt_gran_global()
 
-    print "Creating ORN parameters...."
-    OrnParamClass = CreateOrnParameters.CreateOrnParameters(params)
-    ok = OrnParamClass.create_single_odorant_patterns()
 
 if __name__ == '__main__':
     t1 = time.time()

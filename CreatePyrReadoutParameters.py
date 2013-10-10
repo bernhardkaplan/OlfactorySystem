@@ -15,21 +15,21 @@ class CreatePyrReadoutParameters(object):
         bias_file = self.params['ob_oc_abstract_bias_fn']
         biases = np.loadtxt(bias_file)
         assert (biases.size == self.params['n_hc'] * self.params['n_mc']), "Number of MC does not match in bias file and parameterfile"
-        if (self.params['with_cond_bias']):
-            cv = self.get_bias_conductance_conversion_factor()
-            conductances = biases * cv  # [uS / cm^2]
-        else:
+        if (self.params['with_curr_bias']):
             cv = self.get_bias_iamp_conversion_factor()
             i_bias = biases * cv  # [uS / cm^2]
+        else:
+            cv = self.get_bias_conductance_conversion_factor()
+            conductances = biases * cv  # [uS / cm^2]
 
         output_fn = self.params['pyr_params_file']
         f = open(output_fn, 'w')
         lines_to_write = ""
 
-        if (self.params['with_cond_bias']):
-            output_params = conductances
-        else:
+        if (self.params['with_curr_bias']):
             output_params = i_bias
+        else:
+            output_params = conductances
 
         for mc in xrange(self.params['n_hc'] * self.params['n_mc']):
             for pyr in xrange(self.params['n_pyr_per_mc']):
@@ -49,21 +49,21 @@ class CreatePyrReadoutParameters(object):
         bias_file = self.params['oc_readout_abstract_bias_fn']
         biases = np.loadtxt(bias_file)
         assert (biases.size == self.params['n_readout']), "Number of Readout cells does not match in bias file and parameterfile %s" % self.params['oc_readout_abstract_bias_fn']
-        if (self.params['with_cond_bias']):
-            cv = self.get_bias_conductance_conversion_factor()
-            conductances = biases * cv  # [uS / cm^2]
-        else:
+        if (self.params['with_curr_bias']):
             cv = self.get_bias_iamp_conversion_factor()
             i_bias = biases * cv  # [uS / cm^2]
+        else:
+            cv = self.get_bias_conductance_conversion_factor()
+            conductances = biases * cv  # [uS / cm^2]
 
         output_fn = self.params['readout_params_file']
         f = open(output_fn, 'w')
         lines_to_write = ""
 
-        if (self.params['with_cond_bias']):
-            output_params = conductances
-        else:
+        if (self.params['with_curr_bias']):
             output_params = i_bias
+        else:
+            output_params = conductances
 
         for readout in xrange(self.params['n_readout']):
             gid = readout + self.params['readout_offset']
