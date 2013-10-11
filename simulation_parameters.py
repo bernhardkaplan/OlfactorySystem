@@ -38,6 +38,7 @@ class parameter_storage(object):
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
+        self.params['oc_only'] = False
 
 #        self.params['noisy_affinity_matrix'] = 0
         self.params['OR_affinity_noise'] = 0.0
@@ -115,7 +116,7 @@ class parameter_storage(object):
         self.params['n_pyr_per_mc'] = 30
 #        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
-        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 3.0 # number of pyr cells per minicolumn activated by input from OB
+        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
         self.params['n_pyr_pyr_between_2mc'] =  self.params['n_pyr_per_mc'] ** 2 * 0.05 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern)
         self.params['n_pyr_rsnp_between_2mc'] = self.params['n_pyr_per_mc'] / 3.0 # number of pyr->rsnp connections between two minicolumns (belonging to different patterns)
@@ -386,15 +387,15 @@ class parameter_storage(object):
         # connection probabilities
         self.params['p_rsnp_pyr'] = 0.7
         self.params['p_pyr_pyr_local'] = 0.25
-        self.params['p_pyr_pyr_global'] = 0.3
+        self.params['p_pyr_pyr_global'] = 0.3 # only relevant when 'orthogonal' patterns are studied 
         self.params['p_pyr_basket'] = 0.7
         self.params['p_basket_pyr'] = 0.7
         self.params['p_pyr_rsnp'] = 0.3
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.001             # max weight for exc mit -> pyr connection
-        self.params['w_mit_rsnp_max'] = 0.0005             # max weight for exc mit -> rsnp connection, new 
+        self.params['w_mit_pyr_max'] = 0.004             # max weight for exc mit -> pyr connection
+        self.params['w_mit_rsnp_max'] = 0.002             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
         self.params['w_mit_pyr_sigma_frac'] = self.params['w_sigma']
@@ -517,6 +518,8 @@ class parameter_storage(object):
             use_abspath = False
         else:
             use_abspath = True
+        if self.params['oc_only']:
+            folder_name += 'OcOnly'
             
         if use_abspath:
             self.params['folder_name'] = os.path.abspath(folder_name)

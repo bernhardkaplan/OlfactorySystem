@@ -82,7 +82,7 @@ if (with_auto_receptors){
 
 
 record_time_vec()
-record_sample_orn_cells()
+// record_sample_orn_cells()
 record_sample_mit_cells()
 record_sample_gran_cells()
 record_sample_pg_cells()
@@ -91,7 +91,6 @@ record_sample_pg_cells()
 /*record_mit_testcells()*/
 /*record_gran_testcells()*/
 /*record_pg_testcells()*/
-
 
 
 // CHANGE dt:
@@ -105,8 +104,7 @@ start = startsw()
 pnm.psolve(t_sim)
 
 print_time_vec()
-print_sample_orn_cells()
-print_sample_orn_cells()
+// print_sample_orn_cells()
 print_sample_mit_cells()
 print_sample_gran_cells()
 print_sample_pg_cells()
@@ -133,7 +131,9 @@ print_sample_pg_cells()
 
 /*print_testcells_voltages()*/
 // save all output spikes into a dedicated process individual file
+waittime = pnm.pc.barrier()
 write_spikes_to_files_epth_ob(pattern_nr)
+waittime = pnm.pc.barrier()
 
 pnm.pc.runworker()
 pnm.pc.done()

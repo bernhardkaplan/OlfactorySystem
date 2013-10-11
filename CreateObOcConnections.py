@@ -136,13 +136,14 @@ def bcpnn_oc_readout(params):
     n_patterns = params['n_patterns']
     n_hc = params['n_hc']
     n_mc = params['n_mc']
-#    if params['multiple_concentrations_per_pattern']:
+#    if params['test_conc_invariance']:
 #        n_readout = self.params['SOMETHING_TODO']
 #        readout_activation = numpy.zeros((n_patterns, n_readout))
 #        for pn in xrange(n_patterns):
 #            active_readout_idx = pn / params['n_concentrations']
 #            readout_activation[pn, active_readout_idx] = 1
 #    else:
+
     n_readout = params['n_patterns']
     readout_activation = numpy.eye(n_patterns)
     print 'readout_activation', readout_activation
@@ -218,20 +219,45 @@ if __name__ == '__main__':
     param_tool = simulation_parameters.parameter_storage()
     # params is the dictionary with all parameters
     params = param_tool.params
-    param_tool.write_parameters_to_file(params["info_file"])
-    param_tool.write_parameters_to_file() # 
-    param_tool.hoc_export() # 
 
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1: 
+        # you want to create a new folder structure to not overwrite the results obtained from 
+        # presenting patterns to EPTH and OB --> 'preLearning' results
+        # it's convenient to write results into a seperate folder structure as OB->OC connectivity
+        # and pattern recognition might require some tuning (as every model does ;))
         if sys.argv[1] == 'new':
             print 'Created folder structure, will now quit'
             print 'New folder:', params['folder_name']
 
+        try: 
+            preLearning_folder = os.path.abspath(sys.argv[2])
+
+            cmd = 'cp %s/NumberOfSpikes/mit_nspikes_merged_* %s' % (preLearning_folder, params['nspikes_folder'])
+            print cmd
+            os.system(cmd)
+            cmd = 'cp %s/Parameters/* %s' % (preLearning_folder, params['params_folder'])
+            print cmd
+            os.system(cmd)
+            cmd = 'cp %s/Connections/* %s' % (preLearning_folder, params['conn_folder'])
+            print cmd
+            os.system(cmd)
+            if params['oc_only']:
+                cmd = 'cp %s/Spiketimes/mit_spiketimes_merged_* %s' % (preLearning_folder, params['spiketimes_folder'])
+                print cmd
+                os.system(cmd)
+                for pn in xrange(params['n_patterns']):
+                    add_first_line(pn)
+
+        except:
+            print 'Could not copy MT spike times to new folder. You need to copy them by hand from the preLearning folder'
             exit(1)
+        
+    param_tool.write_parameters_to_file(params["info_file"])
+    param_tool.write_parameters_to_file() # 
+    param_tool.hoc_export() # 
+#    exit(1)
 
-    for pn in xrange(params['n_patterns']):
-        add_first_line(pn)
-
+    # optional: take care to create the same patterns as the preLearning folder!
 #    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------

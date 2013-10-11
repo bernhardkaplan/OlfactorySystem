@@ -64,6 +64,9 @@ record_time_vec()
 // record_mit_testcells()
 // record_gran_testcells()
 // record_pg_testcells()
+record_sample_mit_cells()
+record_sample_gran_cells()
+record_sample_pg_cells()
 record_readout_voltages()
 record_pyr_sample()
 /*record_pyr_ca_sample()*/
@@ -96,6 +99,10 @@ print_readout_voltages()
 // print_mit_testcells()
 // print_gran_testcells()
 // print_pg_testcells()
+//
+print_sample_mit_cells()
+print_sample_gran_cells()
+print_sample_pg_cells()
 print_pyr_sample()
 /*print_pyr_ca_sample()*/
 print_basket_sample()
@@ -108,7 +115,9 @@ print_cells_from_file()
 
 
 // save all output spikes into a dedicated process individual file
+waittime = pnm.pc.barrier()
 write_spikes_to_files(pattern_nr)
+waittime = pnm.pc.barrier()
 
 pnm.pc.runworker()
 pnm.pc.done()

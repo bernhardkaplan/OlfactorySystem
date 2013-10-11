@@ -2203,6 +2203,11 @@ proc add_connections() {local i, nrow, ncol localobj stvec, read_data, mat, cell
 }
 
 
+
+proc connect_orns_to_ob() {
+	connect_orn_mit(conn_list_orn_mit)
+	connect_orn_pg(conn_list_orn_pg)
+}
 proc connect_cells_ob_dendrodendritic() {
 	connect_pg_mit_dd(conn_list_pg_mit_serial)
 	connect_pg_mit_dd(conn_list_pg_mit_reciprocal)
@@ -2214,11 +2219,6 @@ proc connect_cells_ob_dendrodendritic() {
 	connect_gran_mit_dd(conn_list_gran_mit_global)
 }
 
-
-proc connect_orns_to_ob() {
-	connect_orn_mit(conn_list_orn_mit)
-	connect_orn_pg(conn_list_orn_pg)
-}
 
 
 proc connect_cells_with_oc() {
