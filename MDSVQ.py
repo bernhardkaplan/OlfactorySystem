@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import os 
 import sys
 import time
@@ -25,11 +25,11 @@ class MDSVQ(object):
             input_fn = input_fn_or_array
             print "MDSVQ.calculate_distances_from_normalized_output from :", input_fn
             try: 
-                input_array = numpy.loadtxt(input_fn)
+                input_array = np.loadtxt(input_fn)
             except:
-                input_array = numpy.loadtxt(input_fn, delimiter=',')
+                input_array = np.loadtxt(input_fn, delimiter=',')
         else:
-            assert (type(input_fn_or_array) == type(numpy.array([]))), "ERROR: Wrong type %s [must be a file name or numpy array]" % (type(input_fn_or_array))
+            assert (type(input_fn_or_array) == type(np.array([]))), "ERROR: Wrong type %s [must be a file name or np array]" % (type(input_fn_or_array))
             input_array = input_fn_or_array
 
         distances = self.calculate_distances_from_normalized_output(input_array, cell_type='mit')
@@ -42,12 +42,12 @@ class MDSVQ(object):
         # Optimization loop; calculate the stress only after each 10 optimization steps:
         for i in xrange(n_steps):
             old_stress = mds.avg_stress
-            for j in range(10):
+            for j in xrange(20):
 #                mds.SMACOFstep()
                 mds.smacof_step()
             mds.calc_stress(Orange.projection.mds.KruskalStress)
             print "i: %d stress: %.3e" % (i, mds.avg_stress)
-            if ((old_stress * thresh) > numpy.abs(old_stress - mds.avg_stress)):
+            if ((old_stress * thresh) > np.abs(old_stress - mds.avg_stress)):
                 print "MDS stops after iteration %d because average_stress doesn't change more than %.3e percent" % (i, thresh * 100.)
                 break
 
@@ -71,16 +71,16 @@ class MDSVQ(object):
         #    pylab.scatter(x, y)#, c=colors[i % (len(colors))])
 
 
-        mds_output = numpy.array(points)
+        mds_output = np.array(points)
         print "saving mds output to:", mds_output_fn
-        numpy.savetxt(mds_output_fn, mds_output)
+        np.savetxt(mds_output_fn, mds_output)
         return mds_output
 
 
     def vq_ob_oc(self, points_fn, overlap=0, thresh=1e-6):
 
         print "loading mds from:", points_fn
-        points = numpy.loadtxt(points_fn)
+        points = np.loadtxt(points_fn)
 
         n_mit = self.params['n_mit']
         n_hc = self.params['n_hc']
@@ -95,7 +95,7 @@ class MDSVQ(object):
         #print "code:", code
         dist_mat = self.get_distances(points, centroids) # distance matrix between mitral cells and hypercolumns represented by centroids
 
-        membership_array = numpy.zeros((n_mit, overlap+1))
+        membership_array = np.zeros((n_mit, overlap+1))
         membership_dict = {} # membership_dict['hypercolumn'] = list of source mitral cells
         # membership_dict gives MIT - HC connectivity
 
@@ -120,9 +120,9 @@ class MDSVQ(object):
                 membership_array[mit, 0] = code[mit]
 
         mit_hc_conn_fn = self.params['mit_hc_conn_fn']
-        numpy.savetxt(mit_hc_conn_fn, membership_array, fmt='%d')
+        np.savetxt(mit_hc_conn_fn, membership_array, fmt='%d')
 
-        binary_conn_mat = numpy.zeros((n_mit, n_hc * n_mc)) # binary connectivity matrix
+        binary_conn_mat = np.zeros((n_mit, n_hc * n_mc)) # binary connectivity matrix
         for cluster in membership_dict.keys():
             #        for cluster in xrange(n_clusters):
             # get the members belonging to this cluster
@@ -132,7 +132,7 @@ class MDSVQ(object):
                 member_coords.append(points[members[i], :])
 #                print "debug mits", members[i], member_coords[members[i], :]
             # cluster the space spanned by mitral cells projecting to this hypercolumn
-            member_coords = numpy.array(member_coords)
+            member_coords = np.array(member_coords)
             mc_coords, mc_distortions = scvq.kmeans(member_coords, n_mc)
 
             # get the coordinates and code book, i.e. which mit projects to which minicolumn in the hypercolumn
@@ -144,7 +144,7 @@ class MDSVQ(object):
                 binary_conn_mat[mit, mc_code[i] + mc_offset] = 1
         output_fn = self.params['abstract_binary_conn_mat_fn'] 
         print "output_fn:", output_fn
-        numpy.savetxt(output_fn, binary_conn_mat)
+        np.savetxt(output_fn, binary_conn_mat)
 
 
 
@@ -164,31 +164,39 @@ class MDSVQ(object):
         if (type(input_fn_or_array) == type('')):
             input_fn = input_fn_or_array
             print "VQ: loading coordinates from:", input_fn
-            points = numpy.loadtxt(input_fn)
+            points = np.loadtxt(input_fn)
         else: # assert it's in array
-            assert (type(input_fn_or_array) == type(numpy.array([]))), "ERROR: Wrong type %s [must be a file name or numpy array]" % (type(input_fn_or_array))
+            assert (type(input_fn_or_array) == type(np.array([]))), "ERROR: Wrong type %s [must be a file name or np array]" % (type(input_fn_or_array))
             points = input_fn_or_array
 
-        if (type(n_clusters_or_guess) == type(numpy.array([]))):
-            n_clusters = n_clusters_or_guess[:, 0].size
-            guessed_centroids = n_clusters_or_guess
-        else:
-            assert (type(n_clusters_or_guess) == type(0)), "MDQVQ.vq got wrong type for n_clusters_or_guess: %s" % (type(n_clusters_or_guess))
-            n_clusters = n_clusters_or_guess
-
         n_points = points[:, 0].size
-
         d = scvq.whiten(points) # gives unit variance, necessary before using scipy's kmeans 
 
-        if (type(n_clusters_or_guess) == type(numpy.array([]))):
-            centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
-#            centroids, distortions = scvq.kmeans(d, guessed_centroids, thresh=thresh)
-        else:
-            centroids, distortions = scvq.kmeans(d, n_clusters, thresh=thresh)
+        # avoid empty clusters, i.e. no target unit should be without a source
+        n_empty_hc = 1
+        kmeans_trial = 0
+        while n_empty_hc != 0:
+            print 'Running kmeans ...'
+            if (type(n_clusters_or_guess) == type(np.array([]))):
+                n_clusters = n_clusters_or_guess[:, 0].size
+                guessed_centroids = n_clusters_or_guess
+                centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
+            else:
+                assert (type(n_clusters_or_guess) == type(0)), "MDQVQ.vq got wrong type for n_clusters_or_guess: %s" % (type(n_clusters_or_guess))
+                n_clusters = n_clusters_or_guess
+                centroids, distortions = scvq.kmeans(d, n_clusters, thresh=thresh)
 
-        code, dist = scvq.vq(d, centroids)
-#        print "code:", code
-#        print "dist:", dist
+            print 'Running vq...', kmeans_trial
+            code, dist = scvq.vq(d, centroids)
+            
+#            print "code:", code
+#            print "dist:", dist
+            n_empty_hc = 0
+            for hc in xrange(self.params['n_hc']):
+#                print 'hc %d occurs in code: %d' % (hc, (hc == code).nonzero()[0].size)
+                if (hc == code).nonzero()[0].size == 0:
+                    n_empty_hc += 1
+            kmeans_trial += 1
 
         if overlap > 0:
             # for each point get the overlap + 1 closes centroids
@@ -196,24 +204,24 @@ class MDSVQ(object):
             # nn[point, :] = indices of the nearest centroids
             # TODO: add some more information e.g. d(point, centroid) / d(point, next_nearest_centroid)
 
-            output_mask = numpy.zeros((n_points, n_clusters))
+            output_mask = np.zeros((n_points, n_clusters))
             for i in xrange(n_points):
                 tgt_indices = nn[i, :]
                 for tgt_cluster in tgt_indices:
                     output_mask[i, tgt_cluster] = 1
 
         else: 
-            output_mask = numpy.zeros((n_points, n_clusters))
+            output_mask = np.zeros((n_points, n_clusters))
             for i in xrange(n_points):
                 output_mask[i, code[i]] = 1
 
         # check for each centroid (e.g. target HC), that it gets at least one vector (source)
         for c_ in xrange(output_mask[0, :].size):
 #            assert (output_mask[:, c_].sum() > 0), 'ERROR: MDSVQ.vq resulted in an empty centroid: %d' % c_
-            if (output_mask[:, c_].sum() > 0): 
+            if (output_mask[:, c_].sum() == 0): 
                 print 'ERROR: MDSVQ.vq resulted in an empty centroid: %d' % c_
         print "VQ results: ", output_fn
-        numpy.savetxt(output_fn, output_mask)
+        np.savetxt(output_fn, output_mask)
 
         # plotting
         if plotting == True:
@@ -223,34 +231,30 @@ class MDSVQ(object):
             colored = True
             # map centroid numbers to different colors
             if (colored):
-                colors = []
-                h_values = []
-                min_4d = numpy.min(code)
-                max_4d = numpy.max(code)
+                min_4d = np.min(code)
+                max_4d = np.max(code)
                 range_4d = float(max_4d - min_4d)
-                for i in xrange(len(code)):
-                    h = (code[i] - min_4d) / range_4d
-                    h_values.append(h)
-                    rgb = matplotlib.colors.hsv_to_rgb(numpy.array([[[h, 1.0, 1.0]]]))[0, 0,:]
-                    colors.append([rgb[0], rgb[1], rgb[2], 1.])
+                norm = matplotlib.mpl.colors.Normalize(vmin=min_4d, vmax=max_4d)
+                m = matplotlib.cm.ScalarMappable(norm=norm, cmap=matplotlib.cm.jet)
+                m.set_array(np.arange(min_4d, max_4d, 0.01))
+                colors = m.to_rgba(code)
+                cax = ax.scatter(d[:,0], d[:,1], d[:,2], c=colors, marker='o', linewidth='5', edgecolor=colors)
 
-            ax.scatter(d[:,0], d[:,1], d[:,2], c=numpy.array(colors), marker='o', linewidth='5', edgecolor=colors)
-
-            output_array = numpy.zeros((d[:, 0].size, n_clusters))
+            output_array = np.zeros((d[:, 0].size, n_clusters))
             for i in xrange(d[:, 0].size):
                 tgt_cluster = code[i]
                 output_array[i, tgt_cluster] = 1.
-    #        output_array[:, 0] = d[:, 0]
-    #        output_array[:, 1] = d[:, 1]
-    #        output_array[:, 2] = d[:, 2]
-    #        output_array[:, 3] = numpy.array(h_values)
-    #        output_array[:, 4] = numpy.array(code)
             print "Saving to", output_fn
-            numpy.savetxt(output_fn, output_array, delimiter='\t')
+            np.savetxt(output_fn, output_array, delimiter='\t')
             ax.set_xlabel('X Label')
             ax.set_ylabel('Y Label')
             ax.set_zlabel('Z Label')
+            output_fig = self.params['figure_folder'] + 'ob_oc_mds_vq.png'
+            print 'Saving figure to:', output_fig
+            pylab.savefig(output_fig)
             pylab.show()
+
+
 
         return code, dist, centroids
 
@@ -261,9 +265,9 @@ class MDSVQ(object):
 
         n_points = points[:, 0].size
         n_centroids = centroids[:, 0].size
-        distances = numpy.zeros((n_points, n_centroids))
+        distances = np.zeros((n_points, n_centroids))
         dist_mat = self.get_distances(points, centroids) # get distance matrix between points and centroids
-        nearest_neighbors_indices = numpy.zeros((n_points, overlap))
+        nearest_neighbors_indices = np.zeros((n_points, overlap))
 
         for p in xrange(n_points):
             indices_sorted_by_dist = dist_mat[p, :].argsort()
@@ -277,8 +281,8 @@ class MDSVQ(object):
         n_units = normed_activity[0, :].size # number of columns in the activity file
         n_patterns = self.params['n_patterns']
 
-        prob_i = numpy.zeros(n_units)
-        prob_ij = numpy.zeros((n_units, n_units))
+        prob_i = np.zeros(n_units)
+        prob_ij = np.zeros((n_units, n_units))
 
         for i in xrange(n_units):
             prob_i[i] = normed_activity[:, i].sum() / n_patterns
@@ -293,19 +297,19 @@ class MDSVQ(object):
         print "build the distance matrix, calculate the mutual information between units .... "
         # build the distance matrix
         # calculate the mutual information between units
-        mi = numpy.zeros((n_units, n_units))
-        joint_entropy = numpy.zeros((n_units, n_units))
-        distances = numpy.zeros((n_units, n_units))
+        mi = np.zeros((n_units, n_units))
+        joint_entropy = np.zeros((n_units, n_units))
+        distances = np.zeros((n_units, n_units))
         for i in xrange(n_units):
             for j in xrange(n_units):
                 product = prob_i[i] * prob_i[j]
                 if ((product != 0) and (prob_ij[i, j] != 0.)):
-                    mi[i, j] = prob_ij[i, j] * numpy.log(prob_ij[i, j] / product)
+                    mi[i, j] = prob_ij[i, j] * np.log(prob_ij[i, j] / product)
                 else:
                     mi[i, j] = 0.0
 
                 if (prob_ij[i, j] != 0.):
-                    joint_entropy[i, j] = -1.0 * prob_ij[i, j] * numpy.log(prob_ij[i, j])
+                    joint_entropy[i, j] = -1.0 * prob_ij[i, j] * np.log(prob_ij[i, j])
                 else:
                     joint_entropy[i, j] = 0.
 
@@ -319,9 +323,9 @@ class MDSVQ(object):
         dist_output_fn = self.params['information_distance_fn_base'] + cell_type + '.dat'
 
         print "saving to", mi_output_fn, je_output_fn, dist_output_fn
-        numpy.savetxt(mi_output_fn, mi)
-        numpy.savetxt(je_output_fn, joint_entropy)
-        numpy.savetxt(dist_output_fn, distances)
+        np.savetxt(mi_output_fn, mi)
+        np.savetxt(je_output_fn, joint_entropy)
+        np.savetxt(dist_output_fn, distances)
 
         return distances
 
@@ -335,31 +339,33 @@ class MDSVQ(object):
 
             Should create the output file self.params['binary_oc_activation_fn'] = '%s/binary_oc_activation.dat' % (self.params['other_folder']) 
         """
-        mask = numpy.loadtxt(input_fn)
+        mask = np.loadtxt(input_fn)
         try:
-            ob_activity = numpy.loadtxt(activity_fn)
+            ob_activity = np.loadtxt(activity_fn)
         except:
-            ob_activity = numpy.loadtxt(activity_fn, delimiter=',')
+            ob_activity = np.loadtxt(activity_fn, delimiter=',')
         n_mc = self.params['n_mc']
         n_hc = mask[0, :].size
         n_mit = mask[:, 0].size
         n_patterns = self.params['n_patterns']
         n_mc_oc = self.params['n_hc'] * self.params['n_mc']
         assert (n_hc == self.params['n_hc']), "Mismatch between parameters in network_parameters_Cray and files used here, e.g.: %s" % (input_fn)
-        output_array = numpy.zeros((n_patterns, n_mc_oc))
+        output_array = np.zeros((n_patterns, n_mc_oc))
 
         if (remove_silent_cells_fn):
-            silent_mits = numpy.loadtxt(remove_silent_cells_fn)
+            silent_mits = np.loadtxt(remove_silent_cells_fn)
+        else:
+            silent_mits = []
 
         for hc in xrange(n_hc):
-            src_mit = numpy.nonzero(mask[:, hc])[0].tolist()
+            src_mit = np.nonzero(mask[:, hc])[0].tolist()
             to_remove = set(silent_mits).intersection(set(src_mit))
             print "\nRunning VQ for HC: ", hc, " n_mit_src:", len(src_mit)
             print "Silent mitral cells need to be ignored:", to_remove
             for silent_mit in to_remove:
                 src_mit.remove(silent_mit)
 
-            activity_space = numpy.zeros((n_patterns, len(src_mit)))
+            activity_space = np.zeros((n_patterns, len(src_mit)))
             print 'DEBUG src_mit', len(src_mit), src_mit
             print 'DEBUG activity_space', activity_space
             for pattern in xrange(n_patterns):
@@ -377,7 +383,7 @@ class MDSVQ(object):
 
             # instead of giving n_mc as the number of target clusters to find in the activity space
             # one can give a guess of initial centroids to scipy.cluster.vq.kmeans 
-            guessed_centroids = numpy.random.rand(n_mc, len(src_mit))
+            guessed_centroids = np.random.rand(n_mc, len(src_mit))
 
             d = scvq.whiten(activity_space) # gives unit variance, necessary before using scipy's kmeans 
 
@@ -387,20 +393,20 @@ class MDSVQ(object):
 #            centroids, distortions = scvq.kmeans(d, n_mc, thresh=1e-8)
 
 #            centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
-            print 'DEBUG d', d
+#            print 'DEBUG d', d
             centroids, distortions = scvq.kmeans2(d, n_mc, minit='points')
             codes, dist = scvq.vq(d, centroids)
 
             print 'MDSVQ.create_mitral_response_space gives a k-means distortion of:'
 #            print ' distortions mean %.2f +- %.2f\tsum: %.2f' % (distortions.mean(), distortions.std(), distortions.sum())
 #            print 'distortions', distortions, len(distortions)
-            print 'codes', len(codes), codes
-            print ' dist mean %.2f +- %.2f\tsum: %.2f' % (dist.mean(), dist.std(), dist.sum())
+#            print 'codes', len(codes), codes
+#            print ' dist mean %.2f +- %.2f\tsum: %.2f' % (dist.mean(), dist.std(), dist.sum())
             dist_to_write = '\t%.2f\t%.2f\t%.2f\n' % (dist.mean(), dist.std(), dist.sum())
             dist_fn = self.params['mit_mc_vq_distortion_fn'] + '%d.dat' % mit_mc_kmeans_trial
             distortion_file = open(dist_fn, 'a')
             distortion_file.write(dist_to_write)
-            print 'dist', len(dist), dist
+#            print 'dist', len(dist), dist
 
 #            print "centroids:", centroids
 #            print "codes:", codes
@@ -421,9 +427,9 @@ class MDSVQ(object):
 
 
 #        print "debug MDSVQ.create_mitral_response_space writes to:", output_fn
-#        numpy.savetxt(output_fn, activity_space)
+#        np.savetxt(output_fn, activity_space)
         print "MDSVQ.create_mitral_response_space writes to:", output_fn, '\n\t', dist_fn
-        numpy.savetxt(output_fn, output_array)
+        np.savetxt(output_fn, output_array)
 
 
 
@@ -434,7 +440,7 @@ class MDSVQ(object):
         """
         n_x = len(x)
         n_y = len(y)
-        dist_matrix = numpy.zeros((n_x, n_y))
+        dist_matrix = np.zeros((n_x, n_y))
         dist_function = euclidean_dist
         for i in xrange(n_x):
             for j in xrange(n_y):

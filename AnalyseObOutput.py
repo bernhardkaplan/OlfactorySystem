@@ -275,6 +275,7 @@ class AnalyseObOutput(object):
                 silent_file.write(s)
             silent_file.close()
 
+        print 'Silent mitral cells:', silent_mit
 #        print "AnalyseObOutput output file:", normalized_activity
         numpy.savetxt(self.params["mit_response_normalized"], normalized_activity)
 

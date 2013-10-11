@@ -94,6 +94,13 @@ begintemplate Pyr_rs // create a new template object
 /*            gkbar_im = 7e-5		// Diego's IM (copyrighted)*/
 			gkbar_im = $1
 
+			// insert Calcium dynamics
+			insert cad
+			insert ical
+			gcabar_ical = $3 //1e-4
+			insert cagk2		// calcium activated K channel (cagk.mod)
+			gkbar_cagk2=$2
+
 			insert ka	// bias current for intrinsic excitability
 			gkabar_ka = $4
 			

@@ -94,15 +94,6 @@ begintemplate Pyr_rs_no_bias
 /*            gkbar_im = 7e-5		// Diego's IM (copyrighted)*/
 			gkbar_im = $1
 
-			// insert Calcium dynamics
-			insert cad
-			insert ical
-			gcabar_ical = $3 //1e-4
-			insert cagk2		// calcium activated K channel (cagk.mod)
-			gkbar_cagk2=$2
-
-			// no bias, no intrinsic excitability
-			
 			// synapses
 			AMPAtau	= 10		//ms
 			AMPArev	= 0		//mV

@@ -19,7 +19,7 @@
 
 --------------------------------------------------------------*/
 
-begintemplate Pyr_rs // create a new template object
+begintemplate Pyr_rs_no_bias
 
 	public soma, ampa, gabaa, nmda, netconlist, noise_netconlist, synlist
 	public ampa_netconlist, nmda_netconlist, gabaa_netconlist
@@ -45,7 +45,7 @@ begintemplate Pyr_rs // create a new template object
 
 	proc init() { local v_potassium, v_sodium, AMPAtau, AMPArev, GABAAtau, GABAArev
 
-		my_seed = $5
+		my_seed = $4
 		synlist = new List()
 		spiketimes = new Vector()
 		netconlist = new List()
@@ -94,8 +94,14 @@ begintemplate Pyr_rs // create a new template object
 /*            gkbar_im = 7e-5		// Diego's IM (copyrighted)*/
 			gkbar_im = $1
 
-			insert ka	// bias current for intrinsic excitability
-			gkabar_ka = $4
+			// insert Calcium dynamics
+			insert cad
+			insert ical
+			gcabar_ical = $3 //1e-4
+			insert cagk2		// calcium activated K channel (cagk.mod)
+			gkbar_cagk2=$2
+
+			// no bias, no intrinsic excitability
 			
 			// synapses
 			AMPAtau	= 10		//ms
@@ -400,7 +406,7 @@ begintemplate Pyr_rs // create a new template object
 
 
  
-endtemplate Pyr_rs
+endtemplate Pyr_rs_no_bias
 
 
 

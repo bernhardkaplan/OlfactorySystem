@@ -13,7 +13,7 @@ info_txt = \
 import os
 import sys
 import time
-import numpy
+import numpy as np
 import simulation_parameters # defines simulation parameters
 import prepare_epth_ob_prelearning
 import MergeSpikefiles
@@ -30,19 +30,29 @@ t_init = time.time()
 from run_oc_only import add_first_line
 
 
-def choose_initial_centroids_for_vq_ob_oc(input_fn, n_hc):
+def choose_initial_centroids_for_vq_ob_oc(params, input_fn, n_hc, mit_cell_coordinates_in_mi_space):
     import random
-    random.seed(0)
-    points = numpy.loadtxt(input_fn)
+    random.seed(1)
+    points = np.loadtxt(input_fn)
 
     rnd_points = []
-    non_silent_mitral_cells = np.loadtxt(params['silent_mit_fn'])
+    if os.path.exists(params['silent_mit_fn']):
+        silent_mitral_cells = set(np.loadtxt(params['silent_mit_fn']))
+        all_mit = set(range(params['mit_offset'], params['mit_offset'] + params['n_mit']))
+        non_silent_mitral_cells = all_mit.difference(silent_mitral_cells)
+    else:
+        non_silent_mitral_cells = range(params['mit_offset'], params['mit_offset'] + params['n_mit'])
+
     while len(rnd_points) != n_hc:
         candidate = random.choice(non_silent_mitral_cells)
         while candidate in rnd_points:
             candidate = random.choice(non_silent_mitral_cells)
-        rnd_points.append(candidate)
-
+        rnd_points.append(candidate - params['mit_offset'])
+    
+    print 'rnd_points:', rnd_points
+    rnd_centroids = mit_cell_coordinates_in_mi_space[rnd_points, :]
+    
+    return rnd_centroids
 
 
 
@@ -58,7 +68,8 @@ def mds_vq_ob_output(params):
     mds_output_fn = params['mds_ob_oc_output_fn']
     cell_type = 'mit'
     assert (os.path.exists(activity_fn)), 'ERROR: File does not exist %s\n\t Have you run mds_vq_ob_output properly?\n'
-    mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
+#    mit_cell_coordinates_in_mi_space = mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
+#    mit_cell_coordinates_in_mi_space = np.loadtxt(mds_output_fn)
 
     t_2 = time.time()
     t_diff = t_2 - t_init
@@ -68,10 +79,11 @@ def mds_vq_ob_output(params):
     # i.e. assign one or more hypercolumns to each mitral cell
     vq_output_fn = params['vq_ob_oc_output_fn']
 
-#    guessed_centroids = np.(
-    guessed_centroids = choose_initial_centroids_for_vq_ob_oc(mds_output_fn, params['n_hc'])
-    print 'guessed_centroids', guessed_centroids
-    exit(1)
+#    guessed_centroids = choose_initial_centroids_for_vq_ob_oc(params, mds_output_fn, params['n_hc'], mit_cell_coordinates_in_mi_space)
+#    print 'guessed_centroids', guessed_centroids
+#    np.random.seed(123)
+#    guessed_centroids = 2 * np.random.random((params['n_hc'], 3))
+#    mdsvq.vq(mds_output_fn, vq_output_fn, guessed_centroids, overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'], plotting=True)
     mdsvq.vq(mds_output_fn, vq_output_fn, params['n_hc'], overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'])
     t_3 = time.time()
     t_diff = t_3 - t_2
@@ -83,7 +95,8 @@ def mds_vq_ob_output(params):
     #   The n_patterns vectors are clustered by VQ among the minicolumns in the hypercolumn.
     binary_oc_activation_fn = params['binary_oc_activation_fn']
     mit_mc_kmeans_trial = 0
-    mdsvq.create_mitral_response_space(vq_output_fn, activity_fn, binary_oc_activation_fn, remove_silent_cells_fn=params['silent_mit_fn'], mit_mc_kmeans_trial=mit_mc_kmeans_trial) 
+    mdsvq.create_mitral_response_space(vq_output_fn, activity_fn, binary_oc_activation_fn, \
+            remove_silent_cells_fn=os.path.exists(params['silent_mit_fn']), mit_mc_kmeans_trial=mit_mc_kmeans_trial) 
     return (ob_activity_fn, binary_oc_activation_fn, vq_output_fn)
 
 
@@ -108,7 +121,7 @@ def bcpnn_ob_oc(params):
 
     bcpnn.load_input_activity(ob_activity_fn)
     bcpnn.load_output_activity(binary_oc_activation_fn)
-    bcpnn.load_mc_hc_mask(w_ij_mit_hc, silent_units_fn=params['silent_mit_fn'])
+    bcpnn.load_mc_hc_mask(w_ij_mit_hc, silent_units_fn=os.path.exists(params['silent_mit_fn']))
     bcpnn.initialize()
 
     n_steps = params['n_bcpnn_steps']
@@ -117,7 +130,8 @@ def bcpnn_ob_oc(params):
         bcpnn.train_network(activity_fn, weights_fn, bias_fn)
     #bcpnn.train_network(activity_fn, weights_fn, bias_fn)
 
-    bcpnn.silence_mit(params['silent_mit_fn'])
+    if os.path.exists(params['silent_mit_fn']):
+        bcpnn.silence_mit(params['silent_mit_fn'])
 #    print 'bcpnn_ob_oc: input = %s\tweights = %s\tbias = %s\ttest_output = %s' % (test_input, weights_fn, bias_fn, test_output)
     bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
     del bcpnn
@@ -160,14 +174,14 @@ def bcpnn_oc_readout(params):
     n_mc = params['n_mc']
 #    if params['test_conc_invariance']:
 #        n_readout = self.params['SOMETHING_TODO']
-#        readout_activation = numpy.zeros((n_patterns, n_readout))
+#        readout_activation = np.zeros((n_patterns, n_readout))
 #        for pn in xrange(n_patterns):
 #            active_readout_idx = pn / params['n_concentrations']
 #            readout_activation[pn, active_readout_idx] = 1
 #    else:
 
     n_readout = params['n_patterns']
-    readout_activation = numpy.eye(n_patterns)
+    readout_activation = np.eye(n_patterns)
     print 'readout_activation', readout_activation
 
     bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
@@ -191,7 +205,6 @@ def bcpnn_oc_readout(params):
     #bcpnn.train_network(activity_fn, weights_fn, bias_fn)
     bcpnn.write_to_files(activity_fn, weights_fn, bias_fn)
 
-
     #if params['multiple_concentrations_per_pattern']:
     #    n_patterns = 10
     # testing 
@@ -199,7 +212,7 @@ def bcpnn_oc_readout(params):
     bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
     test_input = oc_activity_fn
     test_output = params['readout_abstract_activity_fn'].rsplit('.dat')[0] + '_test.dat'
-    print 'BCPNN.testing(input=%s, weights=%s, bias=%s, test_output=%s' % (test_input, weights_fn, bias_fn, test_output)
+    print 'BCPNN.testing(input = %s \nweights = %s \nbias = %s \ntest_output = %s' % (test_input, weights_fn, bias_fn, test_output)
     bcpnn.testing(test_input, weights_fn, bias_fn, test_output)
 
 
@@ -283,15 +296,15 @@ if __name__ == '__main__':
 #    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-    ObAnalyser.get_output_file()
-    ObAnalyser.get_output_activity()
-    ObAnalyser.rescale_activity()
-    mds_vq_ob_output(params)
+#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+#    ObAnalyser.get_output_file()
+#    ObAnalyser.get_output_activity()
+#    ObAnalyser.rescale_activity()
+#    mds_vq_ob_output(params)
 
-    bcpnn_ob_oc(params)
-    bcpnn_oc_oc(params)
-    bcpnn_oc_readout(params)
+#    bcpnn_ob_oc(params)
+#    bcpnn_oc_oc(params)
+#    bcpnn_oc_readout(params)
 
     create_pyr_parameters(params)
     create_connections(params)

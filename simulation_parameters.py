@@ -108,7 +108,7 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 64
+        self.params['n_hc'] = 49
         self.params['n_mc'] = 9
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
@@ -368,7 +368,7 @@ class parameter_storage(object):
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
 #        self.params['w_pyr_rsnp_max'] = 1e-8
-        self.params['w_pyr_pyr_global_max'] = 0.0005
+        self.params['w_pyr_pyr_global_max'] = 0.001
         self.params['w_pyr_rsnp_max'] = 0.0005
 
         # weight variation
@@ -394,7 +394,7 @@ class parameter_storage(object):
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.004             # max weight for exc mit -> pyr connection
+        self.params['w_mit_pyr_max'] = 0.005             # max weight for exc mit -> pyr connection
         self.params['w_mit_rsnp_max'] = 0.002             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
@@ -404,7 +404,7 @@ class parameter_storage(object):
 
         # ---------------- CORTICAL CELLS:
         # Potassium M-current (adaptation strength)
-        self.params['g_m_pyr'] = 8e-5 # [S / cm2]
+        self.params['g_m_pyr'] = 7e-5 # [S / cm2]
         self.params['g_m_basket'] = 3e-5 # [S / cm2]
         self.params['g_m_rsnp'] = 4e-5 # [S / cm2]
         self.params['g_leak_readout'] = 8e-5 # [S / cm2]
@@ -492,10 +492,11 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 20 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
-        self.params['n_bcpnn_steps'] = 3
+        self.params['vq_ob_oc_overlap'] = 15 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        assert (self.params['vq_ob_oc_overlap'] < self.params['n_hc']), 'Can\'t have larger overlap of clusters than Hypercolumns / centroids to project to...'
+        self.params['n_bcpnn_steps'] = 1
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
-        self.params['n_dim_mds'] = 5
+        self.params['n_dim_mds'] = 3
 
 
 
@@ -513,7 +514,7 @@ class parameter_storage(object):
 #                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
 #        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_preL' % (self.params['n_or'], \
+        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_postL' % (self.params['n_or'], \
                 self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
