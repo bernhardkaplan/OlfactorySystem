@@ -136,8 +136,9 @@ class CreateOrnParameters(object):
                 # draw a random distance from the fitted distance distribution
                 dist = self.odorant_odor_distance_distribution((p1, p2, p3))
                 distances[pn, OR] = dist
-#                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter'])
                 affinity = 1. / dist
+#                affinity = (1. / dist)**2
+#                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter_exp'])
                 affinity -= self.params['distance_affinity_transformation_parameter']
                 if affinity > 1.:
                     affinity = 1.
@@ -150,12 +151,13 @@ class CreateOrnParameters(object):
         print 'Distances.median:', np.median(distances)
 
         if self.params['OR_activation_normalization']:
-#            for pn in xrange(self.params['n_patterns']):
-#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max()
-#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum()
+            for pn in xrange(self.params['n_patterns']):
+                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max() 
+                # this normalization increases the likelihood of having ORs with a high affinity to 
+                # each given pattern --> receptors have specialized to odorants (?)
 
-            for OR in xrange(self.params['n_or']):
-                self.activation_matrix[:, OR] /= self.activation_matrix[:, OR].sum()
+#            for OR in xrange(self.params['n_or']):
+#                self.activation_matrix[:, OR] /= self.activation_matrix[:, OR].sum()
 
         print "Activation matrix fn:", self.params['activation_matrix_fn']
         np.savetxt(self.params['activation_matrix_fn'], self.activation_matrix)

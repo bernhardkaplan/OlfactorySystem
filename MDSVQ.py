@@ -164,10 +164,7 @@ class MDSVQ(object):
         if (type(input_fn_or_array) == type('')):
             input_fn = input_fn_or_array
             print "VQ: loading coordinates from:", input_fn
-            try: 
-                points = numpy.loadtxt(input_fn)
-            except:
-                points = numpy.loadtxt(input_fn, delimiter=',')
+            points = numpy.loadtxt(input_fn)
         else: # assert it's in array
             assert (type(input_fn_or_array) == type(numpy.array([]))), "ERROR: Wrong type %s [must be a file name or numpy array]" % (type(input_fn_or_array))
             points = input_fn_or_array
@@ -179,27 +176,13 @@ class MDSVQ(object):
             assert (type(n_clusters_or_guess) == type(0)), "MDQVQ.vq got wrong type for n_clusters_or_guess: %s" % (type(n_clusters_or_guess))
             n_clusters = n_clusters_or_guess
 
-
-        # Remove silent mitral cells from the points in MI-MDS space
-#        if (remove_silent_cells_fn):
-#            to_remove = numpy.loadtxt(remove_silent_cells_fn)
-#            n_to_remove = len(to_remove)
-#            new_shape = (points[:, 0].size - n_to_remove, points[0,:].size)
-#            print "new_shape", new_shape
-#            new_points = numpy.zeros(new_shape)
-#            j = 0
-#            for i in xrange(points[:, 0].size):
-#                if i not in to_remove:
-#                    new_points[j, :] = points[i, :].copy()
-#                    j+= 1
-#            points = new_points.copy()
-
         n_points = points[:, 0].size
 
         d = scvq.whiten(points) # gives unit variance, necessary before using scipy's kmeans 
 
         if (type(n_clusters_or_guess) == type(numpy.array([]))):
-            centroids, distortions = scvq.kmeans(d, guessed_centroids, thresh=thresh)
+            centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
+#            centroids, distortions = scvq.kmeans(d, guessed_centroids, thresh=thresh)
         else:
             centroids, distortions = scvq.kmeans(d, n_clusters, thresh=thresh)
 
@@ -224,6 +207,11 @@ class MDSVQ(object):
             for i in xrange(n_points):
                 output_mask[i, code[i]] = 1
 
+        # check for each centroid (e.g. target HC), that it gets at least one vector (source)
+        for c_ in xrange(output_mask[0, :].size):
+#            assert (output_mask[:, c_].sum() > 0), 'ERROR: MDSVQ.vq resulted in an empty centroid: %d' % c_
+            if (output_mask[:, c_].sum() > 0): 
+                print 'ERROR: MDSVQ.vq resulted in an empty centroid: %d' % c_
         print "VQ results: ", output_fn
         numpy.savetxt(output_fn, output_mask)
 
@@ -372,6 +360,8 @@ class MDSVQ(object):
                 src_mit.remove(silent_mit)
 
             activity_space = numpy.zeros((n_patterns, len(src_mit)))
+            print 'DEBUG src_mit', len(src_mit), src_mit
+            print 'DEBUG activity_space', activity_space
             for pattern in xrange(n_patterns):
                 # mask only the mitral cells projecting to the hc (src_mits)
 #                print "DEBUG, taking src_mit:", src_mit
@@ -402,8 +392,9 @@ class MDSVQ(object):
             codes, dist = scvq.vq(d, centroids)
 
             print 'MDSVQ.create_mitral_response_space gives a k-means distortion of:'
-            print ' distortions mean %.2f +- %.2f\tsum: %.2f' % (distortions.mean(), distortions.std(), distortions.sum())
-            print 'distortions', distortions, len(distortions)
+#            print ' distortions mean %.2f +- %.2f\tsum: %.2f' % (distortions.mean(), distortions.std(), distortions.sum())
+#            print 'distortions', distortions, len(distortions)
+            print 'codes', len(codes), codes
             print ' dist mean %.2f +- %.2f\tsum: %.2f' % (dist.mean(), dist.std(), dist.sum())
             dist_to_write = '\t%.2f\t%.2f\t%.2f\n' % (dist.mean(), dist.std(), dist.sum())
             dist_fn = self.params['mit_mc_vq_distortion_fn'] + '%d.dat' % mit_mc_kmeans_trial

@@ -20,12 +20,14 @@ class Plotter(object):
 
         d = np.zeros((pn_max, self.params['n_%s' % cell_type]))
         for pn in xrange(pn_max):
+
             print "Celltype: %s pattern_nr: %d" % (cell_type, pn)
-            Merger.merge_nspike_files(self.params['%s_spike_fn_base' % (cell_type)], self.params['%s_spikes_merged_fn_base' % (cell_type)], pn)
-            Merger.merge_spiketimes_files(self.params['%s_spike_fn_base' % (cell_type)], self.params['%s_spikes_merged_fn_base' % (cell_type)], pn)
-
-
             fn = self.params['%s_spikes_merged_fn_base' % (cell_type)] + str(pn) + '.dat'
+            if not os.path.exists(fn):
+                print 'DEBUG Merging ...\n\n'
+                Merger.merge_nspike_files(self.params['%s_spike_fn_base' % (cell_type)], self.params['%s_spikes_merged_fn_base' % (cell_type)], pn)
+                Merger.merge_spiketimes_files(self.params['%s_spike_fn_base' % (cell_type)], self.params['%s_spikes_merged_fn_base' % (cell_type)], pn)
+
             print "Loading data ", fn
             data = np.loadtxt(fn)
             idx = np.array(data[:, 0], dtype=np.int) - self.params['%s_offset' % cell_type]

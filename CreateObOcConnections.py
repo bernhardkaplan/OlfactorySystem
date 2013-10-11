@@ -30,6 +30,23 @@ t_init = time.time()
 from run_oc_only import add_first_line
 
 
+def choose_initial_centroids_for_vq_ob_oc(input_fn, n_hc):
+    import random
+    random.seed(0)
+    points = numpy.loadtxt(input_fn)
+
+    rnd_points = []
+    non_silent_mitral_cells = np.loadtxt(params['silent_mit_fn'])
+    while len(rnd_points) != n_hc:
+        candidate = random.choice(non_silent_mitral_cells)
+        while candidate in rnd_points:
+            candidate = random.choice(non_silent_mitral_cells)
+        rnd_points.append(candidate)
+
+
+
+
+
 def mds_vq_ob_output(params):
     ob_activity_fn = params['mit_response_normalized']
 
@@ -50,6 +67,11 @@ def mds_vq_ob_output(params):
     # 3) run a VQ in the MI space, with n_clusters = n_hc
     # i.e. assign one or more hypercolumns to each mitral cell
     vq_output_fn = params['vq_ob_oc_output_fn']
+
+#    guessed_centroids = np.(
+    guessed_centroids = choose_initial_centroids_for_vq_ob_oc(mds_output_fn, params['n_hc'])
+    print 'guessed_centroids', guessed_centroids
+    exit(1)
     mdsvq.vq(mds_output_fn, vq_output_fn, params['n_hc'], overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'])
     t_3 = time.time()
     t_diff = t_3 - t_2
@@ -57,7 +79,7 @@ def mds_vq_ob_output(params):
 
     # 4) For each hypercolumn, create a new space spanned by the mitral cells projecting to the hc
     #   Each mitral cell represents one dimension and each pattern represents one vector or point in that space.
-    #   The value of one component in such a vector is equal to the normalized activation of the respective mitral cell.
+    #   The value of one component in such a pattern-vector is equal to the normalized activation of the respective mitral cell.
     #   The n_patterns vectors are clustered by VQ among the minicolumns in the hypercolumn.
     binary_oc_activation_fn = params['binary_oc_activation_fn']
     mit_mc_kmeans_trial = 0
@@ -261,16 +283,16 @@ if __name__ == '__main__':
 #    prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-#    ObAnalyser.get_output_file()
-#    ObAnalyser.get_output_activity()
-#    ObAnalyser.rescale_activity()
-#    mds_vq_ob_output(params)
+    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+    ObAnalyser.get_output_file()
+    ObAnalyser.get_output_activity()
+    ObAnalyser.rescale_activity()
+    mds_vq_ob_output(params)
 
-#    bcpnn_ob_oc(params)
-#    bcpnn_oc_oc(params)
-#    bcpnn_oc_readout(params)
+    bcpnn_ob_oc(params)
+    bcpnn_oc_oc(params)
+    bcpnn_oc_readout(params)
 
-#    create_pyr_parameters(params)
-#    create_connections(params)
+    create_pyr_parameters(params)
+    create_connections(params)
 

@@ -27,7 +27,7 @@ class parameter_storage(object):
     def set_default_params(self):
 
 
-        self.params['OR_activation_normalization'] = False
+        self.params['OR_activation_normalization'] = True
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 1
@@ -38,7 +38,7 @@ class parameter_storage(object):
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
-        self.params['oc_only'] = False
+        self.params['oc_only'] = True
 
 #        self.params['noisy_affinity_matrix'] = 0
         self.params['OR_affinity_noise'] = 0.0
@@ -50,7 +50,7 @@ class parameter_storage(object):
         self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
 
         # ------ S E E D S -------------
-        self.params['seed_activation_matrix'] = 5234
+        self.params['seed_activation_matrix'] = 1
         self.params['seed'] = 0 # this is for pattern generation, weight randomization, etc
         self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
         self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
@@ -108,7 +108,7 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 40
+        self.params['n_hc'] = 64
         self.params['n_mc'] = 9
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
@@ -200,7 +200,7 @@ class parameter_storage(object):
         self.params['distance_affinity_transformation_parameter'] = .1 # this value is subtracted from the activation_matrix when createing ORN parameters
         # .1 is subtracted to model the inhibitory response: 11% of all odorant-receptor combinations resulted in inhibitory responses (Hallem 2006)
         # if nothing is subtracted the model would give ~12 % of all activations are below .1 Thus, inhibition is modeled as effective 0 activation for those 11-12% or odorant receptor pairs
-#        self.params['distance_affinity_transformation_parameter'] = 1 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
+        self.params['distance_affinity_transformation_parameter_exp'] = 3 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
         """
         The values of the parameters for the fit to the OR-distance distribution do not change qualitatively for the range
         between 20 and 65 ORs (centroids). That's why we chose to take the mean values for those distributions to generate the activation matrix.
@@ -493,9 +493,9 @@ class parameter_storage(object):
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
         self.params['vq_ob_oc_overlap'] = 20 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
-        self.params['n_bcpnn_steps'] = 1
+        self.params['n_bcpnn_steps'] = 3
         self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
-        self.params['n_dim_mds'] = 3
+        self.params['n_dim_mds'] = 5
 
 
 
@@ -509,8 +509,12 @@ class parameter_storage(object):
 
 #        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_postL' % (self.params['n_or'], \
-                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
+#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_postL' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
+#        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
+        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_preL' % (self.params['n_or'], \
+                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
@@ -519,7 +523,7 @@ class parameter_storage(object):
         else:
             use_abspath = True
         if self.params['oc_only']:
-            folder_name += 'OcOnly'
+            folder_name += '_OcOnly'
             
         if use_abspath:
             self.params['folder_name'] = os.path.abspath(folder_name)
@@ -729,8 +733,8 @@ class parameter_storage(object):
         self.params['mit_response'] = '%s/mit_response_not_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_response_normalized'] = '%s/mit_response_normalized_np%d' % (self.params['nspikes_folder'], self.params['n_patterns'])
 #            MIT - response - normalized:
-#                a) the sum of spikes fired by each cell during all patterns is normalized to 1 -> each mitral cell has a normalized activty
-#                b) if the sum of normalized activity of mitral cells within one glomerular unit > 1 -> set it to one
+#                a) the sum of spikes fired by each cell during all patterns is normalized to 1 -> each mitral cell has a pre_normalized activty
+#                b) if the sum of pre_normalized activity of mitral cells within one glomerular unit > 1 -> set it to one
         self.params['mit_nspikes_rescaled'] = '%s/mit_nspikes_rescaled_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])  # Rescaled mit_spikes so that the global maximum = 1
         self.params['mit_nspikes_normed_cells'] = '%s/mit_nspikes_normed_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_patterns'] = '%s/mit_nspikes_normed_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
