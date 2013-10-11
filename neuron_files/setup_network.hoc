@@ -2232,6 +2232,9 @@ proc connect_cells_with_oc() {
 	connect_mit_gran_dd(conn_list_mit_gran_global)
 	connect_gran_mit_dd(conn_list_gran_mit_local)
 	connect_gran_mit_dd(conn_list_gran_mit_global)
+	if (with_auto_receptors){
+		connect_mit_autoreceptors()
+	}
 	connect_cells_via_file(conn_list_mit_pyr)
 	connect_cells_via_file(conn_list_mit_rsnp)
 	connect_cells_via_file(conn_list_layer23) // hc and mc connections: pyr <-> pyr, pyr <-> basket
