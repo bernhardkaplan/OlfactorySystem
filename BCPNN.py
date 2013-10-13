@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import os
 
 class BCPNN(object):
@@ -22,17 +22,17 @@ class BCPNN(object):
         self.n_mc_out = n_mc_out
         self.n_patterns = n_patterns
         self.gain_parameter = 1.
-        self.mc_mc_mask = numpy.ones((self.n_hc_in * self.n_mc_in, self.n_hc_out * self.n_mc_out))
+        self.mc_mc_mask = np.ones((self.n_hc_in * self.n_mc_in, self.n_hc_out * self.n_mc_out))
         n_pre = self.n_hc_in * self.n_mc_in
         n_post = self.n_hc_out * self.n_mc_out
-        self.w_ij = numpy.ones((n_pre, n_post)) * (1./ self.n_patterns) # initialize with ones, in case there is no restricting mc_hc_mask
-        self.post_activity = numpy.zeros((n_patterns, n_post))
+        self.w_ij = np.ones((n_pre, n_post)) * (1./ self.n_patterns) # initialize with ones, in case there is no restricting mc_hc_mask
+        self.post_activity = np.zeros((n_patterns, n_post))
         self.no_big_change = False
         self.iteration = 0
-        self.p_i = numpy.zeros(n_pre)
-        self.p_j = numpy.zeros(n_post)
-        self.p_ij = numpy.zeros((n_pre, n_post))
-        self.bias = numpy.ones(n_post) * numpy.log((1./ self.n_patterns)**2)
+        self.p_i = np.zeros(n_pre)
+        self.p_j = np.zeros(n_post)
+        self.p_ij = np.zeros((n_pre, n_post))
+        self.bias = np.ones(n_post) * np.log((1./ self.n_patterns)**2)
         self.change_thresh = change_thresh
 
 
@@ -49,10 +49,10 @@ class BCPNN(object):
         """
 #        n_pre = self.n_hc_in * self.n_mc_in
 #        n_post = self.n_hc_out * self.n_mc_out
-#        self.p_i = numpy.zeros(n_pre)
-#        self.p_j = numpy.zeros(n_post)
-#        self.p_ij = numpy.zeros((n_pre, n_post))
-#        self.bias = numpy.ones(n_post) * numpy.log((1./ self.n_patterns)**2)
+#        self.p_i = np.zeros(n_pre)
+#        self.p_j = np.zeros(n_post)
+#        self.p_ij = np.zeros((n_pre, n_post))
+#        self.bias = np.ones(n_post) * np.log((1./ self.n_patterns)**2)
 
         # show all patterns once and activate units in the output layer and apply WTA to the post activity
 #        for pn in xrange(self.n_patterns):
@@ -76,13 +76,13 @@ class BCPNN(object):
         debug_fn_6 = self.params['bcpnn_folder'] + "/pj_after_init.dat"
         debug_fn_7 = self.params['bcpnn_folder'] + "/input_activity_after_init.dat"
 
-        numpy.savetxt(debug_fn_1, self.w_ij)
-        numpy.savetxt(debug_fn_2, self.bias)
-        numpy.savetxt(debug_fn_3, self.p_ij)
-        numpy.savetxt(debug_fn_4, self.post_activity)
-        numpy.savetxt(debug_fn_5, self.p_i)
-        numpy.savetxt(debug_fn_6, self.p_j)
-        numpy.savetxt(debug_fn_7, self.input_activity)
+        np.savetxt(debug_fn_1, self.w_ij)
+        np.savetxt(debug_fn_2, self.bias)
+        np.savetxt(debug_fn_3, self.p_ij)
+        np.savetxt(debug_fn_4, self.post_activity)
+        np.savetxt(debug_fn_5, self.p_i)
+        np.savetxt(debug_fn_6, self.p_j)
+        np.savetxt(debug_fn_7, self.input_activity)
 #        exit(1)
 
 
@@ -94,11 +94,11 @@ class BCPNN(object):
         """
         if (type(fn_or_array) == type('')):
             try: # for OB activity
-                self.input_activity = numpy.loadtxt(fn_or_array, delimiter=',')
+                self.input_activity = np.loadtxt(fn_or_array, delimiter=',')
             except:  # for OC activity
-                self.input_activity = numpy.loadtxt(fn_or_array)
+                self.input_activity = np.loadtxt(fn_or_array)
 
-        elif (type(fn_or_array) == type(numpy.array([]))):
+        elif (type(fn_or_array) == type(np.array([]))):
             self.input_activity = fn_or_array
 
 
@@ -110,10 +110,10 @@ class BCPNN(object):
         """
         if (type(fn_or_array) == type('')):
             try: # for OB activity
-                self.post_activity = numpy.loadtxt(fn_or_array, delimiter=',')
+                self.post_activity = np.loadtxt(fn_or_array, delimiter=',')
             except:
-                self.post_activity = numpy.loadtxt(fn_or_array)
-        elif (type(fn_or_array) == type(numpy.array([]))):
+                self.post_activity = np.loadtxt(fn_or_array)
+        elif (type(fn_or_array) == type(np.array([]))):
             self.post_activity = fn_or_array
 
 
@@ -123,21 +123,21 @@ class BCPNN(object):
         Load the result of the VQ, e.g. the result of the VQ in the mitral cell response space.
         Thus, the number of rows might be smaller than the total number of minicolumns in the network (because silent input units have been removed for the VQ).
         """
-        mc_hc_mask = numpy.loadtxt(mc_hc_conn_fn)
+        mc_hc_mask = np.loadtxt(mc_hc_conn_fn)
         silent_units = []
         if (silent_units_fn):
-            silent_units = numpy.loadtxt(silent_units_fn)
+            silent_units = np.loadtxt(self.params['silent_mit_fn'])
             
-        self.mc_mc_mask = numpy.zeros((self.n_hc_in * self.n_mc_in, self.n_hc_out * self.n_mc_out))
+        self.mc_mc_mask = np.zeros((self.n_hc_in * self.n_mc_in, self.n_hc_out * self.n_mc_out))
         for src_mc in xrange(self.n_mc_in * self.n_hc_in):
 #            if src_mc in silent_units:
-#                self.mc_mc_mask[src_mc, :] = numpy.zeros(self.n_hc_out * self.n_mc_out)
+#                self.mc_mc_mask[src_mc, :] = np.zeros(self.n_hc_out * self.n_mc_out)
 #            else:
             tgt_hcs = mc_hc_mask[src_mc, :].nonzero()[0]
             for tgt_hc in tgt_hcs:
                 mc1 = tgt_hc * self.n_mc_out
                 mc2 = (tgt_hc + 1) * self.n_mc_out
-                self.mc_mc_mask[src_mc, mc1:mc2] = numpy.ones(self.n_mc_out)
+                self.mc_mc_mask[src_mc, mc1:mc2] = np.ones(self.n_mc_out)
 
 
 
@@ -152,11 +152,11 @@ class BCPNN(object):
 #            print "Saving data for iteration %d" % (self.iteration)
 #            folder = os.path.abspath(record_to_folder) + '/'
 #            output_fn = folder + 'activity_before_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.post_activity, delimiter='\t')
+#            np.savetxt(output_fn, self.post_activity, delimiter='\t')
 #            output_fn = folder + 'weights_before_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.w_ij, delimiter='\t')
+#            np.savetxt(output_fn, self.w_ij, delimiter='\t')
 #            output_fn = folder + 'bias_before_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.bias, delimiter='\t')
+#            np.savetxt(output_fn, self.bias, delimiter='\t')
 
         print "Calculating post activity: ", self.iteration
         for pn in xrange(self.n_patterns):
@@ -173,15 +173,15 @@ class BCPNN(object):
         if post_act_fn != '':
             output_fn = post_act_fn.rsplit('.dat')[0] + '%d.dat' % (self.iteration)
             print "Saving data for iteration %d:  " % (self.iteration), output_fn
-            numpy.savetxt(output_fn, self.post_activity, delimiter='\t')
+            np.savetxt(output_fn, self.post_activity, delimiter='\t')
         if weights_fn != '':
             output_fn = weights_fn.rsplit('.dat')[0] + '%d.dat' % (self.iteration)
             print ".... ", output_fn
-            numpy.savetxt(output_fn, self.w_ij, delimiter='\t')
+            np.savetxt(output_fn, self.w_ij, delimiter='\t')
         if bias_fn != '':
             output_fn = bias_fn.rsplit('.dat')[0] + '%d.dat' % (self.iteration)
             print ".... ", output_fn
-            numpy.savetxt(output_fn, self.bias, delimiter='\t')
+            np.savetxt(output_fn, self.bias, delimiter='\t')
 
         if debug:
             debug_fn_1 = "test_bcpnn_ob_oc/weights_after_init_wij_mc_hc_%d.dat" % (self.iteration)
@@ -192,21 +192,21 @@ class BCPNN(object):
             debug_fn_6 = "test_bcpnn_ob_oc/pj_after_init_%d.dat" % (self.iteration)
             debug_fn_7 = "test_bcpnn_ob_oc/input_activity_after_init_%d.dat" % (self.iteration)
 
-            numpy.savetxt(debug_fn_1, self.w_ij)
-            numpy.savetxt(debug_fn_2, self.bias)
-            numpy.savetxt(debug_fn_3, self.p_ij)
-            numpy.savetxt(debug_fn_4, self.post_activity)
-            numpy.savetxt(debug_fn_5, self.p_i)
-            numpy.savetxt(debug_fn_6, self.p_j)
-            numpy.savetxt(debug_fn_7, self.input_activity)
+            np.savetxt(debug_fn_1, self.w_ij)
+            np.savetxt(debug_fn_2, self.bias)
+            np.savetxt(debug_fn_3, self.p_ij)
+            np.savetxt(debug_fn_4, self.post_activity)
+            np.savetxt(debug_fn_5, self.p_i)
+            np.savetxt(debug_fn_6, self.p_j)
+            np.savetxt(debug_fn_7, self.input_activity)
 
 #            folder = os.path.abspath(record_to_folder) + '/'
 #            output_fn = folder + 'activity_after_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.post_activity, delimiter='\t')
+#            np.savetxt(output_fn, self.post_activity, delimiter='\t')
 #            output_fn = folder + 'weights_after_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.w_ij, delimiter='\t')
+#            np.savetxt(output_fn, self.w_ij, delimiter='\t')
 #            output_fn = folder + 'bias_after_%d.dat' % (self.iteration)
-#            numpy.savetxt(output_fn, self.bias, delimiter='\t')
+#            np.savetxt(output_fn, self.bias, delimiter='\t')
         self.iteration += 1
 
 
@@ -214,13 +214,13 @@ class BCPNN(object):
 
         output_fn = post_act_fn
         print "Saving data to:  ", output_fn
-        numpy.savetxt(output_fn, self.post_activity, delimiter='\t')
+        np.savetxt(output_fn, self.post_activity, delimiter='\t')
         output_fn = weights_fn
         print "Saving data to:  " , output_fn
-        numpy.savetxt(output_fn, self.w_ij, delimiter='\t')
+        np.savetxt(output_fn, self.w_ij, delimiter='\t')
         output_fn = bias_fn
         print "Saving data to:  " , output_fn
-        numpy.savetxt(output_fn, self.bias, delimiter='\t')
+        np.savetxt(output_fn, self.bias, delimiter='\t')
 
 
     def calculate_post_activity(self, pn):
@@ -228,7 +228,7 @@ class BCPNN(object):
         n_pre = self.n_hc_in * self.n_mc_in
         n_post = self.n_hc_out * self.n_mc_out
         pre_activity = self.input_activity[pn, :]
-        output_after_softmax = numpy.zeros(n_post)
+        output_after_softmax = np.zeros(n_post)
 
         for post in xrange(n_post): # mc index
             in_j = 0.
@@ -238,7 +238,7 @@ class BCPNN(object):
 
             s_j = self.bias[post] + in_j
 
-            self.post_activity[pn, post] = numpy.exp(s_j)
+            self.post_activity[pn, post] = np.exp(s_j)
 #            self.post_activity[pn, post] = s_j # before
 
         # apply softmax function for each hypercolumn to get the output
@@ -295,9 +295,9 @@ class BCPNN(object):
         for post in xrange(n_post):
             # bias
             if (self.p_j[post] == 0.):
-                self.bias[post] = numpy.log((1. / self.n_patterns)**2)
+                self.bias[post] = np.log((1. / self.n_patterns)**2)
             else:
-                self.bias[post] = numpy.log(self.p_j[post])
+                self.bias[post] = np.log(self.p_j[post])
 
             # weights
             hc = post / self.n_mc_out
@@ -306,11 +306,11 @@ class BCPNN(object):
                     self.w_ij[pre, post] = 0.
                 elif ((self.p_ij[pre, post] == 0.) or (self.p_ij[pre, post] < self.params['p_ij_thresh'])):
 #                elif (self.p_ij[pre, post] == 0.):
-                    self.w_ij[pre, post] = numpy.log(1. / self.n_patterns) * self.mc_mc_mask[pre, post]
+                    self.w_ij[pre, post] = np.log(1. / self.n_patterns) * self.mc_mc_mask[pre, post]
                 else:
-                    self.w_ij[pre, post] = numpy.log(self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
+                    self.w_ij[pre, post] = np.log(self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
 
-        diff = numpy.abs(self.weights_old - self.w_ij)
+        diff = np.abs(self.weights_old - self.w_ij)
 
         if ((diff.sum() / (n_pre * n_post)) < self.change_thresh):
             print "No big change in weights...."
@@ -321,9 +321,9 @@ class BCPNN(object):
         """
         Connections involving input units with ids stored in silent_units_fn, are set to zero.
         """
-        silent_units = numpy.loadtxt(silent_units_fn)
+        silent_units = np.loadtxt(silent_units_fn)
         for i in xrange(len(silent_units)):
-            self.w_ij[silent_units[i], :] = numpy.zeros(self.w_ij[0, :].size)
+            self.w_ij[silent_units[i], :] = np.zeros(self.w_ij[0, :].size)
 
         # apply the mc_hc_mask to all weights
         for i in xrange(self.n_mc_in * self.n_hc_in): # src
@@ -341,33 +341,33 @@ class BCPNN(object):
         # load from a filename or array
         if (type(input_fn_or_array) == type('')):
             try: # for OB activity
-                input_activity = numpy.loadtxt(input_fn_or_array, delimiter=',')
+                input_activity = np.loadtxt(input_fn_or_array, delimiter=',')
             except:  # for OC activity
-                input_activity = numpy.loadtxt(input_fn_or_array)
-        elif (type(input_fn_or_array) == type(numpy.array([]))):
+                input_activity = np.loadtxt(input_fn_or_array)
+        elif (type(input_fn_or_array) == type(np.array([]))):
             input_activity = input_fn_or_array
 
         if (type(weights_fn_or_array) == type('')):
             try: # for OB activity
-                weights_activity = numpy.loadtxt(weights_fn_or_array, delimiter=',')
+                weights_activity = np.loadtxt(weights_fn_or_array, delimiter=',')
             except:  # for OC activity
-                weights_activity = numpy.loadtxt(weights_fn_or_array)
-        elif (type(weights_fn_or_array) == type(numpy.array([]))):
+                weights_activity = np.loadtxt(weights_fn_or_array)
+        elif (type(weights_fn_or_array) == type(np.array([]))):
             weights_activity = weights_fn_or_array
 
         if (type(bias_fn_or_array) == type('')):
             try: # for OB activity
-                bias_activity = numpy.loadtxt(bias_fn_or_array, delimiter=',')
+                bias_activity = np.loadtxt(bias_fn_or_array, delimiter=',')
             except:  # for OC activity
-                bias_activity = numpy.loadtxt(bias_fn_or_array)
-        elif (type(bias_fn_or_array) == type(numpy.array([]))):
+                bias_activity = np.loadtxt(bias_fn_or_array)
+        elif (type(bias_fn_or_array) == type(np.array([]))):
             bias_activity = bias_fn_or_array
         
         # calculate the post activity with the test input
         n_pre = self.n_hc_in * self.n_mc_in
         n_post = self.n_hc_out * self.n_mc_out
-        output_after_softmax = numpy.zeros((self.n_patterns, n_post))
-        post_activity_test = numpy.zeros((self.n_patterns, n_post))
+        output_after_softmax = np.zeros((self.n_patterns, n_post))
+        post_activity_test = np.zeros((self.n_patterns, n_post))
 
         for pn in xrange(self.n_patterns):
 
@@ -377,8 +377,9 @@ class BCPNN(object):
                 for pre in xrange(n_pre):
                     in_j += (self.w_ij[pre, post] * input_activity[pn, pre]) * self.mc_mc_mask[pre, post ] # only allow input from masked sources (mc_mc_mask = mask)
 
-                s_j = self.bias[post] + in_j
-                post_activity_test[pn, post] = numpy.exp(s_j)
+                s_j = np.exp(self.bias[post]) + in_j
+#                s_j = self.bias[post] + in_j
+                post_activity_test[pn, post] = np.exp(s_j)
 
             # apply softmax function for each hypercolumn to get the output
             for hc in xrange(self.n_hc_out):
@@ -392,10 +393,10 @@ class BCPNN(object):
         if (output_fn != None):
             softmax_output_fn = output_fn.rsplit('.dat')[0] + '_softmax.dat'
             print "Saving activity during testing to:", output_fn, softmax_output_fn
-            numpy.savetxt(output_fn, post_activity_test)
-            numpy.savetxt(softmax_output_fn, output_after_softmax)
+            np.savetxt(output_fn, post_activity_test)
+            np.savetxt(softmax_output_fn, output_after_softmax)
 
-        list_of_winners = numpy.ones(self.n_patterns) # list of most active readout cells
+        list_of_winners = np.ones(self.n_patterns) # list of most active readout cells
         list_of_winners *= -1
         correct_patterns = []
         for pn in xrange(self.n_patterns):
@@ -410,9 +411,9 @@ class BCPNN(object):
                 correct_patterns.append(pn)
             list_of_winners[pn] = most_active_unit_test
 
-        winner_readouts = numpy.unique(list_of_winners)
+        winner_readouts = np.unique(list_of_winners)
         wrong_patterns = set(range(self.n_patterns)).difference(set(winner_readouts))
-        print "List of winner readouts:", numpy.unique(list_of_winners)
-        print "Number of different winner readouts:", numpy.unique(list_of_winners).size
+        print "List of winner readouts:", np.unique(list_of_winners)
+        print "Number of different winner readouts:", np.unique(list_of_winners).size
         print "Wrong patterns", wrong_patterns
         print "Correct patterns:", len(correct_patterns), correct_patterns

@@ -27,18 +27,18 @@ class parameter_storage(object):
     def set_default_params(self):
 
 
-        self.params['OR_activation_normalization'] = True
+        self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 0
+#        self.params['n_patterns'] = 100
         self.params['n_patterns'] = 50
-#        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
-        self.params['oc_only'] = True
+        self.params['oc_only'] = False
 
 #        self.params['noisy_affinity_matrix'] = 0
         self.params['OR_affinity_noise'] = 0.0
@@ -50,7 +50,7 @@ class parameter_storage(object):
         self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
 
         # ------ S E E D S -------------
-        self.params['seed_activation_matrix'] = 1
+        self.params['seed_activation_matrix'] = 123
         self.params['seed'] = 0 # this is for pattern generation, weight randomization, etc
         self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
         self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
@@ -73,7 +73,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 10
+            self.params['rel_orn_mit'] = 1
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
@@ -108,13 +108,12 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 49
-        self.params['n_mc'] = 9
+        self.params['n_hc'] = 16
+        self.params['n_mc'] = 16
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
         self.params['n_pyr_per_mc'] = 30
-#        self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
         self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
@@ -197,10 +196,17 @@ class parameter_storage(object):
         self.params['odorant_receptor_distance_distribution_parameters'] = [162.310869565, 6.67080434783, 1.98630434783,\
          19.8056521739, 10.8089130435, 3.32682608696, \
          4.4382173913, 40.8932608696, 0.456293478261] # these values are the mean values for the fit parameters to the distance distribution for 20 - 65 ORs
-        self.params['distance_affinity_transformation_parameter'] = .1 # this value is subtracted from the activation_matrix when createing ORN parameters
+        self.params['frac_min_active_OR'] = .30 # Wachowiak2001Representation of odorants by receptor neuron input to the mouse olfactory bulb:
+        self.params['frac_max_active_OR'] = .50 # for high conc: ~ 19 +- 2 glom were activated (out of ~150 in the imaged region) --> 0.13 +- 0.2
+        # Ma 60-100 activated glomeruli out of ~200
+        # if a receptor is activated --> draw the affinity from the distance distribution
+        self.params['distance_affinity_transformation_parameter'] = .00 # this value is subtracted from the activation_matrix when createing ORN parameters
         # .1 is subtracted to model the inhibitory response: 11% of all odorant-receptor combinations resulted in inhibitory responses (Hallem 2006)
         # if nothing is subtracted the model would give ~12 % of all activations are below .1 Thus, inhibition is modeled as effective 0 activation for those 11-12% or odorant receptor pairs
-        self.params['distance_affinity_transformation_parameter_exp'] = 3 * 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
+
+#        self.params['distance_affinity_transformation_parameter_exp'] = 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
+        expected_value_dist = 7.90462925921
+        self.params['distance_affinity_transformation_parameter_exp'] = expected_value_dist ** 2
         """
         The values of the parameters for the fit to the OR-distance distribution do not change qualitatively for the range
         between 20 and 65 ORs (centroids). That's why we chose to take the mean values for those distributions to generate the activation matrix.
@@ -244,6 +250,7 @@ class parameter_storage(object):
         self.params['gkcag_params'] = [5e-3, 5e-2]
         self.params['gcal_params'] =  [3e-5, 0.8e-5]
         self.params['gleak_params'] = [8.0e-5, 1.2e-4]
+
 #        self.params['gkcag_params'] = [5e-3, 5e-2]
 #        self.params['gcal_params'] =  [1e-5, 1e-5]
 #        self.params['gleak_params'] = [1.2e-4, 8e-5]
@@ -334,8 +341,8 @@ class parameter_storage(object):
             self.params['w_gran_mit_global_target'] = 1e-9  # total inhibitory conductance received by an MT cells from non-local DDI connections with Gran cells, i.e. Gran cells in other glomeruli
         else:
             self.params['n_mit_gran_syn_global'] = 100 # number of reciprocal synapses between one MT cell and granule cells in other glomeruli
-            self.params['w_mit_gran_global_target'] = 0.002  # total excitatory conductance received by a Gran cells from non-local MT cells, i.e. MT cells in other glomeruli
-            self.params['w_gran_mit_global_target'] = 0.1 # total inhibitory conductance received by an MT cells from non-local DDI connections with Gran cells, i.e. Gran cells in other glomeruli
+            self.params['w_mit_gran_global_target'] = 0.001  # total excitatory conductance received by a Gran cells from non-local MT cells, i.e. MT cells in other glomeruli
+            self.params['w_gran_mit_global_target'] = 0.2 # total inhibitory conductance received by an MT cell from non-local DDI connections with Gran cells, i.e. Gran cells in other glomeruli
         self.params['w_mit_gran_global_sigma'] = 0.1
         self.params['w_gran_mit_global_sigma'] = 0.1
         # --------------- OB parameters for dendro-dendritic inhibition
@@ -357,13 +364,13 @@ class parameter_storage(object):
         # all weights are given in uS, thus w=0.001 is 1 nS
         # within one minicolumn # [E_psp_height in mV at V_rest for pyr_rs]
         # a weight of 0.005 = EPSP_height = 4.25 mV
-        self.params['w_pyr_pyr_local'] = 0.001
+        self.params['w_pyr_pyr_local'] = 0.004
         self.params['w_pyr_basket'] = 0.003
-        self.params['w_basket_pyr'] = 0.005
+        self.params['w_basket_pyr'] = 0.006
         self.params['w_basket_basket'] = 0.002
-        self.params['w_rsnp_pyr'] = 0.002       # -0.8 mV
-        self.params['w_nmda_mult_oc'] = 1.0     # for oc - oc connections
-        self.params['w_pyr_readout'] = 0.001
+        self.params['w_rsnp_pyr'] = 0.003       # -0.8 mV
+        self.params['w_nmda_mult_oc'] = 2.0     # for ob - oc and oc - oc connections
+        self.params['w_pyr_readout'] = 0.002
 
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
@@ -394,7 +401,7 @@ class parameter_storage(object):
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.005             # max weight for exc mit -> pyr connection
+        self.params['w_mit_pyr_max'] = 0.007             # max weight for exc mit -> pyr connection
         self.params['w_mit_rsnp_max'] = 0.002             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
@@ -409,7 +416,7 @@ class parameter_storage(object):
         self.params['g_m_rsnp'] = 4e-5 # [S / cm2]
         self.params['g_leak_readout'] = 8e-5 # [S / cm2]
         self.params['tau_max_g_m'] = 1000# [ms]
-        self.params['g_ka_pyr_max'] = 50.0 # 40 # [uS / cm2] # bias conductance
+        self.params['g_ka_pyr_max'] = 40.0 # 40 # [uS / cm2] # bias conductance
         self.params['g_ka_readout_max'] = self.params['g_ka_pyr_max']
         self.params['i_bias_pyr_max'] = -0.15 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
         self.params['i_bias_readout_max'] = -0.15 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
@@ -492,10 +499,12 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 15 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 5# if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        if (self.params['vq_ob_oc_overlap'] >= self.params['n_hc']):
+            self.params['vq_ob_oc_overlap'] = self.params['n_hc'] - 1
         assert (self.params['vq_ob_oc_overlap'] < self.params['n_hc']), 'Can\'t have larger overlap of clusters than Hypercolumns / centroids to project to...'
         self.params['n_bcpnn_steps'] = 1
-        self.params['vq_oc_readout_overlap'] = 1 # if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_oc_readout_overlap'] = 1 
         self.params['n_dim_mds'] = 3
 
 
@@ -514,8 +523,12 @@ class parameter_storage(object):
 #                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
 #        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_postL' % (self.params['n_or'], \
-                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
+#        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_postL' % (self.params['n_or'], \
+#                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
+#        folder_name = 'NewPaperData_nGlom%d_rORN%d_ORnoise%.1f_OrAffNorm%d_preL_np%d' % (self.params['n_or'], \
+#                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
+        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_ORnoise%.1f_OrAffNorm%d_postLrn_np%d_1' % (self.params['n_or'], \
+                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
@@ -743,8 +756,10 @@ class parameter_storage(object):
         self.params['mit_nspikes_normed_patterns_then_cells'] = '%s/mit_nspikes_normed_patterns_then_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_cells_then_patterns'] = '%s/mit_nspikes_normed_cells_then_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         # decide which mit response should be used as MDS input
-        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
+#        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
 #        self.params['mit_mds_input_fn'] = self.params['mit_nspikes_rescaled'] 
+        wta_output_fn = self.params['other_folder'] + '/mit_activity_wta.dat'
+        self.params['mit_mds_input_fn'] = wta_output_fn
 
         self.params['gran_spike_fn_base'] =  '%s/gran_nspikes_' % ( self.params['nspikes_folder'])
         self.params['gran_spikes_merged_fn_base'] =  '%s/gran_nspikes_merged_' % ( self.params['nspikes_folder'])

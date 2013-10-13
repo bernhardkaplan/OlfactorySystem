@@ -14,10 +14,16 @@ def get_mean_max_min_median(d):
 def get_units_above_thresh(d, thresh):
 
     n_above_thresh = np.zeros(d[:, 0].size)
+    n_all_zero = np.zeros(d[:, 0].size)
     for i in xrange(d[:, 0].size):
         above_thresh = (d[i, :] > thresh).nonzero()[0]
         n_above_thresh[i] = above_thresh.size
+        n_zero = (d[i, :] == 0).nonzero()[0].size
+        if n_zero ==  d[i, :].size:
+            n_all_zero[i] = 1
+
 #        print 'In row %d: %d units have value higher than %.2e' % (i, n_above_thresh[i], thresh), above_thresh
+    print '%d rows have all elements filled with zero' % (n_all_zero[i].sum())
     print 'On average, per row %.2f +- %.2f units have higher values than %.2e, i.e. %.1f +- %.1f percent' % (n_above_thresh.mean(), n_above_thresh.std(), thresh, \
             n_above_thresh.mean() / d[0, :].size * 100., n_above_thresh.std() / d[0, :].size * 100.)
     print 'In total %d units have higher values than %.2e' % (n_above_thresh.sum(), thresh)
@@ -38,6 +44,23 @@ def plot_sorted_values_as_hist(d, title=''):
     ax = fig.add_subplot(111)
     ax.bar(range(d.size), d, width=1)
     ax.set_title(title)
+
+
+def plot_wta(d):
+    fig = pylab.figure()
+    ax = fig.add_subplot(111)
+    print "plotting ...."
+    data = np.zeros(d.shape)
+    n_correct = 0
+    for row in xrange(d.shape[0]):
+        winner = d[row, :].argmax()
+        data[row, winner] = 1
+        if row == winner:
+            n_correct += 1
+
+    print 'n_correct: ', n_correct
+    cax = ax.pcolormesh(data, cmap='binary')
+    pylab.colorbar(cax)
 
 
 if __name__ == '__main__':
@@ -68,11 +91,15 @@ if __name__ == '__main__':
     #get_mean_max_min_median(data)
     thresh = 0.001
     get_units_above_thresh(data, thresh)
-    thresh = 0.95
+    thresh = 1.5
+    get_units_above_thresh(data, thresh)
+    thresh = -1.5
     get_units_above_thresh(data, thresh)
 
-    plot_hist(data)
-#    for OR in xrange(0, 10):
+    plot_wta(data)
+#    plot_hist(data, n_bins=40)
+    print 'Sum of all elements:', data.sum()
+#    for OR in xrange(0, 5):
 #        d = data[:, OR]
 #        idx_sorted = np.argsort(d)
 #        plot_sorted_values_as_hist(d[idx_sorted], title='OR %d' % OR)
@@ -92,7 +119,9 @@ if __name__ == '__main__':
     #    data_rev[n_row - row, :] = data[row, :]
 
     fig = pylab.figure()
+    title = fn.rsplit('/')[-1]
     ax = fig.add_subplot(111)
+    ax.set_title(title)
     print "plotting ...."
     #cax = ax.imshow(data[:,:12])
     #cax = ax.pcolor(data, edgecolor='k', linewidths='1')

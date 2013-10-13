@@ -65,27 +65,62 @@ def get_prob_for_distributions():
     p3 = A3 / (A1 + A2 + A3)
     return p1, p2, p3
 
+
+def transform_dist_to_affinity_exp(dist, alpha):
+    return np.exp(-(dist)**2 / alpha)
+
+#    return np.exp(-dist * alpha)
+
+def transform_dist_to_affinity(dist):
+    return 1. / (1. + dist)
+
+
 p1, p2, p3 = get_prob_for_distributions()
 print 'Debug p1 p2 p3', p1, p2, p3, p1 + p2 + p3
 np.random.seed(0)
 
-n_or = 500 
+n_or = 50
 n_pattern = 1000
 n_samples = n_or * n_pattern
-samples = np.zeros(n_samples)
-
+dist_samples = np.zeros(n_samples)
 for i_ in xrange(n_samples):
-    samples[i_] = distance_generator()
-count, bins = np.histogram(samples, bins=200)
+    dist_samples[i_] = distance_generator()
 
-count_norm = count / float(n_samples)
-expected_value = np.sum(count_norm * bins[:-1])
-pylab.bar(bins[:-1], count_norm, width=bins[1]-bins[0])
-print 'debug counts', count, n_samples
-print 'debug normalized counts', count_norm
-print 'bins * count_norm', bins[:-1] * count_norm, (bins[:-1] * count_norm).sum()
-print 'Expected value:', expected_value
-#pylab.bar(bins[:-1], count, width=bins[1]-bins[0])
+
+pylab.rcParams.update({'figure.subplot.hspace' : .4})
+fig = pylab.figure()
+ax1 = pylab.subplot(211)
+ax2 = pylab.subplot(212)
+
+count_dist, bins_dist = np.histogram(dist_samples, bins=200)
+count_norm = count_dist / float(n_samples)
+#expected_value_dist = np.sum(count_norm * bins_dist[:-1])
+expected_value_dist = dist_samples.mean()
+ax1.bar(bins_dist[:-1], count_norm, width=bins_dist[1]-bins_dist[0])
+ax1.set_title('Distance distribution')
+ax1.set_xlabel('Distances')
+ax2.set_ylabel('Normalized count')
+#print 'debug counts', count_dist, n_samples
+#print 'debug normalized counts', count_norm
+#print 'bins_dist * count_norm', bins_dist[:-1] * count_norm, (bins_dist[:-1] * count_norm).sum()
+print 'Expected value dist:', expected_value_dist
+
+alpha = 1 * expected_value_dist**2
+#affinities = transform_dist_to_affinity_exp(dist_samples, alpha)
+affinities = transform_dist_to_affinity(dist_samples)
+
+count_aff, bins_aff = np.histogram(affinities, bins=200)
+count_norm = count_aff / float(n_samples)
+#expected_value_aff = np.sum(count_norm * bins_aff[:-1])
+expected_value_aff = affinities.mean()
+ax2.bar(bins_aff[:-1], count_norm, width=bins_aff[1]-bins_aff[0])
+ax2.set_title('Affinity distribution')
+ax2.set_xlabel('Affinities')
+ax2.set_ylabel('Normalized count')
+#print 'debug counts', count_aff, n_samples
+#print 'debug normalized counts', count_norm
+#print 'bins_aff * count_norm', bins_aff[:-1] * count_norm, (bins_aff[:-1] * count_norm).sum()
+print 'Expected value affinities:', expected_value_aff
 
 
 pylab.show()

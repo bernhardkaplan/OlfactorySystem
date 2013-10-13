@@ -148,7 +148,7 @@ class MDSVQ(object):
 
 
 
-    def vq(self, input_fn_or_array, output_fn, n_clusters_or_guess, overlap=0, thresh=1e-3, plotting=False, remove_silent_cells_fn=False):
+    def vq(self, input_fn_or_array, output_fn, n_clusters_or_guess, overlap=0, thresh=1e-3, show=False, remove_silent_cells_fn=False):
         """
         input_fn_or_array: space to be clustered
         output_fn: target file storing the output_mask the code book as array
@@ -198,6 +198,7 @@ class MDSVQ(object):
                     n_empty_hc += 1
             kmeans_trial += 1
 
+        print 'MDSVQ: kmeans_trials to get non-empty targets %d ' % (kmeans_trial)
         if overlap > 0:
             # for each point get the overlap + 1 closes centroids
             nn = self.get_nearest_neighbors(points, centroids, overlap + 1)
@@ -224,39 +225,37 @@ class MDSVQ(object):
         np.savetxt(output_fn, output_mask)
 
         # plotting
-        if plotting == True:
-            fig = pylab.figure()
-            ax = Axes3D(fig)
+        fig = pylab.figure()
+        ax = Axes3D(fig)
 
-            colored = True
-            # map centroid numbers to different colors
-            if (colored):
-                min_4d = np.min(code)
-                max_4d = np.max(code)
-                range_4d = float(max_4d - min_4d)
-                norm = matplotlib.mpl.colors.Normalize(vmin=min_4d, vmax=max_4d)
-                m = matplotlib.cm.ScalarMappable(norm=norm, cmap=matplotlib.cm.jet)
-                m.set_array(np.arange(min_4d, max_4d, 0.01))
-                colors = m.to_rgba(code)
-                cax = ax.scatter(d[:,0], d[:,1], d[:,2], c=colors, marker='o', linewidth='5', edgecolor=colors)
+        colored = True
+        # map centroid numbers to different colors
+        if (colored):
+            min_4d = np.min(code)
+            max_4d = np.max(code)
+            range_4d = float(max_4d - min_4d)
+            norm = matplotlib.mpl.colors.Normalize(vmin=min_4d, vmax=max_4d)
+            m = matplotlib.cm.ScalarMappable(norm=norm, cmap=matplotlib.cm.jet)
+            m.set_array(np.arange(min_4d, max_4d, 0.01))
+            colors = m.to_rgba(code)
+            cax = ax.scatter(d[:,0], d[:,1], d[:,2], c=colors, marker='o', linewidth='5', edgecolor=colors)
 
-            output_array = np.zeros((d[:, 0].size, n_clusters))
-            for i in xrange(d[:, 0].size):
-                tgt_cluster = code[i]
-                output_array[i, tgt_cluster] = 1.
-            print "Saving to", output_fn
-            np.savetxt(output_fn, output_array, delimiter='\t')
-            ax.set_xlabel('X Label')
-            ax.set_ylabel('Y Label')
-            ax.set_zlabel('Z Label')
-            output_fig = self.params['figure_folder'] + 'ob_oc_mds_vq.png'
-            print 'Saving figure to:', output_fig
-            pylab.savefig(output_fig)
+        output_array = np.zeros((d[:, 0].size, n_clusters))
+        for i in xrange(d[:, 0].size):
+            tgt_cluster = code[i]
+            output_array[i, tgt_cluster] = 1.
+        print "Saving to", output_fn
+        np.savetxt(output_fn, output_array, delimiter='\t')
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+        output_fig = self.params['figure_folder'] + 'ob_oc_mds_vq.png'
+        print 'Saving figure to:', output_fig
+        pylab.savefig(output_fig)
+        if show:
             pylab.show()
-
-
-
         return code, dist, centroids
+
 
     def get_nearest_neighbors(self, points, centroids, overlap):
         """
@@ -353,10 +352,11 @@ class MDSVQ(object):
         output_array = np.zeros((n_patterns, n_mc_oc))
 
         if (remove_silent_cells_fn):
-            silent_mits = np.loadtxt(remove_silent_cells_fn)
+            silent_mits = np.loadtxt(self.params['silent_mit_fn'])
         else:
             silent_mits = []
 
+        n_src_mit = np.zeros(n_hc)
         for hc in xrange(n_hc):
             src_mit = np.nonzero(mask[:, hc])[0].tolist()
             to_remove = set(silent_mits).intersection(set(src_mit))
@@ -366,13 +366,14 @@ class MDSVQ(object):
                 src_mit.remove(silent_mit)
 
             activity_space = np.zeros((n_patterns, len(src_mit)))
-            print 'DEBUG src_mit', len(src_mit), src_mit
-            print 'DEBUG activity_space', activity_space
+            n_src_mit[hc] = len(src_mit)
+#            print 'DEBUG src_mit', len(src_mit), src_mit
             for pattern in xrange(n_patterns):
                 # mask only the mitral cells projecting to the hc (src_mits)
 #                print "DEBUG, taking src_mit:", src_mit
                 activity_space[pattern, :] = ob_activity[pattern, :].take(src_mit)
 #                print "DEBUG, activity space %d :" % pattern, activity_space[pattern, :]
+            print 'DEBUG sum in activity_space', activity_space.sum()
 
             if (optional_mds):
                 mit_coords_fn = self.params['mit_response_space_fn_base']
@@ -397,7 +398,7 @@ class MDSVQ(object):
             centroids, distortions = scvq.kmeans2(d, n_mc, minit='points')
             codes, dist = scvq.vq(d, centroids)
 
-            print 'MDSVQ.create_mitral_response_space gives a k-means distortion of:'
+#            print 'MDSVQ.create_mitral_response_space gives a k-means distortion of:'
 #            print ' distortions mean %.2f +- %.2f\tsum: %.2f' % (distortions.mean(), distortions.std(), distortions.sum())
 #            print 'distortions', distortions, len(distortions)
 #            print 'codes', len(codes), codes
@@ -426,7 +427,7 @@ class MDSVQ(object):
                 output_array[pn, mc] = 1
 
 
-#        print "debug MDSVQ.create_mitral_response_space writes to:", output_fn
+        print 'Debug MDSVQ: n_src_mit = %.2f +- %.2f' % (n_src_mit.mean(), n_src_mit.std())
 #        np.savetxt(output_fn, activity_space)
         print "MDSVQ.create_mitral_response_space writes to:", output_fn, '\n\t', dist_fn
         np.savetxt(output_fn, output_array)

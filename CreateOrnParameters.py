@@ -1,6 +1,7 @@
 import numpy as np
-import numpy.random as rnd
+import numpy.random
 import matplotlib.mlab as mlab
+import random
 
 class CreateOrnParameters(object):
 
@@ -77,7 +78,7 @@ class CreateOrnParameters(object):
         """
         orthogonal patterns means a single odorant is presented to the system
         """
-        self.create_single_odorant_activation_matrix()
+        self.activation_matrix = self.create_single_odorant_activation_matrix()
 
         if self.params['OR_affinity_noise'] != 0.0:
             self.add_pattern_noise()
@@ -129,16 +130,30 @@ class CreateOrnParameters(object):
         p3 = A3 / (A1 + A2 + A3)
 
         eps = 1e-12
-        rnd.seed(self.params['seed_activation_matrix'])
+        np.random.seed(self.params['seed_activation_matrix'])
+        random.seed(self.params['seed_activation_matrix'])
         distances = np.zeros((self.params['n_patterns'], self.params['n_or']))
+        n_min_active_OR = self.params['n_or'] * self.params['frac_min_active_OR']
+        n_max_active_OR = self.params['n_or'] * self.params['frac_max_active_OR']
+        n_above_thresh = np.zeros(self.params['n_patterns']) # number of glomeruli expected to get an activation larger than thresh
+        thresh = 0.01
         for pn in xrange(self.params['n_patterns']):
-            for OR in xrange(self.params['n_or']):
+            n_active_OR = np.random.randint(n_min_active_OR, n_max_active_OR)
+            activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
+            while np.unique(activated_ORs).size != n_active_OR:
+                activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
+#            activated_ORs = range(self.params['n_or'])
+#            print 'In pattern %d, %d ( = %.2f percent of the ORs are activated)' % (pn, n_active_OR, float(n_active_OR) / self.params['n_or'] * 100.)
+            for OR in activated_ORs:
+#            for OR in xrange(self.params['n_or']):
                 # draw a random distance from the fitted distance distribution
                 dist = self.odorant_odor_distance_distribution((p1, p2, p3))
                 distances[pn, OR] = dist
-                affinity = 1. / dist
+#                affinity = 1. / (dist + 1.)
 #                affinity = (1. / dist)**2
 #                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter_exp'])
+                affinity = np.exp(-(dist)**2 / self.params['distance_affinity_transformation_parameter_exp'])
+#            return np.exp(-(dist)**2 / alpha)
                 affinity -= self.params['distance_affinity_transformation_parameter']
                 if affinity > 1.:
                     affinity = 1.
@@ -146,21 +161,33 @@ class CreateOrnParameters(object):
                     affinity = 0.
 #                print 'DEBUG pn %d OR %d \tdist = %.6f\taffinity = %.6f' % (pn, OR, dist, affinity)
                 self.activation_matrix[pn, OR] = affinity
+                n_above_thresh[pn] = (self.activation_matrix[pn ,:] > thresh).nonzero()[0].size
 
-        print 'Distances.mean:', distances.mean()
-        print 'Distances.median:', np.median(distances)
+        print 'ActivationMatrix: per pattern number of activated glom: mean %.2f +- %.2f, \t%.2f +- %.2f percent' % (n_above_thresh.mean(), n_above_thresh.std(), \
+                (n_above_thresh.mean() / float(self.params['n_or'])) * 100., (n_above_thresh.std() / float(self.params['n_or'])) * 100.)
+#        print 'Distances.mean:', distances.mean()
+#        print 'Distances.median:', np.median(distances)
 
         if self.params['OR_activation_normalization']:
             for pn in xrange(self.params['n_patterns']):
-                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max() 
                 # this normalization increases the likelihood of having ORs with a high affinity to 
                 # each given pattern --> receptors have specialized to odorants (?)
+#                if self.activation_matrix[pn, :].sum() == 0:
+#                    print '\n\tWARNING: activation_matrix.sum for pattern %d == 0' % (pn)
+                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max() 
+                if not self.activation_matrix[pn, :].sum() == 0:
+                    self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum() 
+#                pass
 
 #            for OR in xrange(self.params['n_or']):
 #                self.activation_matrix[:, OR] /= self.activation_matrix[:, OR].sum()
 
+
+
+        print 'Activation matrix sum:', self.activation_matrix.sum()
         print "Activation matrix fn:", self.params['activation_matrix_fn']
         np.savetxt(self.params['activation_matrix_fn'], self.activation_matrix)
+        return self.activation_matrix
 
 
 
@@ -171,13 +198,13 @@ class CreateOrnParameters(object):
             each value in the matrix gets +- rand(0, degree_of_noise)
         """
         dgn = self.params['OR_affinity_noise']
-        rnd.seed(self.params['OR_pattern_noise_seed'])
+        np.random.seed(self.params['OR_pattern_noise_seed'])
 #        assert (os.path.exists(self.params['activation_matrix_fn'])), "Activation matrix does not exist in given filename: %s\n Check sim_id, etc... or rerun without noisy_patterns" % (self.params['activation_matrix'])
 #        M = np.loadtxt(self.params['activation_matrix_fn'])
         M = self.activation_matrix.copy()
         for pn in xrange(self.params['n_patterns']):
             for OR in xrange(self.params['n_or']):
-                M[pn, OR] += rnd.uniform(-dgn, dgn)
+                M[pn, OR] += np.random.uniform(-dgn, dgn)
                 if (M[pn, OR] > 1):
                     M[pn, OR] = 1
                 elif (M[pn, OR] < 0):
@@ -211,13 +238,13 @@ class CreateOrnParameters(object):
         dist_range = self.params['odorant_receptor_distance_range']
         which_gauss = np.random.uniform(0, 1.)
         if which_gauss < p1:
-            print 'p1 ', 
+#            print 'p1 ', 
             return np.random.normal(p[1], p[2])
         elif (which_gauss < p2 + p1):
-            print 'p2 ', 
+#            print 'p2 ', 
             return np.random.normal(p[4], p[5])
         elif (which_gauss < p3 + p2 + p1):
-            print 'p3 ', 
+#            print 'p3 ', 
             return np.random.normal(p[7], p[8])
 
 

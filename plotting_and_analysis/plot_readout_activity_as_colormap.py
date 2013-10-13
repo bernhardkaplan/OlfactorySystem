@@ -65,6 +65,7 @@ class Plotter(object):
                         activity[index, pn] = (d[i, 1] / params['t_sim']) * 1000.
                 most_active_neuron = activity[:, pn].argmax() 
                 list_of_winners[pn] = most_active_neuron
+#                print 'most active neuron in pattern %d is %d' % (pn, most_active_neuron)
 
             except:
                 print "Missing activity for pn %d from file %s" % (pn, fn)

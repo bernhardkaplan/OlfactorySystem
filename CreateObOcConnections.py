@@ -68,7 +68,7 @@ def mds_vq_ob_output(params):
     mds_output_fn = params['mds_ob_oc_output_fn']
     cell_type = 'mit'
     assert (os.path.exists(activity_fn)), 'ERROR: File does not exist %s\n\t Have you run mds_vq_ob_output properly?\n'
-#    mit_cell_coordinates_in_mi_space = mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
+    mit_cell_coordinates_in_mi_space = mdsvq.mds(activity_fn, mds_output_fn, thresh=1e-6, cell_type=cell_type)
 #    mit_cell_coordinates_in_mi_space = np.loadtxt(mds_output_fn)
 
     t_2 = time.time()
@@ -83,7 +83,7 @@ def mds_vq_ob_output(params):
 #    print 'guessed_centroids', guessed_centroids
 #    np.random.seed(123)
 #    guessed_centroids = 2 * np.random.random((params['n_hc'], 3))
-#    mdsvq.vq(mds_output_fn, vq_output_fn, guessed_centroids, overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'], plotting=True)
+#    mdsvq.vq(mds_output_fn, vq_output_fn, guessed_centroids, overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'], show=True)
     mdsvq.vq(mds_output_fn, vq_output_fn, params['n_hc'], overlap=params['vq_ob_oc_overlap'], remove_silent_cells_fn=params['silent_mit_fn'])
     t_3 = time.time()
     t_diff = t_3 - t_2
@@ -213,7 +213,7 @@ def bcpnn_oc_readout(params):
     test_input = oc_activity_fn
     test_output = params['readout_abstract_activity_fn'].rsplit('.dat')[0] + '_test.dat'
     print 'BCPNN.testing(input = %s \nweights = %s \nbias = %s \ntest_output = %s' % (test_input, weights_fn, bias_fn, test_output)
-    bcpnn.testing(test_input, weights_fn, bias_fn, test_output)
+    bcpnn.testing(test_input, weights_fn, bias_fn, output_fn=test_output)
 
 
 
@@ -261,7 +261,6 @@ if __name__ == '__main__':
         # it's convenient to write results into a seperate folder structure as OB->OC connectivity
         # and pattern recognition might require some tuning (as every model does ;))
         if sys.argv[1] == 'new':
-            print 'Created folder structure, will now quit'
             print 'New folder:', params['folder_name']
 
         try: 
@@ -284,7 +283,8 @@ if __name__ == '__main__':
                     add_first_line(pn)
 
         except:
-            print 'Could not copy MT spike times to new folder. You need to copy them by hand from the preLearning folder'
+            print '\n\tCould not copy MT spike times to new folder. You need to copy them by hand from the preLearning folder.\n'
+            print '\tHave you merged the mit spike files in the preLearning folder?\n'
             exit(1)
         
     param_tool.write_parameters_to_file(params["info_file"])
@@ -292,20 +292,23 @@ if __name__ == '__main__':
     param_tool.hoc_export() # 
 #    exit(1)
 
-    # optional: take care to create the same patterns as the preLearning folder!
-#    prepare_epth_ob_prelearning.prepare_epth_ob(params)
+#    if not params['oc_only']:
+#        prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-#    ObAnalyser.get_output_file()
-#    ObAnalyser.get_output_activity()
-#    ObAnalyser.rescale_activity()
-#    mds_vq_ob_output(params)
+    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+    ObAnalyser.get_output_file()
+    ObAnalyser.get_output_activity()
+    ObAnalyser.rescale_activity()
+    ObAnalyser.rescale_activity_cellwise()
+    ObAnalyser.rescale_activity_patternwise()
+    ObAnalyser.rescale_activity_glom_patterns()
+    mds_vq_ob_output(params)
 
-#    bcpnn_ob_oc(params)
-#    bcpnn_oc_oc(params)
-#    bcpnn_oc_readout(params)
+    bcpnn_ob_oc(params)
+    bcpnn_oc_oc(params)
+    bcpnn_oc_readout(params)
 
-    create_pyr_parameters(params)
-    create_connections(params)
+#    create_pyr_parameters(params)
+#    create_connections(params)
 

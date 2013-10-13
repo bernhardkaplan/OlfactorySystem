@@ -215,22 +215,22 @@ if __name__ == '__main__':
         param_list = sys.argv
     else:
         print '\n\tWARNING\nsys.argv has not length 10. Will use the default parameters and sim_cnt 0'
-        gor_params = [7e-5, 1e-3]
-        gkcag_params = [5e-3, 5e-2]
-        gcal_params =  [1e-5, 1e-5]
-        gleak_params = [1.2e-4, 8e-5]
-#        gleak_params = [1e-4, 1e-4]
+
+#        gor_params = [7e-5, 1e-3]
+#        gkcag_params = [5e-3, 5e-2]
+#        gcal_params =  [1e-5, 1e-5]
+#        gleak_params = [1.2e-4, 8e-5]
         gor_exp = 2
 
-#        gor_params = [5e-5, 1e-3]
-#        gkcag_params = [5e-3, 5e-3]
-#        gcal_params =  [5e-5, 5e-4]
-#        gleak_params = [5e-5, 3e-4]
-        sim_cnt = 4
+        gor_params = [5e-5, 0.9e-3]
+        gkcag_params = [5e-3, 5e-2]
+        gcal_params =  [3e-5, 0.8e-5]
+        gleak_params = [8e-5, 1.2e-4]
+        sim_cnt = 1
         param_list = [None, sim_cnt, gor_params[0], gor_params[1], gkcag_params[0], gkcag_params[1], \
                 gcal_params[0], gcal_params[1], gleak_params[0], gleak_params[1], gor_exp]
-        print 'default param_list:', param_list
 
+    print 'debug param_list', param_list
     HTOP.set_parameters(param_list)
     param_tool.hoc_export()
     param_tool.write_parameters_to_file()
@@ -239,10 +239,13 @@ if __name__ == '__main__':
     HTOP.run_simulation()
     
 #    fig_fn = None
+    param_list_ = [float(p) for p in param_list[1:]]
     fig_fn = 'OrnTuningFigures/gorexp%.1f_gcal_%.1e_%.1e_gkcag_%.1e_%.1e_gor_%.1e_%.1e_gleak_%.1e_%.1e.png' % \
-            (gcal_params[0], gcal_params[1], gkcag_params[0], gkcag_params[1], gor_params[0], gor_params[1], gor_exp, gleak_params[0], gleak_params[1])
+            (param_list_[9], param_list_[5], param_list_[6], param_list_[4], param_list_[5], \
+            param_list_[1], param_list_[2], param_list_[7], param_list_[8])
+#            (gcal_params[0], gcal_params[1], gkcag_params[0], gkcag_params[1], gor_params[0], gor_params[1], gor_exp, gleak_params[0], gleak_params[1])
     fig_fn = HTOP.get_response_curve(output_fig_fn=fig_fn)
-    os.system('ristretto %s' % fig_fn)
+#    os.system('ristretto %s' % fig_fn)
 
 #SOCP.plot_set_of_curves(output_fn=output_fn, pn=sim_cnt, ax=ax2)#, output_fn=output_fn)
 

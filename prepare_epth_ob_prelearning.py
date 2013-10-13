@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import numpy
 import simulation_parameters # defines simulation parameters
 # classes for setting up connectivity and the individual cell parameters
 import CreateObConnections

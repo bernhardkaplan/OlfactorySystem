@@ -1,6 +1,6 @@
 import sys
 import os
-import numpy
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import MergeSpikefiles
@@ -55,7 +55,7 @@ class AnalyseObOutput(object):
         n_patterns = self.params['n_patterns']
         n_mit = self.params['n_mit']
         mit_offset = self.params['mit_offset']
-        self.mit_spikes = numpy.zeros((n_patterns, n_mit)) # stores the number of spikes
+        self.mit_spikes = np.zeros((n_patterns, n_mit)) # stores the number of spikes
 
         missing_patterns = []
         # copy the number of spikes for each pattern into an array
@@ -68,7 +68,7 @@ class AnalyseObOutput(object):
             input_fn = self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat'
 #            print "debug fn", input_fn
             try:
-                single_pattern_response = numpy.loadtxt(input_fn)
+                single_pattern_response = np.loadtxt(input_fn)
                 for row in xrange(single_pattern_response[:, 0].size):
                     gid = single_pattern_response[row, 0]
                     cell_index = gid - mit_offset
@@ -81,7 +81,7 @@ class AnalyseObOutput(object):
         
         output_fn = self.params['mit_response']
         print "Saving mit nspike matrix to:", output_fn
-        numpy.savetxt(output_fn, self.mit_spikes)
+        np.savetxt(output_fn, self.mit_spikes)
 
     def rescale_activity(self):
         """
@@ -94,7 +94,7 @@ class AnalyseObOutput(object):
         mit_spikes_new = self.mit_spikes.copy() / n_max
         output_fn = self.params['mit_nspikes_rescaled']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
 
     def rescale_activity_cellwise(self):
         """
@@ -102,14 +102,14 @@ class AnalyseObOutput(object):
         assume that get_output_activity was called before!
         """
 
-        mit_spikes_new = numpy.zeros((self.params['n_patterns'], self.params['n_mit']))
+        mit_spikes_new = np.zeros((self.params['n_patterns'], self.params['n_mit']))
         for mit in xrange(self.params['n_mit']):
             spike_sum = self.mit_spikes[:, mit].sum()
             if spike_sum > 0:
                 mit_spikes_new[:, mit] = self.mit_spikes[:, mit] / spike_sum
         output_fn = self.params['mit_nspikes_normed_cells']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
 
     def rescale_activity_patternwise(self):
         """
@@ -117,12 +117,13 @@ class AnalyseObOutput(object):
         assume that get_output_activity was called before!
         """
 
-        mit_spikes_new = numpy.zeros((self.params['n_patterns'], self.params['n_mit']))
+        mit_spikes_new = np.zeros((self.params['n_patterns'], self.params['n_mit']))
         for pn in xrange(self.params['n_patterns']):
             mit_spikes_new[pn, :] = self.mit_spikes[pn, :] / self.mit_spikes[pn, :].sum()
         output_fn = self.params['mit_nspikes_normed_patterns']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
+
 
     def rescale_activity_glom_patterns(self):
         """
@@ -132,7 +133,7 @@ class AnalyseObOutput(object):
         assume that get_output_activity was called before!
         """
 
-        mit_spikes_new = numpy.zeros((self.params['n_patterns'], self.params['n_mit']))
+        mit_spikes_new = np.zeros((self.params['n_patterns'], self.params['n_mit']))
         # glomerular normalization first
         for pn in xrange(self.params['n_patterns']):
             for glom in xrange(self.params['n_mit_y']):
@@ -153,7 +154,7 @@ class AnalyseObOutput(object):
 
         output_fn = self.params['mit_nspikes_normed_glom_cells']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
 
     def rescale_activity_cellwise_then_patternwise(self):
         """
@@ -162,7 +163,7 @@ class AnalyseObOutput(object):
         2) Rescale mit_spikes so that for each pattern holds: summed activity over all mitral cells = 1
         """
 
-        mit_spikes_new = numpy.zeros((self.params['n_patterns'], self.params['n_mit']))
+        mit_spikes_new = np.zeros((self.params['n_patterns'], self.params['n_mit']))
         for mit in xrange(self.params['n_mit']):
             spike_sum = self.mit_spikes[:, mit].sum()
             if spike_sum > 0:
@@ -171,7 +172,7 @@ class AnalyseObOutput(object):
             mit_spikes_new[pn, :] = self.mit_spikes[pn, :] / self.mit_spikes[pn, :].sum()
         output_fn = self.params['mit_nspikes_normed_cells_then_patterns']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
 
 
     def rescale_activity_patternwise_then_cellwise(self):
@@ -181,7 +182,7 @@ class AnalyseObOutput(object):
         2) Rescale mit_spikes so that for all mitral cells holds: summed activity over all patterns = 1
         """
 
-        mit_spikes_new = numpy.zeros((self.params['n_patterns'], self.params['n_mit']))
+        mit_spikes_new = np.zeros((self.params['n_patterns'], self.params['n_mit']))
         for pn in xrange(self.params['n_patterns']):
             mit_spikes_new[pn, :] = self.mit_spikes[pn, :] / self.mit_spikes[pn, :].sum()
         for mit in xrange(self.params['n_mit']):
@@ -190,7 +191,7 @@ class AnalyseObOutput(object):
                 mit_spikes_new[:, mit] = self.mit_spikes[:, mit] / spike_sum
         output_fn = self.params['mit_nspikes_normed_patterns_then_cells']
         print "AnalyseObOutput output file:", output_fn
-        numpy.savetxt(output_fn, mit_spikes_new)
+        np.savetxt(output_fn, mit_spikes_new)
 
 
 
@@ -221,7 +222,7 @@ class AnalyseObOutput(object):
         n_patterns = self.params['n_patterns']
         n_mit = self.params['n_mit']
         mit_offset = self.params['mit_offset']
-        mit_spikes = numpy.zeros((n_patterns, n_mit)) # stores the number of spikes
+        mit_spikes = np.zeros((n_patterns, n_mit)) # stores the number of spikes
 
         # copy the number of spikes for each pattern into an array
         for pattern in xrange(self.params['n_patterns']):
@@ -233,7 +234,7 @@ class AnalyseObOutput(object):
             assert(os.path.exists(self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')), 'ERROR:\n\tFile does not exist %s' % (self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')
             if self.params['print_debug']:
                 print 'AnalyseObOutput: loading:', self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat'
-            single_pattern_response = numpy.loadtxt(self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')
+            single_pattern_response = np.loadtxt(self.params['mit_spikes_merged_fn_base'] + str(pattern) + '.dat')
 
             if single_pattern_response.size > 0:
                 for row in xrange(single_pattern_response[:, 0].size):
@@ -242,11 +243,11 @@ class AnalyseObOutput(object):
                     mit_spikes[pattern, cell_index] = single_pattern_response[row, 1]
 
         # 2a) Normalization: the sum of spikes fired by each cell during all patterns is normalized to 1 -> each mitral cell has a normalized activty
-        normalized_activity = numpy.zeros((n_patterns, n_mit)) # normalized_activity[:, cell_id].sum() = 1 for all cell_id (or = 0 if no spikes fired)
+        normalized_activity = np.zeros((n_patterns, n_mit)) # normalized_activity[:, cell_id].sum() = 1 for all cell_id (or = 0 if no spikes fired)
         for cell in xrange(n_mit):
             spike_sum = mit_spikes[:, cell].sum() # sum of spikes for one cell over all patterns
             if (spike_sum == 0):
-                normalized_activity[:, cell] = numpy.zeros(n_patterns)
+                normalized_activity[:, cell] = np.zeros(n_patterns)
             else:
                 normalized_activity[:, cell] = mit_spikes[:, cell] / spike_sum
 
@@ -262,6 +263,19 @@ class AnalyseObOutput(object):
                 if (activity_sum > 1):
                     normalized_activity[pattern, id1:id2] /= activity_sum
                 # else: do nothing
+
+        wta_activity = np.zeros((n_patterns, n_mit))
+        for pattern in xrange(n_patterns):
+            for glom in xrange(self.params['n_mit_y']):
+                id1 = glom * self.params['n_mit_x']
+                id2 = (glom + 1) * self.params['n_mit_x']  
+                if mit_spikes[pattern, id1:id2].sum() > 0:
+                    wta_activity[pattern, id1 + np.argmax(mit_spikes[pattern, id1:id2])] = 1
+
+        wta_output_fn = self.params['other_folder'] + '/mit_activity_wta.dat'
+        print 'Saving mit wta activity to:', wta_output_fn
+        np.savetxt(wta_output_fn, wta_activity)
+
                      
         silent_mit = []
         for mit in xrange(n_mit):
@@ -277,24 +291,24 @@ class AnalyseObOutput(object):
 
         print 'Silent mitral cells:', silent_mit
 #        print "AnalyseObOutput output file:", normalized_activity
-        numpy.savetxt(self.params["mit_response_normalized"], normalized_activity)
+        np.savetxt(self.params["mit_response_normalized"], normalized_activity)
 
 #        spike_column = 1 # column which contains number of spikes
 #                spike_sum = single_pattern_response[id1:id2, spike_column].sum()
 #                if ((spike_sum <= 1)):
-#                    mit_response_data[pattern, id1:id2] = numpy.zeros(id2-id1)
+#                    mit_response_data[pattern, id1:id2] = np.zeros(id2-id1)
 #                elif (normalize):
 #                    mit_response_data[pattern, id1:id2] = single_pattern_response[id1:id2, spike_column] / spike_sum
 #                else:
 #                    mit_response_data[pattern, id1:id2] = single_pattern_response[id1:id2, spike_column]
 #            self.mit_spike_output[pattern] = mit_response_data[pattern]
-#        numpy.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
+#        np.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
 #        if normalize:
 #            print "Normalize", self.params["mit_response_normalized"]
-#            numpy.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
+#            np.savetxt(self.params["mit_response_normalized"], mit_response_data, delimiter=",")
 #        else:
 #            print "Not normalized ", self.params["mit_response"]
-#            numpy.savetxt(self.params["mit_response"], mit_response_data, delimiter=",")
+#            np.savetxt(self.params["mit_response"], mit_response_data, delimiter=",")
 
     def write_active_cells_to_log_file(self):
         """
@@ -329,7 +343,7 @@ class AnalyseObOutput(object):
         output_f.write(lines)
         output_f.close()
             # build the correlation matrix, pij
-#            pij = numpy.zeros((n_mit, n_mit))
+#            pij = np.zeros((n_mit, n_mit))
 #            for i in xrange(n_mit):
 #                for j in xrange(n_mit):
 #                    for pattern in xrange(n_patterns):
