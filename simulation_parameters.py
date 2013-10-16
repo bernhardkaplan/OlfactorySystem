@@ -38,7 +38,7 @@ class parameter_storage(object):
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
-        self.params['oc_only'] = False
+        self.params['oc_only'] = True
 
 #        self.params['noisy_affinity_matrix'] = 0
         self.params['OR_affinity_noise'] = 0.0
@@ -65,8 +65,8 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 24
         else:
-#            self.params['n_or'] = 12
             self.params['n_or'] = 40
+#            self.params['n_or'] = 60
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
             self.params['rel_orn_mit'] = 100
@@ -108,8 +108,8 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 16
-        self.params['n_mc'] = 16
+        self.params['n_hc'] = 45
+        self.params['n_mc'] = 8
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
@@ -499,12 +499,11 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 5# if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 0# if vq_overlap == 0: only one target Hypercolumn per mitral cell
         if (self.params['vq_ob_oc_overlap'] >= self.params['n_hc']):
             self.params['vq_ob_oc_overlap'] = self.params['n_hc'] - 1
         assert (self.params['vq_ob_oc_overlap'] < self.params['n_hc']), 'Can\'t have larger overlap of clusters than Hypercolumns / centroids to project to...'
         self.params['n_bcpnn_steps'] = 1
-        self.params['vq_oc_readout_overlap'] = 1 
         self.params['n_dim_mds'] = 3
 
 
@@ -527,8 +526,16 @@ class parameter_storage(object):
 #                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
 #        folder_name = 'NewPaperData_nGlom%d_rORN%d_ORnoise%.1f_OrAffNorm%d_preL_np%d' % (self.params['n_or'], \
 #                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
-        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_ORnoise%.1f_OrAffNorm%d_postLrn_np%d_1' % (self.params['n_or'], \
-                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
+#        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_ORnoise%.1f_OrAffNorm%d_postLrn_np%d_2' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
+
+        # the folder_name containing the 'pre-learning' data
+#        folder_name = 'SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1'
+        # 
+        folder_name = 'SweepCtxDim_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+
+
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
@@ -645,7 +652,7 @@ class parameter_storage(object):
         self.params['silent_mit_fn'] = '%s/silent_mitral_cells.txt' % (self.params['other_folder'])
         # machine learning output files
         self.params['mds_ob_oc_output_fn'] = '%s/mds_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the coordinates for the mitral cells in the mutual information space
-        self.params['vq_ob_oc_output_fn'] = '%s/vq_ob_oc_output.dat' % (self.params['other_folder']) # this file stores the binary mit - hc connection matrix, (mit_hc_mask) created after VQ in the mutual information MDS space
+        self.params['vq_ob_oc_output_fn'] = '%s/vq_ob_oc_output_overlap%d.dat' % (self.params['other_folder'], self.params['vq_ob_oc_overlap']) # this file stores the binary mit - hc connection matrix, (mit_hc_mask) created after VQ in the mutual information MDS space
         self.params['mit_mc_vq_distortion_fn'] = '%s/mit_mc_vq_distortion_' % (self.params['other_folder'])
         self.params['abstract_binary_conn_mat_ob_oc_fn'] = '%s/binary_conn_mat_ob_oc.dat' % (self.params['other_folder'])
         self.params['mds_oc_readout_output_fn'] = '%s/mds_oc_readout_output.dat' % (self.params['other_folder'])
@@ -676,7 +683,7 @@ class parameter_storage(object):
         self.params['ob_oc_abstract_weights_fn'] = '%s/ob_oc_abstract_weights.dat' % (self.params['bcpnn_folder'])
         self.params['ob_oc_abstract_bias_fn'] = '%s/ob_oc_abstract_bias.dat' % (self.params['bcpnn_folder'])
         # oc - oc : recurrent 
-        self.params['oc_rec_abstract_activity_fn'] = '%s/oc_rec_abstract_activity.dat' % (self.params['bcpnn_folder'])
+        self.params['oc_oc_abstract_activity_fn'] = '%s/oc_oc_abstract_activity.dat' % (self.params['bcpnn_folder'])
         self.params['oc_oc_abstract_weights_fn'] = '%s/oc_oc_abstract_weights.dat' % (self.params['bcpnn_folder'])
         self.params['oc_oc_abstract_bias_fn'] = '%s/oc_oc_abstract_bias.dat' % (self.params['bcpnn_folder'])
         # oc - readout
@@ -756,10 +763,10 @@ class parameter_storage(object):
         self.params['mit_nspikes_normed_patterns_then_cells'] = '%s/mit_nspikes_normed_patterns_then_cells_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         self.params['mit_nspikes_normed_cells_then_patterns'] = '%s/mit_nspikes_normed_cells_then_patterns_np%d.dat' % (self.params['nspikes_folder'], self.params['n_patterns'])
         # decide which mit response should be used as MDS input
-#        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
+        self.params['mit_mds_input_fn'] = self.params['mit_response_normalized']
 #        self.params['mit_mds_input_fn'] = self.params['mit_nspikes_rescaled'] 
-        wta_output_fn = self.params['other_folder'] + '/mit_activity_wta.dat'
-        self.params['mit_mds_input_fn'] = wta_output_fn
+#        wta_output_fn = self.params['other_folder'] + '/mit_activity_wta.dat'
+#        self.params['mit_mds_input_fn'] = wta_output_fn
 
         self.params['gran_spike_fn_base'] =  '%s/gran_nspikes_' % ( self.params['nspikes_folder'])
         self.params['gran_spikes_merged_fn_base'] =  '%s/gran_nspikes_merged_' % ( self.params['nspikes_folder'])

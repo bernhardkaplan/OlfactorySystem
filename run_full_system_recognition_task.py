@@ -18,8 +18,8 @@ for pn in xrange(params['n_patterns']):
     os.system("rm %s/*" % (params["volt_folder"]))
 
 
-for pn in [0]:
-#for pn in xrange(params['n_patterns']):
+#for pn in [0]:
+for pn in xrange(params['n_patterns']):
     t1 = time.time()
 
 #    neuron_command = "mpirun -np %d $(which nrniv) -mpi -nobanner -nogui \

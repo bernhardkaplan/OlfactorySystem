@@ -6,10 +6,10 @@ if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
 import simulation_parameters
-import MergeSpikefiles
-import SetOfCurvesPlotter
 import numpy as np
 import pylab
+import MergeSpikefiles
+import SetOfCurvesPlotter
 
 def plot_raster_for_celltype(cell_type, show=True):
     print 'Loading Spikes from:', params['%s_spikes_merged_fn_base' % cell_type]

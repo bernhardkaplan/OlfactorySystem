@@ -32,6 +32,8 @@ class MDSVQ(object):
             assert (type(input_fn_or_array) == type(np.array([]))), "ERROR: Wrong type %s [must be a file name or np array]" % (type(input_fn_or_array))
             input_array = input_fn_or_array
 
+#        if cell_type == 'mit':
+#            input_array = self.remove_silent_mitral_cells(input_array)
         distances = self.calculate_distances_from_normalized_output(input_array, cell_type='mit')
 
         dist_mat = Orange.core.SymMatrix(distances)
@@ -70,11 +72,17 @@ class MDSVQ(object):
             points.append((x, y, z))
         #    pylab.scatter(x, y)#, c=colors[i % (len(colors))])
 
-
         mds_output = np.array(points)
         print "saving mds output to:", mds_output_fn
         np.savetxt(mds_output_fn, mds_output)
         return mds_output
+
+
+#    def remove_silent_mitral_cells(self, input_array):
+#        if not os.path.exists(self.params['silent_mit_fn']): don't do anything
+#            return input_array
+#        else: how to avoid indexing inconsistencies in the input_array used for the mds ?!?
+
 
 
     def vq_ob_oc(self, points_fn, overlap=0, thresh=1e-6):
@@ -158,6 +166,8 @@ class MDSVQ(object):
             it is a guess of initial centroids (usefull when clustering the mitral cell activity space among the minicolumns, because then kmeans crashes ....)
         remove_silent_cells_fn: filename storing the indices of points (in the MDS space) which are to be ignored (e.g. because did not have any activity so invalid MI-MDS placement)
             this needs to be done, because otherwise scvq.whiten(points) will give NaN for silent cells (since their output is always zero, so variance is NaN) and make the kmeans and VQ crash
+
+        Writes the output mask (projection matrix) to output_fn
         """
 
         # Process the input parameters
@@ -182,7 +192,7 @@ class MDSVQ(object):
                 guessed_centroids = n_clusters_or_guess
                 centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
             else:
-                assert (type(n_clusters_or_guess) == type(0)), "MDQVQ.vq got wrong type for n_clusters_or_guess: %s" % (type(n_clusters_or_guess))
+                assert (type(n_clusters_or_guess) == type(0)), "MDQVQ.vq got wrong type for n_clusters_or_guess: %s\nNeed either coordinates or an integer" % (type(n_clusters_or_guess))
                 n_clusters = n_clusters_or_guess
                 centroids, distortions = scvq.kmeans(d, n_clusters, thresh=thresh)
 
@@ -193,28 +203,41 @@ class MDSVQ(object):
 #            print "dist:", dist
             n_empty_hc = 0
             for hc in xrange(self.params['n_hc']):
-#                print 'hc %d occurs in code: %d' % (hc, (hc == code).nonzero()[0].size)
-                if (hc == code).nonzero()[0].size == 0:
+                # take into account those units, that did not show activity (silent_mits) but still exist in the MI-space
+                count_projections_to_tgt = 0
+                units_projecting_to_hc = (hc == code).nonzero()[0]
+                if os.path.exists(remove_silent_cells_fn):
+                    silent_mits = np.loadtxt(remove_silent_cells_fn)
+                    n_units_without_silent = len(set(units_projecting_to_hc).difference(silent_mits))
+                else:
+                    n_units_without_silent = units_projecting_to_hc.size
+                print 'n_units projecting to hc without silent ones %d (without overlap): %d' % (hc, n_units_without_silent)
+
+                if n_units_without_silent == 0:
                     n_empty_hc += 1
             kmeans_trial += 1
 
+        # add the MTs of the next 
         print 'MDSVQ: kmeans_trials to get non-empty targets %d ' % (kmeans_trial)
         if overlap > 0:
-            # for each point get the overlap + 1 closes centroids
-            nn = self.get_nearest_neighbors(points, centroids, overlap + 1)
-            # nn[point, :] = indices of the nearest centroids
-            # TODO: add some more information e.g. d(point, centroid) / d(point, next_nearest_centroid)
-
+            # for each point get the 'overlap' closest centroids
+            nn = self.get_nearest_neighbors(points, centroids, overlap)
+            # nn[point, :] = indices of the centroids being neares to point
             output_mask = np.zeros((n_points, n_clusters))
             for i in xrange(n_points):
                 tgt_indices = nn[i, :]
-                for tgt_cluster in tgt_indices:
-                    output_mask[i, tgt_cluster] = 1
-
+                output_mask[i, code[i]] = 1 # set the connection to the centroid assigned to the source point
+                output_mask[i, tgt_indices] = 1 # set the connection between the source point and the nearest neighbour centroids
         else: 
             output_mask = np.zeros((n_points, n_clusters))
             for i in xrange(n_points):
                 output_mask[i, code[i]] = 1
+
+        for hc in xrange(self.params['n_hc']):
+            n_src_to_hc = output_mask[:, hc].nonzero()[0].size
+            print 'n_units projecting to hc %d (with overlap, not considering if MT is silent or not): %d' % (hc, n_src_to_hc)
+            assert (n_src_to_hc > 0)
+
 
         # check for each centroid (e.g. target HC), that it gets at least one vector (source)
         for c_ in xrange(output_mask[0, :].size):
@@ -240,16 +263,11 @@ class MDSVQ(object):
             colors = m.to_rgba(code)
             cax = ax.scatter(d[:,0], d[:,1], d[:,2], c=colors, marker='o', linewidth='5', edgecolor=colors)
 
-        output_array = np.zeros((d[:, 0].size, n_clusters))
-        for i in xrange(d[:, 0].size):
-            tgt_cluster = code[i]
-            output_array[i, tgt_cluster] = 1.
-        print "Saving to", output_fn
-        np.savetxt(output_fn, output_array, delimiter='\t')
+        np.savetxt(output_fn, output_mask, delimiter='\t')
         ax.set_xlabel('X Label')
         ax.set_ylabel('Y Label')
         ax.set_zlabel('Z Label')
-        output_fig = self.params['figure_folder'] + 'ob_oc_mds_vq.png'
+        output_fig = self.params['figure_folder'] + '/ob_oc_mds_vq.png'
         print 'Saving figure to:', output_fig
         pylab.savefig(output_fig)
         if show:
@@ -266,7 +284,7 @@ class MDSVQ(object):
         n_centroids = centroids[:, 0].size
         distances = np.zeros((n_points, n_centroids))
         dist_mat = self.get_distances(points, centroids) # get distance matrix between points and centroids
-        nearest_neighbors_indices = np.zeros((n_points, overlap))
+        nearest_neighbors_indices = np.zeros((n_points, overlap), dtype=np.int)
 
         for p in xrange(n_points):
             indices_sorted_by_dist = dist_mat[p, :].argsort()
@@ -276,6 +294,9 @@ class MDSVQ(object):
 
 
     def calculate_distances_from_normalized_output(self, normed_activity, cell_type='mit'):
+        """
+        Calculates the mutual information based on the normed_activity
+        """
 
         n_units = normed_activity[0, :].size # number of columns in the activity file
         n_patterns = self.params['n_patterns']
@@ -367,12 +388,9 @@ class MDSVQ(object):
 
             activity_space = np.zeros((n_patterns, len(src_mit)))
             n_src_mit[hc] = len(src_mit)
-#            print 'DEBUG src_mit', len(src_mit), src_mit
             for pattern in xrange(n_patterns):
                 # mask only the mitral cells projecting to the hc (src_mits)
-#                print "DEBUG, taking src_mit:", src_mit
                 activity_space[pattern, :] = ob_activity[pattern, :].take(src_mit)
-#                print "DEBUG, activity space %d :" % pattern, activity_space[pattern, :]
             print 'DEBUG sum in activity_space', activity_space.sum()
 
             if (optional_mds):
@@ -390,32 +408,17 @@ class MDSVQ(object):
 
             # NOTE: it makes a big difference if you take random initial guessed centroids or just take k=n_mc
 #            centroids, distortions = scvq.kmeans(d, guessed_centroids, thresh=1e-8)
-            # Distortion is defined as the sum of the squared differences between the observations and the corresponding centroid.
 #            centroids, distortions = scvq.kmeans(d, n_mc, thresh=1e-8)
-
 #            centroids, distortions = scvq.kmeans2(d, guessed_centroids, minit='matrix')
-#            print 'DEBUG d', d
+            # Distortion is defined as the sum of the squared differences between the observations and the corresponding centroid.
             centroids, distortions = scvq.kmeans2(d, n_mc, minit='points')
             codes, dist = scvq.vq(d, centroids)
 
-#            print 'MDSVQ.create_mitral_response_space gives a k-means distortion of:'
-#            print ' distortions mean %.2f +- %.2f\tsum: %.2f' % (distortions.mean(), distortions.std(), distortions.sum())
-#            print 'distortions', distortions, len(distortions)
-#            print 'codes', len(codes), codes
-#            print ' dist mean %.2f +- %.2f\tsum: %.2f' % (dist.mean(), dist.std(), dist.sum())
             dist_to_write = '\t%.2f\t%.2f\t%.2f\n' % (dist.mean(), dist.std(), dist.sum())
             dist_fn = self.params['mit_mc_vq_distortion_fn'] + '%d.dat' % mit_mc_kmeans_trial
             distortion_file = open(dist_fn, 'a')
             distortion_file.write(dist_to_write)
-#            print 'dist', len(dist), dist
 
-#            print "centroids:", centroids
-#            print "codes:", codes
-
-#            codes, dist, centroids = self.vq(activity_space, vq_output_fn, guessed_centroids)
-#            codes, dist, centroids = self.vq(activity_space, vq_output_fn, n_mc)
-
-            
             if (optional_mds):
                 mit_coords_fn = self.params['mit_response_space_fn_base']
                 centroids_coords = self.params['mit_response_space_centroids_fn_base']
@@ -428,7 +431,6 @@ class MDSVQ(object):
 
 
         print 'Debug MDSVQ: n_src_mit = %.2f +- %.2f' % (n_src_mit.mean(), n_src_mit.std())
-#        np.savetxt(output_fn, activity_space)
         print "MDSVQ.create_mitral_response_space writes to:", output_fn, '\n\t', dist_fn
         np.savetxt(output_fn, output_array)
 

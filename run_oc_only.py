@@ -41,9 +41,9 @@ if __name__ == '__main__':
         os.system("rm %s*" % (params["pyr_spike_fn_base"]))
         os.system("rm %s*" % (params["pyr_volt_fn_base"]))
 
-    param_tool.set_gids_to_record([6806])
-    for pn in [0]:
-    #for pn in xrange(params['n_patterns']):
+#    param_tool.set_gids_to_record([6806])
+#    for pn in [0]:
+    for pn in xrange(params['n_patterns']):
         t1 = time.time()
         # add a nrow, ncol first line in the mit_spiketimes_merged_ files 
         add_first_line(pn)

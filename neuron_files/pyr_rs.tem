@@ -45,7 +45,7 @@ begintemplate Pyr_rs // create a new template object
 
 	proc init() { local v_potassium, v_sodium, AMPAtau, AMPArev, GABAAtau, GABAArev
 
-		my_seed = $5
+		my_seed = $3
 		synlist = new List()
 		spiketimes = new Vector()
 		netconlist = new List()
@@ -95,7 +95,7 @@ begintemplate Pyr_rs // create a new template object
 			gkbar_im = $1
 
 			insert ka	// bias current for intrinsic excitability
-			gkabar_ka = $4
+			gkabar_ka = $2
 			
 			// synapses
 			AMPAtau	= 10		//ms

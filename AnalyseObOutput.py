@@ -197,7 +197,7 @@ class AnalyseObOutput(object):
 
 
 #    def get_output_file(self, normalize=False, remove_silent_mit=False):
-    def get_output_file(self):
+    def get_mit_response_normalized(self):
         """
         This function will return the file with the normalized activity in the olfactory bulb
         in the format: pattern (row) vs. mitral cell (column)
@@ -290,7 +290,7 @@ class AnalyseObOutput(object):
             silent_file.close()
 
         print 'Silent mitral cells:', silent_mit
-#        print "AnalyseObOutput output file:", normalized_activity
+        print "AnalyseObOutput output file:", self.params["mit_response_normalized"]
         np.savetxt(self.params["mit_response_normalized"], normalized_activity)
 
 #        spike_column = 1 # column which contains number of spikes

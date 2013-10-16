@@ -2103,10 +2103,10 @@ proc create_pyr() { local gid, i, g_ka, iclamp_amp, with_bias localobj cell
 					cell.add_iclamp_input(iclamp_amp, 0, t_sim)
 				} else {   // the AType-K channel is used to provide a bias modelling intrinsic excitability
 					g_ka = v_pyr_gka[i]
-					cell = new Pyr_rs(g_m_pyr, g_kcag_pyr, g_cal_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_rs(g_m_pyr, g_ka, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 				}
 			} else { // no current, no ion channel used
-					cell = new Pyr_rs_no_bias(g_m_pyr, g_kcag_pyr, g_cal_pyr, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
+					cell = new Pyr_rs_no_bias(g_m_pyr, gid * (pattern_nr+1)) // seed value is depending on pattern_nr in order to get different noise for different patterns
 			}
 			pnm.register_cell(gid, cell)
 		}
