@@ -32,16 +32,23 @@ class parameter_storage(object):
         
         self.params['Cluster'] = 1
         self.params['concentration_sweep'] = 0
-#        self.params['n_patterns'] = 100
-        self.params['n_patterns'] = 50
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
         self.params['oc_only'] = True
 
-#        self.params['noisy_affinity_matrix'] = 0
-        self.params['OR_affinity_noise'] = 0.0
+        self.params['concentration_invariance'] = 0 # if 1: selected patterns are presented at different concentrations
+        self.params['n_conc_check'] = 5         # number of different concentrations used to check if concentration invariant recogntion works
+        self.params['n_patterns_test_conc_inv'] = 10     # number of different odor patterns to be checked with different concentrations
+        self.params['conc_inv_modifier'] = .2
+
+        if self.params['concentration_invariance']:
+            self.params['n_patterns'] = self.params['n_conc_check'] * self.params['n_patterns_test_conc_inv']
+        else:
+#            self.params['n_patterns'] = 50
+            self.params['n_patterns'] = 350
+        self.params['OR_affinity_noise'] = 0.00
 
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 1: pyramidal and readout neurons have an extra inhibitory ion channel to mimic intrinsic excitability
@@ -55,6 +62,8 @@ class parameter_storage(object):
         self.params['seed_connections'] = 0 # used when creating Hyper and Minicolumns
         self.params['netstim_seed'] = self.params['seed'] + 1 # netstim_seed acts as an offset for the RNG provided to the noise input via NetStims
         self.params['OR_pattern_noise_seed'] = self.params['seed'] + 2
+        self.params['random_oc_oc_seed'] = 321
+        self.params['random_ob_oc_seed'] = 456
 
         # ------ N E T W O R K    S I Z E -----------
         if (self.params['concentration_sweep'] == 1):  # it's a concentration sweep
@@ -108,14 +117,15 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 45
-        self.params['n_mc'] = 8
+        self.params['n_hc'] = 60
+        self.params['n_mc'] = 6
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
         self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
-        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
+        self.params['n_tgt_pyr_per_mc'] = np.int(np.round(2. * self.params['n_pyr_per_mc'] / 3.)) # number of pyr cells per minicolumn activated by input from OB
+#        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
         self.params['n_pyr_pyr_between_2mc'] =  self.params['n_pyr_per_mc'] ** 2 * 0.05 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern)
         self.params['n_pyr_rsnp_between_2mc'] = self.params['n_pyr_per_mc'] / 3.0 # number of pyr->rsnp connections between two minicolumns (belonging to different patterns)
@@ -158,11 +168,13 @@ class parameter_storage(object):
         self.params['n_sample_orn'] = 0
         self.params['n_sample_mit'] = 0
         self.params['n_sample_gran'] = 0
-        self.params['n_sample_pg'] = 1
+        self.params['n_sample_pg'] = 0
         self.params['n_sample_pyr_per_mc'] = 1
         self.params['n_sample_basket_per_hc'] = 1
 #        self.params['n_sample_basket_per_hc'] = int(round(self.params['n_basket_per_hc'] / 10.0))
         self.params['n_sample_rsnp_per_mc'] = 1
+        self.params['record_voltages'] = 0
+
 
         # BCPNN parameters
         self.params['p_ij_thresh'] = 1e-8
@@ -364,19 +376,19 @@ class parameter_storage(object):
         # all weights are given in uS, thus w=0.001 is 1 nS
         # within one minicolumn # [E_psp_height in mV at V_rest for pyr_rs]
         # a weight of 0.005 = EPSP_height = 4.25 mV
-        self.params['w_pyr_pyr_local'] = 0.004
-        self.params['w_pyr_basket'] = 0.003
+        self.params['w_pyr_pyr_local'] = 0.005
+        self.params['w_pyr_basket'] = 0.005
         self.params['w_basket_pyr'] = 0.006
-        self.params['w_basket_basket'] = 0.002
+        self.params['w_basket_basket'] = 0.001
         self.params['w_rsnp_pyr'] = 0.003       # -0.8 mV
-        self.params['w_nmda_mult_oc'] = 2.0     # for ob - oc and oc - oc connections
+        self.params['w_nmda_mult_oc'] = 1.0     # for ob - oc and oc - oc connections
         self.params['w_pyr_readout'] = 0.002
 
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
 #        self.params['w_pyr_rsnp_max'] = 1e-8
-        self.params['w_pyr_pyr_global_max'] = 0.001
-        self.params['w_pyr_rsnp_max'] = 0.0005
+        self.params['w_pyr_pyr_global_max'] = 0.004
+        self.params['w_pyr_rsnp_max'] = 0.004
 
         # weight variation
         self.params['w_sigma'] = 0.1 # 0.2
@@ -389,7 +401,7 @@ class parameter_storage(object):
         self.params['w_rsnp_pyr_sigma'] = self.params['w_sigma'] * self.params['w_rsnp_pyr']
 
         # weight threshold: when drawing connections only weight/ bigger than this are finally drawn
-        self.params['weight_threshold'] = 1e-5
+        self.params['weight_threshold'] = 5e-6
 
         # connection probabilities
         self.params['p_rsnp_pyr'] = 0.7
@@ -401,8 +413,8 @@ class parameter_storage(object):
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.007             # max weight for exc mit -> pyr connection
-        self.params['w_mit_rsnp_max'] = 0.002             # max weight for exc mit -> rsnp connection, new 
+        self.params['w_mit_pyr_max'] = 0.008             # max weight for exc mit -> pyr connection
+        self.params['w_mit_rsnp_max'] = 0.003             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
         self.params['w_mit_pyr_sigma_frac'] = self.params['w_sigma']
@@ -418,8 +430,8 @@ class parameter_storage(object):
         self.params['tau_max_g_m'] = 1000# [ms]
         self.params['g_ka_pyr_max'] = 40.0 # 40 # [uS / cm2] # bias conductance
         self.params['g_ka_readout_max'] = self.params['g_ka_pyr_max']
-        self.params['i_bias_pyr_max'] = -0.15 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
-        self.params['i_bias_readout_max'] = -0.15 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
+        self.params['i_bias_pyr_max'] = -0.25 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
+        self.params['i_bias_readout_max'] = -0.25 # [pA] # pyramidal cells with the maximal bias value get this as negative iclamp.amp 
 
         # Calcium gated potassium current
         self.params['g_kcag_pyr'] = 1e-5 # [S / cm2]
@@ -532,9 +544,13 @@ class parameter_storage(object):
         # the folder_name containing the 'pre-learning' data
 #        folder_name = 'SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1'
         # 
-        folder_name = 'SweepCtxDim_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+        folder_name = 'TrainingWithNoisyPatterns_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
                 self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
+#        folder_name = 'SweepCtxDim_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+
+#        folder_name = 'EpthResponseCurve'
 
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
@@ -543,8 +559,22 @@ class parameter_storage(object):
             use_abspath = False
         else:
             use_abspath = True
+
+        if self.params['ob_oc_random_conns']:
+            folder_name += '_rndObOc'
+
+        if self.params['oc_oc_random_conns']:
+            folder_name += '_rndOcOc'
+
         if self.params['oc_only']:
             folder_name += '_OcOnly'
+        else:
+            folder_name += '_FullSystem'
+
+
+
+        if self.params['concentration_invariance']:
+            folder_name += '_ConcInv'
             
         if use_abspath:
             self.params['folder_name'] = os.path.abspath(folder_name)
@@ -595,6 +625,8 @@ class parameter_storage(object):
         self.params['activation_matrix_fig'] = '%s/activation_matrix.png' % (self.params['figure_folder'])
         self.params['activation_matrix_fn_with_noise'] = '%s/activation_matrix_with_noise.dat' % (self.params['params_folder'])
         self.params['activation_matrix_with_noise_fig'] = '%s/activation_matrix_with_noise.png' % (self.params['figure_folder'])
+        self.params['activation_matrix_fn_conc_inv'] = '%s/activation_matrix_conc_inv.dat' % (self.params['params_folder'])
+        self.params['activation_matrix_conc_inv_fig'] = '%s/activation_matrix_conc_inv.png' % (self.params['figure_folder'])
 
         # parameter files
         self.params['orn_params_fn_base'] =  '%s/orn_params_' % (self.params['params_folder'])
@@ -618,18 +650,30 @@ class parameter_storage(object):
         self.params['conn_list_gran_mit_global'] =  '%s/conn_list_gran_mit_global.dat' % ( self.params['conn_folder'])
         self.params['conn_list_mit_pyr'] =  '%s/conn_list_mit_pyr.dat' % ( self.params['conn_folder']) # generated from Anders' abstract weight matrices
         self.params['conn_list_mit_rsnp'] =  '%s/conn_list_mit_rsnp.dat' % ( self.params['conn_folder']) # generated from Anders' abstract weight matrices
-        self.params['conn_list_mit_oc'] =  '%s/conn_list_mit_oc.dat' % ( self.params['conn_folder'])
-        self.params['conn_list_mit_oc_base'] =  '%s/conn_list_mit_oc_' % (self.params['conn_folder'])
         self.params['conn_list_layer23'] =  '%s/conn_list_layer23.dat' % ( self.params['conn_folder']) # pyr->basket, basket->pyr, rsnp->pyr, pyr->pyr within one MC
 
-
         # the following two files are created by the GetConnectionsQuickFix class based on the learning output 
-        self.params['conn_list_pyr_mit'] =  '%s/conn_list_pyr_mit.dat' % ( self.params['conn_folder']) # inhibitory feedback connections from OC to OB
-        self.params['conn_list_pyr_pyr_base'] =  '%s/conn_list_pyr_pyr_' % ( self.params['conn_folder']) # when parallel connection creation method is used, files are written with this basename
         self.params['conn_list_pyr_pyr'] =  '%s/conn_list_pyr_pyr.dat' % ( self.params['conn_folder']) # additional recurrent connections in OC
-        self.params['conn_list_pyr_rsnp_base'] =  '%s/conn_list_pyr_rsnp_' % ( self.params['conn_folder'])  # when parallel connection creation method is used, files are written with this basename
         self.params['conn_list_pyr_rsnp'] =  '%s/conn_list_pyr_rsnp.dat' % ( self.params['conn_folder']) # pyr->rsnp connections 
         self.params['conn_list_pyr_readout'] =  '%s/conn_list_pyr_readout.dat' % ( self.params['conn_folder']) # pyr -> readout layer
+
+
+        self.params['all_connection_fns'] = [self.params['conn_list_orn_mit'], \
+                                            self.params['conn_list_orn_pg'], \
+                                            self.params['conn_list_pg_mit_serial'], \
+                                            self.params['conn_list_pg_mit_reciprocal'], \
+                                            self.params['conn_list_mit_pg_reciprocal'], \
+                                            self.params['conn_list_mit_pg_serial'], \
+                                            self.params['conn_list_mit_gran_local'], \
+                                            self.params['conn_list_mit_gran_global'], \
+                                            self.params['conn_list_gran_mit_local'], \
+                                            self.params['conn_list_gran_mit_global'], \
+                                            self.params['conn_list_mit_pyr'], \
+                                            self.params['conn_list_mit_rsnp'], \
+                                            self.params['conn_list_layer23'], \
+                                            self.params['conn_list_pyr_pyr'], \
+                                            self.params['conn_list_pyr_rsnp'], \
+                                            self.params['conn_list_pyr_readout']]
 
         # In order to not re-simulate the EPTH and the OB, the spikes from the connections from OB are stored and processed
         # so that OC cells receive the spikes via input_spike_files. Connections are stored in netcon_files

@@ -23,7 +23,6 @@ class CreateOrnParameters(object):
 
         self.gor_values = np.zeros(self.n_orn_x).tolist()
 
-        self.activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
         self.vgor = np.zeros(self.n_orn)
         self.voor = np.zeros(self.n_orn)
         self.vc_Kd= np.zeros(self.n_orn)
@@ -40,22 +39,22 @@ class CreateOrnParameters(object):
                 #"gna","gk","gkcag","gcal","gleak_orn", "tau_cadec"]
 
 
-    def create_parameters_for_concentration_sweep(self, noisy_patterns=False):
+    def create_conc_invariance_patterns(self, given_activation_matrix=None):
         """
         orthogonal patterns means a single odorant is presented to the system
         """
-        self.create_activation_matrix_for_concentration_sweep()
+        if not given_activation_matrix:
+            activation_matrix = self.create_single_odorant_activation_matrix()
+        else:
+            activation_matrix = np.loadtxt(given_activation_matrix)
 
-        if self.params['OR_affinity_noise'] != 0.0:
-            self.add_pattern_noise()
+        activation_matrix = self.modify_patterns_for_conc_inv(activation_matrix)
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
             for OR in xrange(self.params['n_or']): # equal to a row in the orn array
                 # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
-                activation = self.activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
-#                if (activation > 1.0):
-#                    activation = 1.0
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
                 for x in xrange(self.params['n_orn_x']):
                     orn_id = OR * self.params['n_orn_x'] + x
                     self.voor[orn_id] = activation #* conc
@@ -71,23 +70,29 @@ class CreateOrnParameters(object):
             print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
             self.write_params_to_file(output_fn)
         return 1
-        # stop new
 
 
-    def create_single_odorant_patterns(self, noisy_patterns=False):
+
+
+    def create_single_odorant_patterns(self, given_activation_matrix=None):
         """
         orthogonal patterns means a single odorant is presented to the system
         """
-        self.activation_matrix = self.create_single_odorant_activation_matrix()
+
+        if not given_activation_matrix:
+            activation_matrix = self.create_single_odorant_activation_matrix()
+        else:
+            activation_matrix = np.loadtxt(given_activation_matrix)
 
         if self.params['OR_affinity_noise'] != 0.0:
-            self.add_pattern_noise()
+            print 'Adding noise to the activation matrix ...'
+            activation_matrix = self.add_pattern_noise(activation_matrix)
 
         for pn in xrange(self.params["n_patterns"]):
             # calculate the number of receptors activated by the current odorant or pattern
             for OR in xrange(self.params['n_or']): # equal to a row in the orn array
                 # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
-                activation = self.activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
                 for x in xrange(self.params['n_orn_x']):
                     orn_id = OR * self.params['n_orn_x'] + x
                     self.voor[orn_id] = activation #* conc
@@ -109,7 +114,7 @@ class CreateOrnParameters(object):
         """
         create_single_odorant_activation_matrix 
         """
-        self.activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+        activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
 
         """
         Distances are drawn from a tri-modal normal distributions
@@ -160,8 +165,8 @@ class CreateOrnParameters(object):
                 if affinity < 0.:
                     affinity = 0.
 #                print 'DEBUG pn %d OR %d \tdist = %.6f\taffinity = %.6f' % (pn, OR, dist, affinity)
-                self.activation_matrix[pn, OR] = affinity
-                n_above_thresh[pn] = (self.activation_matrix[pn ,:] > thresh).nonzero()[0].size
+                activation_matrix[pn, OR] = affinity
+                n_above_thresh[pn] = (activation_matrix[pn ,:] > thresh).nonzero()[0].size
 
         print 'ActivationMatrix: per pattern number of activated glom: mean %.2f +- %.2f, \t%.2f +- %.2f percent' % (n_above_thresh.mean(), n_above_thresh.std(), \
                 (n_above_thresh.mean() / float(self.params['n_or'])) * 100., (n_above_thresh.std() / float(self.params['n_or'])) * 100.)
@@ -172,26 +177,26 @@ class CreateOrnParameters(object):
             for pn in xrange(self.params['n_patterns']):
                 # this normalization increases the likelihood of having ORs with a high affinity to 
                 # each given pattern --> receptors have specialized to odorants (?)
-#                if self.activation_matrix[pn, :].sum() == 0:
+#                if activation_matrix[pn, :].sum() == 0:
 #                    print '\n\tWARNING: activation_matrix.sum for pattern %d == 0' % (pn)
-                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max() 
-                if not self.activation_matrix[pn, :].sum() == 0:
-                    self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum() 
+                activation_matrix[pn, :] /= activation_matrix[pn, :].max() 
+                if not activation_matrix[pn, :].sum() == 0:
+                    activation_matrix[pn, :] /= activation_matrix[pn, :].sum() 
 #                pass
 
 #            for OR in xrange(self.params['n_or']):
-#                self.activation_matrix[:, OR] /= self.activation_matrix[:, OR].sum()
+#                activation_matrix[:, OR] /= activation_matrix[:, OR].sum()
 
 
 
-        print 'Activation matrix sum:', self.activation_matrix.sum()
+        print 'Activation matrix sum:', activation_matrix.sum()
         print "Activation matrix fn:", self.params['activation_matrix_fn']
-        np.savetxt(self.params['activation_matrix_fn'], self.activation_matrix)
-        return self.activation_matrix
+        np.savetxt(self.params['activation_matrix_fn'], activation_matrix)
+        return activation_matrix
 
 
 
-    def add_pattern_noise(self):
+    def add_pattern_noise(self, activation_matrix):
         """
         This function loads an existing OR - odorant - affinity matrix 
         and adds noise to each pattern:
@@ -199,26 +204,59 @@ class CreateOrnParameters(object):
         """
         dgn = self.params['OR_affinity_noise']
         np.random.seed(self.params['OR_pattern_noise_seed'])
-#        assert (os.path.exists(self.params['activation_matrix_fn'])), "Activation matrix does not exist in given filename: %s\n Check sim_id, etc... or rerun without noisy_patterns" % (self.params['activation_matrix'])
-#        M = np.loadtxt(self.params['activation_matrix_fn'])
-        M = self.activation_matrix.copy()
         for pn in xrange(self.params['n_patterns']):
             for OR in xrange(self.params['n_or']):
-                M[pn, OR] += np.random.uniform(-dgn, dgn)
-                if (M[pn, OR] > 1):
-                    M[pn, OR] = 1
-                elif (M[pn, OR] < 0):
-                    M[pn, OR] = 0.
+                activation_matrix[pn, OR] += np.random.uniform(-dgn, dgn)
+                if (activation_matrix[pn, OR] > 1):
+                    activation_matrix[pn, OR] = 1
+                elif (activation_matrix[pn, OR] < 0):
+                    activation_matrix[pn, OR] = 0.
 
         if self.params['OR_activation_normalization']:
 #            for pn in xrange(self.params['n_patterns']):
-#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].max()
-#                self.activation_matrix[pn, :] /= self.activation_matrix[pn, :].sum()
+#                activation_matrix[pn, :] /= activation_matrix[pn, :].max()
+#                activation_matrix[pn, :] /= activation_matrix[pn, :].sum()
             for OR in xrange(self.params['n_or']):
-                M[:, OR] /= M[:, OR].sum()
+                activation_matrix[:, OR] /= activation_matrix[:, OR].sum()
 
-        np.savetxt(self.params['activation_matrix_fn_with_noise'], M)
-        self.activation_matrix = M
+        np.savetxt(self.params['activation_matrix_fn_with_noise'], activation_matrix)
+        return activation_matrix
+
+
+    def modify_patterns_for_conc_inv(self, activation_matrix):
+        """
+        Change activation_matrix by to model different concentrations.
+        activation_matrix values are modified additively
+        """
+
+        new_activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+#        np.random.seed(self.params['seed_activation_matrix'])
+#        selected_patterns = []
+#        while len(selected_patterns) != self.params['n_patterns_test_conc_inv']:
+#            selected_patterns = np.unique(np.random.randint(0, activation_matrix.shape[0], self.params['n_patterns_test_conc_inv']))
+        selected_patterns = range(0, self.params['n_patterns_test_conc_inv'])
+
+        conc_modifiers = np.linspace(-self.params['conc_inv_modifier'], self.params['conc_inv_modifier'], self.params['n_conc_check'])
+        print 'Using the following patterns to check for concentration invariance:', selected_patterns
+        print 'Using the following modifiers:', conc_modifiers
+
+        # select n old patterns to modify
+        pattern_index = 0
+        for i_pn, pn in enumerate(selected_patterns):
+            for i_conc in xrange(self.params['n_conc_check']):
+                for OR in xrange(self.params['n_or']): 
+                    activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                    if activation != 0:
+                        new_activation = activation + conc_modifiers[i_conc]
+                        if new_activation < 0:
+                            new_activation = 0
+                        elif new_activation > 1.:
+                            new_activation = 1
+                        new_activation_matrix[pattern_index, OR] = new_activation
+                pattern_index += 1
+        np.savetxt(self.params['activation_matrix_fn_conc_inv'], new_activation_matrix)
+        print 'Saving modified activation matrix to:', self.params['activation_matrix_fn_conc_inv']
+        return new_activation_matrix
 
 
 
@@ -238,14 +276,46 @@ class CreateOrnParameters(object):
         dist_range = self.params['odorant_receptor_distance_range']
         which_gauss = np.random.uniform(0, 1.)
         if which_gauss < p1:
-#            print 'p1 ', 
             return np.random.normal(p[1], p[2])
         elif (which_gauss < p2 + p1):
-#            print 'p2 ', 
             return np.random.normal(p[4], p[5])
         elif (which_gauss < p3 + p2 + p1):
-#            print 'p3 ', 
             return np.random.normal(p[7], p[8])
+
+
+    def create_parameters_for_concentration_sweep(self):
+        """
+        orthogonal patterns means a single odorant is presented to the system
+        """
+        self.create_activation_matrix_for_concentration_sweep()
+
+        if self.params['OR_affinity_noise'] != 0.0:
+            self.add_pattern_noise()
+
+        for pn in xrange(self.params["n_patterns"]):
+            # calculate the number of receptors activated by the current odorant or pattern
+            for OR in xrange(self.params['n_or']): # equal to a row in the orn array
+                # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
+                activation = self.activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+#                if (activation > 1.0):
+#                    activation = 1.0
+                for x in xrange(self.params['n_orn_x']):
+                    orn_id = OR * self.params['n_orn_x'] + x
+                    self.voor[orn_id] = activation #* conc
+
+            self.set_gor_values()
+            self.set_gna_values()
+            self.set_gk_values()
+            self.set_gkcag_values()
+            self.set_gcal_values()
+            self.set_gleak_values()
+            self.set_tau_cadec_values()
+            output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
+#            print "Writing orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
+            self.write_params_to_file(output_fn)
+        return 1
+        # stop new
+
 
 
 
@@ -257,9 +327,7 @@ class CreateOrnParameters(object):
         measure a response curve or concentration sweep
         (one odorant with maximum affinity and different concentrations
         """
-#        output_fn = self.params["orn_params_test"]
         output_fn = self.orn_params_fn_base + "0.dat"
-        print "Writing orn parameters to " , output_fn
         self.set_oor_value_for_conc_sweep()
         self.set_gor_values()
         self.set_gna_values()
@@ -391,7 +459,7 @@ class CreateOrnParameters(object):
         """
         Write the ORN parameters into a NEURON readable file
         """
-        print "writing orn params to ", output_fn
+#        print "writing orn params to ", output_fn
         orn_pf = file(output_fn, 'w')
         num_params = 9 + 1 # + 1 for the id
         first_line = "%d %d\n"  % (self.n_orn, num_params) # neuron readability

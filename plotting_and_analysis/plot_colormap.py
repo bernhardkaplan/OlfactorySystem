@@ -145,14 +145,6 @@ if __name__ == '__main__':
 
     fig = pylab.figure()
     ax = fig.add_subplot(111)
-    try: 
-        plot_fn = sys.argv[2]
-        print "saving ....", plot_fn
-        pylab.savefig(plot_fn)
-        title = plot_fn.rsplit('/')[-1]
-    except:
-        title = fn.rsplit('/')[-1]
-    ax.set_title(title)
     print "plotting ...."
     #cax = ax.imshow(data[:,:12])
     #cax = ax.pcolor(data, edgecolor='k', linewidths='1')
@@ -168,4 +160,12 @@ if __name__ == '__main__':
     pylab.xlim(0, data.shape[1])
     pylab.colorbar(cax)
 
+    try: 
+        plot_fn = sys.argv[2]
+        print "saving ....", plot_fn
+        pylab.savefig(plot_fn)
+        title = plot_fn.rsplit('/')[-1]
+    except:
+        title = fn.rsplit('/')[-1]
+    ax.set_title(title)
     pylab.show()

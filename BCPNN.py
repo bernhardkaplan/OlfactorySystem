@@ -262,6 +262,7 @@ class BCPNN(object):
         n_post = self.n_hc_out * self.n_mc_out
 
         # p_j
+        print 'debug', self.n_hc_out, self.n_mc_out
         for post in xrange(n_post):
             self.p_j[post] = self.post_activity[:, post].sum() * (1./ self.n_patterns)
         # p_i

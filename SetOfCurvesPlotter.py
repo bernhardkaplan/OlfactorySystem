@@ -66,7 +66,8 @@ class SetOfCurvesPlotter(object):
         ax.set_xlabel('Concentration [a.u.]')
         ax.set_ylabel('Output rate [Hz]')
 #        ax.legend(plots, labels, {'legend.loc' : 'upper left', 'legend.fontsize':8})
-        ax.legend(plots, labels, loc='upper left')
+        if cell_type == 'mit':
+            ax.legend(plots, labels, loc='upper left')
 
         ax.set_ylim((0, ax.get_ylim()[1]))
         self.ax = ax
@@ -97,8 +98,6 @@ class SetOfCurvesPlotter(object):
             for x_idx in xrange(x_dim):
                 y_avg[x_idx, group_idx] = y_data[i0:i1, x_idx].mean()
                 y_std[x_idx, group_idx] = y_data[i0:i1, x_idx].std()
-#                print 'debug', i0, i1
-#                print 'debug, group_idx, x_idx, y_avg, y_std', group_idx, x_idx, y_data[i0:i1, x_idx]
 
         y_std = y_std.transpose()
         y_avg = y_avg.transpose()

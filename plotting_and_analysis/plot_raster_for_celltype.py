@@ -11,7 +11,7 @@ import pylab
 import MergeSpikefiles
 import SetOfCurvesPlotter
 
-def plot_raster_for_celltype(cell_type, show=True):
+def plot_raster_for_celltype(cell_type, title='', show=True):
     print 'Loading Spikes from:', params['%s_spikes_merged_fn_base' % cell_type]
 
     fn = params['%s_spiketimes_merged_fn_base' % (cell_type)] + str(pn) + '.dat'
@@ -31,7 +31,7 @@ def plot_raster_for_celltype(cell_type, show=True):
 
     ax.plot(data[:,0], data[:,1], 'o', markersize=2, color='k')
     ax.set_xlim((0, params['t_sim']))
-    ax.set_title('%s spikes' % cell_type.upper())
+    ax.set_title(title)
     ax.set_xlabel('Time [ms]')
     ax.set_ylabel('Cell GID')
 
@@ -71,6 +71,6 @@ if __name__ == '__main__':
 
     for cell_type in cell_types:
         print 'Plotting raster for:', cell_type
-        plot_raster_for_celltype(cell_type)
+        plot_raster_for_celltype(cell_type, title='%s spikes pattern %d' % (cell_type.upper(), pn))
 
     pylab.show()

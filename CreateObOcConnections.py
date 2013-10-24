@@ -170,22 +170,17 @@ def bcpnn_oc_oc(params):
 
 
 
-def bcpnn_oc_readout(params):
+def bcpnn_oc_readout(params, readout_activation=None):
     print 'BCPNN OC -> READOUT'
     n_patterns = params['n_patterns']
     n_hc = params['n_hc']
     n_mc = params['n_mc']
-#    if params['test_conc_invariance']:
-#        n_readout = self.params['SOMETHING_TODO']
-#        readout_activation = np.zeros((n_patterns, n_readout))
-#        for pn in xrange(n_patterns):
-#            active_readout_idx = pn / params['n_concentrations']
-#            readout_activation[pn, active_readout_idx] = 1
-#    else:
-
-    n_readout = params['n_patterns']
-    readout_activation = np.eye(n_patterns)
-    print 'readout_activation', readout_activation
+    if readout_activation == None:
+        # same number of patterns and readout cells
+        n_readout = params['n_patterns']
+        readout_activation = np.eye(n_patterns)
+    else: # e.g. noisy patterns
+        n_readout = params['n_readout']
 
     bcpnn = BCPNN.BCPNN(n_hc, n_mc, 1, n_readout, n_patterns, params)
     # take the output activity of OB-OC Bcpnn as activity
@@ -235,7 +230,7 @@ def create_connections(params):
     rank = comm.Get_rank()
 
     print "Creating OB -> OC connections ..."
-    GetConn = TransformAbstractToDetailedConnectivity.GetConnectionsQuickFix(param_tool, comm, rank, debug=1)
+    GetConn = TransformAbstractToDetailedConnectivity.GetConnections(params, comm, rank, debug=1)
 
     if (rank == 0):
         GetConn.get_mit_rsnp_connections(random_conn=params['ob_oc_random_conns'])
@@ -259,6 +254,11 @@ if __name__ == '__main__':
     param_tool = simulation_parameters.parameter_storage()
     # params is the dictionary with all parameters
     params = param_tool.params
+
+    ok = raw_input('\nContinue to create this folder structure? Parameters therein will be overwritten\n\ty / Y / blank = OK; anything else --> exit\n')
+    if not ((ok == '') or (ok.capitalize() == 'Y')):
+        print 'quit'
+        exit(1)
 
     if len(sys.argv) > 1: 
         # you want to create a new folder structure to not overwrite the results obtained from 
@@ -300,10 +300,10 @@ if __name__ == '__main__':
     param_tool.write_parameters_to_file(params["info_file"])
     param_tool.write_parameters_to_file() # 
     param_tool.hoc_export() # 
-#    exit(1)
 
-#    if not params['oc_only']:
-#        prepare_epth_ob_prelearning.prepare_epth_ob(params)
+    if not params['oc_only']:
+        prepare_epth_ob_prelearning.prepare_epth_ob(params)
+    exit(1)
 
 #     ------------ MDS + VQ of OB output ---------------
     ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
@@ -323,3 +323,13 @@ if __name__ == '__main__':
     create_pyr_parameters(params)
     create_connections(params)
 
+    for fn in params['all_connection_fns']:
+        assert os.path.exists(fn), 'Required file does not exist: %s' % fn
+    for fn in [params['pyr_params_file'], params['readout_params_file']]:
+        assert os.path.exists(fn), 'Required file does not exist: %s' % fn
+
+    for pn in xrange(params['n_patterns']):
+        fn = params['orn_params_fn_base'] + '%d.dat' % pn
+        assert os.path.exists(fn)
+
+    print 'Ready - Go!\t', params['folder_name']

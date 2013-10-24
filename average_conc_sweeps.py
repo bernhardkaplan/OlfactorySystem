@@ -148,7 +148,7 @@ figure_params = {
         'figure.figsize': get_figsize(800)
         }
 
-pylab.rcParams.update(figure_params)
+#pylab.rcParams.update(figure_params)
 colorlist = ["#0000FF", "#006600", "#FF0000", "#00FFFF", "#CC00FF", "#FFCC00", "#000000", "#00FF00", "#663300", "#FF3399", "#66CCCC", "#FFCC99", "#666666"]
 
 fig = pylab.figure()
@@ -219,11 +219,12 @@ x_stop = params['n_or']
 #ax.set_ylim((0, ax.get_ylim()[1]))
 ax.set_ylim((0, 40))
 
+fontsize = 18
 #ax_2.set_ylim((0, y_max / ((params["t_stop"]-params["t_start"]) / 1000.)))
 #ax_2.set_ylim((0, y_max / (params["t_sim"] / 1000.)))
 ax.set_xlim((x_axis.min(), x_axis.max()))
-ax.set_xlabel("Concentration")
-ax.set_ylabel("Spike rate [Hz]")
+ax.set_xlabel("Concentration", fontsize=fontsize)
+ax.set_ylabel("Spike rate [Hz]", fontsize=fontsize)
 #ax.set_xlabel("x")
 #ax.set_ylabel("y1")
 #ax_2.set_ylabel("y2")
@@ -231,7 +232,7 @@ F = pylab.gcf()
 
 #F.set_size_inches(get_figsize(800))
 #output_fn = "ob_set_of_curves_%dngor.svg" % (params['n_gor'])
-output_fn = params['figure_folder'] + 'averaged_conc_sweep.png'
+output_fn = params['figure_folder'] + '/' + 'averaged_conc_sweep.png'
 print 'Saving figure to:', output_fn
 pylab.savefig(output_fn, dpi=(200))
 pylab.show()

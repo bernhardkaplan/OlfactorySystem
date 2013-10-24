@@ -4,7 +4,7 @@ import time
 import numpy
 import simulation_parameters # defines simulation parameters
 # classes for setting up connectivity and the individual cell parameters
-#import CreateObConnections
+import CreateObConnections
 import CreateOrnParameters
 t1 = time.time()
 
@@ -20,15 +20,18 @@ param_tool.hoc_export() # write the simulation parameters to a NEURON executable
 #param_tool.print_cell_gids()
 
 
+OrnParam = CreateOrnParameters.CreateOrnParameters(params)
+OrnParam.create_params_for_response_curve()
+
 # EPTH -> OB connections are not affected by the pattern
 #print "Creating connections: orn -> mit"
-#ConnectionClass = CreateObConnections.CreateObConnections(params)
-#ConnectionClass.connect_orn_mit()
-#ConnectionClass.connect_orn_pg()
-#ConnectionClass.connect_pg_mit_serial()
-#ConnectionClass.connect_pg_mit_reciprocal()
-#ConnectionClass.connect_mt_gran_local()
-#ConnectionClass.connect_mt_gran_global()
+ConnectionClass = CreateObConnections.CreateObConnections(params)
+ConnectionClass.connect_orn_mit()
+ConnectionClass.connect_orn_pg()
+ConnectionClass.connect_pg_mit_serial()
+ConnectionClass.connect_pg_mit_reciprocal()
+ConnectionClass.connect_mt_gran_local()
+ConnectionClass.connect_mt_gran_global()
 
 print "Creating ORN parameters...."
 print "Folder name:", params['folder_name']

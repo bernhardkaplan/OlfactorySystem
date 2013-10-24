@@ -21,7 +21,6 @@ cell_type = sys.argv[2]
 params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
 param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
 params = param_tool.params
-print 'debug', params['%s_spikes_merged_fn_base' % cell_type]
 
 pn = 0
 Merger = MergeSpikefiles.MergeSpikefiles(params)
@@ -38,8 +37,13 @@ else:
 
 sim_cnt = 0
 SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
-output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
-SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn, cell_type='mit')
+if cell_type == 'mit':
+    output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
+else:
+    output_fn = params['figure_folder'] + '/epth_response_curve_%d.png' % sim_cnt
+SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn, cell_type=cell_type)
+#import pylab
+#pylab.show()
 print 'Opening with ristretto: %s' % (output_fn)
 os.system('ristretto %s' % output_fn)
 

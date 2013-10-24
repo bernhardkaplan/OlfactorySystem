@@ -16,15 +16,14 @@ It is a quick_fix_solution because it is not possible to handle several Connecti
 as the mapping between source HC between vq_ and Connection_ files is not clear.
 '''
 
-class GetConnectionsQuickFix(object):
-    def __init__(self, param_tool, comm=None, rank=0, debug=0):
+class GetConnections(object):
+    def __init__(self, params, comm=None, rank=0, debug=0):
         '''
-        param_tool: class storing the dictionary with all simulation parameters
+        params: simulation parameter dictionary
         comm is the MPI communicator
         rank is the mpi rank of the process
         '''
-        self.param_tool = param_tool
-        self.params = param_tool.params
+        self.params = params
         self.comm = comm    # MPI.COMM_WORLD
         self.debug = debug
         if comm != None:

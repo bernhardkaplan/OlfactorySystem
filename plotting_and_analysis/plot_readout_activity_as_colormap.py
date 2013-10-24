@@ -160,8 +160,6 @@ class Plotter(object):
         output_fn = params['%s_activity_cmap' % cell_type]
         print "saving ....", output_fn
         pylab.savefig(output_fn)
-        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '.eps'
-        print "saving ....", output_fn
         pylab.savefig(output_fn, dpi=(200))
 
         title = "Normalized readout activity "
@@ -174,7 +172,9 @@ class Plotter(object):
         ax.set_xlim((0, activity_norm[0, :].size))
         ax.set_title(title)
         pylab.colorbar(cax)
-        #pylab.savefig(output_fn)
+        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_normalized.png'
+        print "saving ....", output_fn
+        pylab.savefig(output_fn)
 
         title = "Winner-take-all readout activity"
         activity_wta = activity_wta.transpose()
@@ -186,7 +186,9 @@ class Plotter(object):
         ax.set_xlim((0, activity_wta[0, :].size))
         ax.set_title(title)
         pylab.colorbar(cax)
-
+        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_wta.png'
+        print "saving ....", output_fn
+        pylab.savefig(output_fn)
         pylab.show()
 
 
