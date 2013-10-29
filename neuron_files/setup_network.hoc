@@ -1256,7 +1256,11 @@ proc create_cells_with_oc() {
 	create_mit()
 	create_gran()
 	create_pg()
-	create_pyr(with_bias)
+	if (with_lts_pyr_neurons) {
+		create_pyr_lts(with_bias)
+	} else {
+		create_pyr(with_bias)
+	}
 	create_rsnp()
 	create_basket()
 	create_readout(with_bias)
@@ -1276,7 +1280,11 @@ proc create_cells_ob_oc() {
 	create_mit()
 	create_gran()
 	create_pg()
-	create_pyr(with_bias)
+	if (with_lts_pyr_neurons) {
+		create_pyr_lts(with_bias)
+	} else {
+		create_pyr(with_bias)
+	}
 	create_rsnp()
 	create_basket()
 	create_readout(with_bias)
@@ -1303,7 +1311,11 @@ proc create_cells_ob_oc() {
 
 proc create_cells_oc_only() {
 	fih_v = new FInitializeHandler(0, "init_voltages()")
-	create_pyr(with_bias)
+	if (with_lts_pyr_neurons) {
+		create_pyr_lts(with_bias)
+	} else {
+		create_pyr(with_bias)
+	}
 	create_rsnp()
 	create_basket()
 	create_readout(with_bias)
@@ -2018,8 +2030,7 @@ proc create_orn() { local i, gid localobj cell
 			cell = new Orn(v_orn_gor[gid-global_offset], v_orn_oor[gid-global_offset], \
 					 t_start, t_stop, v_orn_gna_hh[gid-global_offset], v_orn_gka_hh[gid-global_offset], \
 					 v_orn_gka_cag[gid-global_offset], v_orn_gca_l[gid-global_offset], v_orn_gleak[gid-global_offset],\
-					 v_orn_tau_cadec[gid-global_offset], gid * (pattern_nr+1))
-/*                     v_orn_tau_cadec[gid-global_offset], rnd_int.repick() * (pattern_nr+1))*/
+					 v_orn_tau_cadec[gid-global_offset])
 			pnm.register_cell(gid, cell)
 		}
 	}
@@ -2032,9 +2043,7 @@ proc create_orn_sniffing() { local i, gid localobj cell
 			cell = new OrnSniffing(v_orn_gor[gid-global_offset], v_orn_oor[gid-global_offset], \
 					 t_start, t_stop, v_orn_gna_hh[gid-global_offset], v_orn_gka_hh[gid-global_offset], \
 					 v_orn_gka_cag[gid-global_offset], v_orn_gca_l[gid-global_offset], v_orn_gleak[gid-global_offset],\
-					 v_orn_tau_cadec[gid-global_offset], gid * (pattern_nr+1), \
-					 sniff_period, t_shift_sniff)
-/*                     v_orn_tau_cadec[gid-global_offset], rnd_int.repick() * (pattern_nr+1))*/
+					 v_orn_tau_cadec[gid-global_offset], sniff_period, t_shift_sniff)
 			pnm.register_cell(gid, cell)
 		}
 	}

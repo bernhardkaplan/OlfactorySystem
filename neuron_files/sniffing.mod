@@ -1,7 +1,7 @@
 NEURON {
 	SUFFIX sniffinginput 
 	NONSPECIFIC_CURRENT i
-	RANGE i, e, gor, tstart,or
+	RANGE i, e, gor, tstart, or, tau, sniffperiod, tshift
 }
 
 PARAMETER {
@@ -13,9 +13,6 @@ PARAMETER {
 	tstop = 500 (ms) :will be overwritten by cell constructor parameters
 	sniffperiod = 80 (ms)
 	tshift = 40 (ms)
-	: good value
-	:tstop = tstart + 25 * tau(ms) :will be overwritten by cell constructor parameters
-	: these values give t_rise = 87 ms, t_stim =372 ms
 }
 
 ASSIGNED {
@@ -27,7 +24,8 @@ BREAKPOINT {
 	i = 0
 		
 	if (t>=tstart && t<=tstop){ 	: sniffing input
-		i = sin(t / sniffperiod - tshift)^2 * or * gor * (v - e)
+		: i = (sin(t / sniffperiod - tshift))^2 * or * gor
+		i = (sin(t / sniffperiod - tshift))^2 * or * gor * (v - e)
 	}
 	: else i = 0
 }

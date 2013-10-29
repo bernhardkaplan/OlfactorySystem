@@ -136,7 +136,6 @@ class CreateObConnections(object):
                 (src_gid, w) = self.conn_mat_orn_mit[tgt][src]
                 if (w > 0.0):
                     conn_cnt += 1
-#                    src_gid = src + orn_offset
                     tgt_gid = tgt + mit_offset
                     lines_to_write += "%d\t%d\t%.6E\n" % (src_gid, tgt_gid, w)
 
@@ -146,13 +145,7 @@ class CreateObConnections(object):
         f_plain.write(first_line)
         f_plain.write(lines_to_write)
         f_plain.close()
-        # save connections in binary format
-#        orn_mit_weights = numpy.array(orn_mit_output)
-#        f_binary = open(self.params['conn_list_orn_mit_bin'], 'w')
-#        line = "%d 3\n" % (conn_cnt)
-#        f_binary.write(line)
-#        numpy.savetxt(f_binary, orn_mit_weights, fmt="%d\t%d\t%.6E", delimiter='\t')
-#        f_binary.close()
+
 
     def create_orn_pg_weight_matrix(self):
         """
@@ -166,7 +159,7 @@ class CreateObConnections(object):
         print "Creating connections: ORN ---< PG"
 
         # there are self.params['rel_pg_mit'] times more periglomerular cells than MT cells
-        # and according to Shepherds "Synaptic organization of the brain" approx. 25 % of the PG-MT dendro-dendritic connections are serial
+        # and according to Shepherds "Synaptic organization of the brain" approx. 25 % of the PG-MT dendro-dendritic connections are reciprocal
         # i.e. these are treated here as feed-forward inhibitory connections from PG ---o MT
         # There are two populations of PG cells: those receiving direct input from ORNs (TH-ir PG cells according to Toida 2008 p. 210) and those PG cells (CB-ir) lying a bit deeper in the glomerular level which do not receive ORN input
         # The TH-ir population can be split up into to different populations again: one receiving ORN input and providing feedforward inhibition (n_pg_ff_inh),

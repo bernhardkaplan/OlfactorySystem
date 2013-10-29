@@ -56,7 +56,7 @@ class parameter_storage(object):
         if self.params['concentration_invariance']:
             self.params['n_patterns'] = self.params['n_conc_check'] * self.params['n_patterns_test_conc_inv']
         else:
-            self.params['n_patterns'] = 10
+            self.params['n_patterns'] = 5
 #            self.params['n_patterns'] = 50
 #            self.params['n_patterns'] = 150
         self.params['OR_affinity_noise'] = 0.00
@@ -95,8 +95,8 @@ class parameter_storage(object):
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
             self.params['rel_orn_mit'] = 10
-            self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
-            self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
+            self.params['rel_gran_mit'] = 5# number of granule cells per mitral cell
+            self.params['rel_pg_mit']  = 10# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
         self.params['print_debug'] = 1 # flag to print more or less output
         # ------ C E L L     N U M B E R S ------------
@@ -200,9 +200,16 @@ class parameter_storage(object):
         self.params['time_step']= 0.025   # [ms] max time step
         self.params['time_step_rec']= 0.5  # [ms] time step for recording membrane potentials etc
         self.params['thresh']	= 0     # [mV] threshold for spike detection. thresh is currently the same for all cells 	
-        self.params['t_start']	= 0     # [ms] start time of current injection into orn cells
         self.params['tau_odorinput_sigmoid'] = 20 # [ms] time constant for sigmoidal function for input conductance time course, check with neuron_files/odorinput.mod
-        self.params['t_stop']	= 25 * self.params['tau_odorinput_sigmoid'] # [ms] start time for decaying sigmoid for odor input conductance
+        if self.params['with_sniffing_input']:
+            self.params['t_stop'] = 1200 # [ms]
+            self.params['t_start'] = 200 # [ms]
+        else:
+            self.params['t_start']	= 0     # [ms] start time of current injection into orn cells
+            self.params['t_stop']	= 25 * self.params['tau_odorinput_sigmoid'] # [ms] start time for decaying sigmoid for odor input conductance
+        self.params['sniff_period'] = 80. # [ms]
+        self.params['t_shift_sniff'] = 40. # [ms]
+
 #        self.params['curr_amp']= 100	# [nA] amplitude of current injected into orn cells
         self.params['v_init'] = -70.	# [mV]
         self.params['v_init_sigma'] = 5 # [mV]
@@ -249,8 +256,6 @@ class parameter_storage(object):
 
         # ---------------- C E L L    P A R A M E T E R S --------- # 
         # ---------------- ORN cell parameters:
-        self.params['sniff_period'] = 80. # [ms]
-        self.params['t_shift_sniff'] = 40. # [ms]
         # gor stands for the maximum conductance evoked by an odor
         # gor values are distributed between a min and max value
         # good values for system without noise
