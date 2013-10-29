@@ -42,7 +42,7 @@ for fn in sys.argv[1:]:
             assert (go == True)
         except:
             x_axis = np.arange(data.size)
-        pylab.plot(x_axis, data, label=fn)
+        pylab.plot(x_axis, data, label=fn, lw=2)
 #        pylab.plot(x_axis, data)
     else:
         pylab.plot(data[:,0], data[:,1], lw=2, label=fn)#, yerr=data[:,3])
@@ -51,5 +51,6 @@ for fn in sys.argv[1:]:
         pylab.yticks(size='large')
         #pylab.savefig("%s_nrows1000.eps" % (title))
 
-#pylab.legend()
+if len(sys.argv[1:]) < 10:
+    pylab.legend()
 pylab.show()

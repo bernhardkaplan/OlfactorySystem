@@ -30,24 +30,35 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 1
+        self.params['Cluster'] = 0
         self.params['concentration_sweep'] = 0
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
         self.params['with_oc_oc_rec'] = 1
-        self.params['oc_only'] = True
+        self.params['oc_only'] = False
 
+        # parameters to test / train concentration invariance
         self.params['concentration_invariance'] = 0 # if 1: selected patterns are presented at different concentrations
         self.params['n_conc_check'] = 5         # number of different concentrations used to check if concentration invariant recogntion works
         self.params['n_patterns_test_conc_inv'] = 10     # number of different odor patterns to be checked with different concentrations
         self.params['conc_inv_modifier'] = .2
 
+        # parameters to test / train concentration invariance
+        self.params['pattern_completion'] = 1
+        self.params['train_pattern_completion'] = 0
+        self.params['test_pattern_completion'] = not (self.params['train_pattern_completion'])
+
+        self.params['pattern_rivalry'] = not self.params['pattern_completion']
+        self.params['train_pattern_rivalry'] = 0
+        self.params['test_pattern_rivalry'] = not (self.params['train_pattern_rivalry'])
+
         if self.params['concentration_invariance']:
             self.params['n_patterns'] = self.params['n_conc_check'] * self.params['n_patterns_test_conc_inv']
         else:
+            self.params['n_patterns'] = 10
 #            self.params['n_patterns'] = 50
-            self.params['n_patterns'] = 350
+#            self.params['n_patterns'] = 150
         self.params['OR_affinity_noise'] = 0.00
 
         self.params['with_noise'] = 1
@@ -55,6 +66,7 @@ class parameter_storage(object):
         self.params['with_curr_bias'] = 0 # means that instead of the ion channel (giving dynamic inhibition) a static negative current is inserted in pyr and readout
         # if with_bias == 0: it doesn't matter what with_curr_bias is
         self.params['with_lts_pyr_neurons'] = 0 # if 1: use the low-threshold-spiking pyramidal cells instead of regular spiking ones
+        self.params['with_sniffing_input'] = 1
 
         # ------ S E E D S -------------
         self.params['seed_activation_matrix'] = 123
@@ -74,7 +86,7 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 24
         else:
-            self.params['n_or'] = 40
+            self.params['n_or'] = 10
 #            self.params['n_or'] = 60
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
@@ -82,7 +94,7 @@ class parameter_storage(object):
             self.params['rel_gran_mit'] = 100# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
         else:
-            self.params['rel_orn_mit'] = 1
+            self.params['rel_orn_mit'] = 10
             self.params['rel_gran_mit'] = 10# number of granule cells per mitral cell
             self.params['rel_pg_mit']  = 20# number of periglomerular cells per mitral cell, ~ 20 according to Shepherd
 
@@ -117,14 +129,14 @@ class parameter_storage(object):
 
 #        self.params['n_hc'] = 5
 #        self.params['n_mc'] = 10
-        self.params['n_hc'] = 60
-        self.params['n_mc'] = 6
+        self.params['n_hc'] = 12
+        self.params['n_mc'] = 30
         self.params['n_tgt_basket_per_mc'] = 8 # pyr within one minicolumn connect to this number of 'closest' basket cells
         self.params['n_basket_per_mc'] = 6 #this does not mean that the basket cell is exclusively for the minicolumn
         self.params['n_basket_per_hc'] = self.params['n_mc'] * self.params['n_basket_per_mc']
         self.params['n_pyr_per_mc'] = 30
 #        self.params['n_tgt_mc_per_mit_per_hc'] = int(round(self.params['n_mc'] / 4.))
-        self.params['n_tgt_pyr_per_mc'] = np.int(np.round(2. * self.params['n_pyr_per_mc'] / 3.)) # number of pyr cells per minicolumn activated by input from OB
+        self.params['n_tgt_pyr_per_mc'] = np.int(np.round(self.params['n_pyr_per_mc'] / 2.)) # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_tgt_pyr_per_mc'] = self.params['n_pyr_per_mc'] / 2.0 # number of pyr cells per minicolumn activated by input from OB
 #        self.params['n_pyr_pyr_between_2mc'] =  self.params['n_hc'] * self.params['n_pyr_per_mc'] * 0.33 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern
         self.params['n_pyr_pyr_between_2mc'] =  self.params['n_pyr_per_mc'] ** 2 * 0.05 # number of pyr->pyr connections between two minicolumns (belonging to the same pattern)
@@ -212,9 +224,6 @@ class parameter_storage(object):
         self.params['frac_max_active_OR'] = .50 # for high conc: ~ 19 +- 2 glom were activated (out of ~150 in the imaged region) --> 0.13 +- 0.2
         # Ma 60-100 activated glomeruli out of ~200
         # if a receptor is activated --> draw the affinity from the distance distribution
-        self.params['distance_affinity_transformation_parameter'] = .00 # this value is subtracted from the activation_matrix when createing ORN parameters
-        # .1 is subtracted to model the inhibitory response: 11% of all odorant-receptor combinations resulted in inhibitory responses (Hallem 2006)
-        # if nothing is subtracted the model would give ~12 % of all activations are below .1 Thus, inhibition is modeled as effective 0 activation for those 11-12% or odorant receptor pairs
 
 #        self.params['distance_affinity_transformation_parameter_exp'] = 0.1287123167891156 # this is 2 * 1. / expected_value(of the distance distribution gained with the parameters above --> test_gauss.py
         expected_value_dist = 7.90462925921
@@ -240,7 +249,8 @@ class parameter_storage(object):
 
         # ---------------- C E L L    P A R A M E T E R S --------- # 
         # ---------------- ORN cell parameters:
-
+        self.params['sniff_period'] = 80. # [ms]
+        self.params['t_shift_sniff'] = 40. # [ms]
         # gor stands for the maximum conductance evoked by an odor
         # gor values are distributed between a min and max value
         # good values for system without noise
@@ -376,19 +386,19 @@ class parameter_storage(object):
         # all weights are given in uS, thus w=0.001 is 1 nS
         # within one minicolumn # [E_psp_height in mV at V_rest for pyr_rs]
         # a weight of 0.005 = EPSP_height = 4.25 mV
-        self.params['w_pyr_pyr_local'] = 0.005
-        self.params['w_pyr_basket'] = 0.005
-        self.params['w_basket_pyr'] = 0.006
-        self.params['w_basket_basket'] = 0.001
+        self.params['w_pyr_pyr_local'] = 0.002
+        self.params['w_pyr_basket'] = 0.004
+        self.params['w_basket_pyr'] = 0.008
+        self.params['w_basket_basket'] = 0.003
         self.params['w_rsnp_pyr'] = 0.003       # -0.8 mV
-        self.params['w_nmda_mult_oc'] = 1.0     # for ob - oc and oc - oc connections
-        self.params['w_pyr_readout'] = 0.002
+        self.params['w_nmda_mult_oc'] = 2.0     # for ob - oc and oc - oc connections
+        self.params['w_pyr_readout'] = 0.001
 
         # pyr->pyr global:
 #        self.params['w_pyr_pyr_global_max'] = 1e-8
 #        self.params['w_pyr_rsnp_max'] = 1e-8
-        self.params['w_pyr_pyr_global_max'] = 0.004
-        self.params['w_pyr_rsnp_max'] = 0.004
+        self.params['w_pyr_pyr_global_max'] = 0.0015
+        self.params['w_pyr_rsnp_max'] = 0.0015
 
         # weight variation
         self.params['w_sigma'] = 0.1 # 0.2
@@ -413,7 +423,7 @@ class parameter_storage(object):
         self.params['p_basket_basket'] = 0.7
 
         # ---------------- MIT -> PYR connectivity
-        self.params['w_mit_pyr_max'] = 0.008             # max weight for exc mit -> pyr connection
+        self.params['w_mit_pyr_max'] = 0.006             # max weight for exc mit -> pyr connection
         self.params['w_mit_rsnp_max'] = 0.003             # max weight for exc mit -> rsnp connection, new 
 
 #        self.params['w_ampa_thresh'] = 0.002            # weights (transformed to the detailed model) larger than this value will be connected also via an AMPA
@@ -511,7 +521,7 @@ class parameter_storage(object):
 
 
         # -------- MDS - VQ - BCPNN  Parameters ---------------
-        self.params['vq_ob_oc_overlap'] = 0# if vq_overlap == 0: only one target Hypercolumn per mitral cell
+        self.params['vq_ob_oc_overlap'] = 4# if vq_overlap == 0: only one target Hypercolumn per mitral cell
         if (self.params['vq_ob_oc_overlap'] >= self.params['n_hc']):
             self.params['vq_ob_oc_overlap'] = self.params['n_hc'] - 1
         assert (self.params['vq_ob_oc_overlap'] < self.params['n_hc']), 'Can\'t have larger overlap of clusters than Hypercolumns / centroids to project to...'
@@ -528,30 +538,45 @@ class parameter_storage(object):
         folder_name -- string
         """
 
-#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
-#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-#        folder_name = 'PaperData_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_postL' % (self.params['n_or'], \
-#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-#        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_rORN%d_vqOvlp%d_nDimMds%d_ORnoise%.1f_preL' % (self.params['n_or'], \
-#                self.params['n_hc'], self.params['n_mc'], self.params['rel_orn_mit'], self.params['vq_ob_oc_overlap'], self.params['n_dim_mds'], self.params['OR_affinity_noise'])
-#        folder_name = 'Debugging_nGlom%d_rORN%d_ORnoise%.1f_preL_OrAffNorm%d_postL' % (self.params['n_or'], \
-#                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'])
-#        folder_name = 'NewPaperData_nGlom%d_rORN%d_ORnoise%.1f_OrAffNorm%d_preL_np%d' % (self.params['n_or'], \
-#                self.params['rel_orn_mit'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
-#        folder_name = 'Debugging_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_ORnoise%.1f_OrAffNorm%d_postLrn_np%d_2' % (self.params['n_or'], \
-#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['OR_affinity_noise'], self.params['OR_activation_normalization'], self.params['n_patterns'])
-
         # the folder_name containing the 'pre-learning' data
 #        folder_name = 'SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1'
-        # 
-        folder_name = 'TrainingWithNoisyPatterns_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
-                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
-
-#        folder_name = 'SweepCtxDim_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#        folder_name = 'TrainingWithNoisyPatterns_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
-#        folder_name = 'EpthResponseCurve'
+#        if self.params['pattern_completion']:
+#            if self.params['test_pattern_completion'] and not self.params['oc_only']:
+#                folder_name = 'PatternCompletionTestPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+#            elif self.params['test_pattern_completion'] and self.params['oc_only']:
+#                folder_name = 'PatternCompletionComplexPatternsPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
+#        elif self.params['pattern_rivalry']:
+#            if self.params['test_pattern_rivalry'] and not self.params['oc_only']:
+#                folder_name = 'PatternRivalryTestPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+#            elif self.params['test_pattern_rivalry'] and self.params['oc_only']:
+#                folder_name = 'PatternRivalrySimplePatternsPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+    
+#        folder_name = 'ORnoise%.2f_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['OR_affinity_noise'], self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+        
+#        folder_name = 'ConcInvWithTraining_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+
+        folder_name = 'SniffTest'
+        
+
+#        folder_name = 'OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+#        folder_name = 'OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+
+#        folder_name = 'SweepCtxDim_NoisyPatterns_BinAct_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
+#                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+
+#        folder_name = 'EpthResponseCurve_withVolt'
 
 #        folder_name = 'ResponseCurvesEpthOb_6'
         if self.params['Cluster']:
@@ -570,7 +595,6 @@ class parameter_storage(object):
             folder_name += '_OcOnly'
         else:
             folder_name += '_FullSystem'
-
 
 
         if self.params['concentration_invariance']:
@@ -625,6 +649,8 @@ class parameter_storage(object):
         self.params['activation_matrix_fig'] = '%s/activation_matrix.png' % (self.params['figure_folder'])
         self.params['activation_matrix_fn_with_noise'] = '%s/activation_matrix_with_noise.dat' % (self.params['params_folder'])
         self.params['activation_matrix_with_noise_fig'] = '%s/activation_matrix_with_noise.png' % (self.params['figure_folder'])
+#        self.params['activation_matrix_fn_with_noise'] = '%s/activation_matrix_with_noise%.2f.dat' % (self.params['params_folder'], self.params['OR_affinity_noise'])
+#        self.params['activation_matrix_with_noise_fig'] = '%s/activation_matrix_with_noise%.2f.png' % (self.params['figure_folder'], self.params['OR_affinity_noise'])
         self.params['activation_matrix_fn_conc_inv'] = '%s/activation_matrix_conc_inv.dat' % (self.params['params_folder'])
         self.params['activation_matrix_conc_inv_fig'] = '%s/activation_matrix_conc_inv.png' % (self.params['figure_folder'])
 
@@ -735,7 +761,9 @@ class parameter_storage(object):
         self.params['oc_readout_abstract_weights_fn'] = '%s/oc_readout_abstract_weights.dat' % (self.params['bcpnn_folder'])
         self.params['oc_readout_abstract_bias_fn'] = '%s/oc_readout_abstract_bias.dat' % (self.params['bcpnn_folder'])
 
-
+#        self.params['oc_oc_training_fn'] = self.params['binary_oc_activation_fn']
+        # train with the output activity when learning the ob-oc connections
+        self.params['oc_oc_training_fn'] = self.params['oc_abstract_activity_fn']
 
         # files for recording currents, membrane potential, time, ....
         self.params['time_vec_fn_base'] = '%s/time_vector' % ( self.params['volt_folder'])

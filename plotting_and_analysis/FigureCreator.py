@@ -13,14 +13,15 @@ def get_fig_size(fig_width_pt, portrait=False):
     return fig_size
 
 plot_params = {'backend': 'png',
-              'axes.labelsize': 20,
-              'axes.titlesize': 20,
+              'axes.labelsize': 24,
+              'axes.titlesize': 24,
               'text.fontsize': 20,
               'xtick.labelsize': 16,
               'ytick.labelsize': 16,
               'legend.pad': 0.2,     # empty space around the legend box
               'legend.fontsize': 14,
-               'lines.markersize': 0,
+               'lines.markersize': 1,
+               'lines.markeredgewidth': 0.,
                'lines.linewidth': 1,
               'font.size': 12,
               'path.simplify': False,

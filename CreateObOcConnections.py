@@ -8,6 +8,9 @@ info_txt = \
         param_tool.write_parameters_to_file() # 
     - then, copy the nspike files of mitral cells into the new NumberOfSpikes folder:
      cp PRE_LEARNING/NumberOfSpikes/mit*merged* POST_LEARNING/NumberOfSpikes/
+
+    Usage:
+        python CreateObConnections.py new PRE_LEANING_FOLDER
 """
 
 import os
@@ -91,6 +94,7 @@ def mds_vq_ob_output(params, mds_output_fn=None):
     mit_mc_kmeans_trial = 0
     mdsvq.create_mitral_response_space(vq_output_fn, ob_activity_fn, binary_oc_activation_fn, \
             remove_silent_cells_fn=os.path.exists(params['silent_mit_fn']), mit_mc_kmeans_trial=mit_mc_kmeans_trial) 
+    del mdsvq
     return (ob_activity_fn, binary_oc_activation_fn, vq_output_fn)
 
 
@@ -148,9 +152,9 @@ def bcpnn_oc_oc(params):
     #bcpnn.initialize()
 
     # train with binary oc activation derived from WTA after 2nd VQ
-#    oc_oc_training_fn = params['binary_oc_activation_fn']
+    oc_oc_training_fn = params['binary_oc_activation_fn']
     # train with the output activity when learning the ob-oc connections
-    oc_oc_training_fn = params['oc_abstract_activity_fn']
+#    oc_oc_training_fn = params['oc_abstract_activity_fn']
 
     print 'BCPNN OC <-> OC training with:', oc_oc_training_fn
     bcpnn.load_input_activity(oc_oc_training_fn)
@@ -222,6 +226,7 @@ def create_pyr_parameters(params):
     PyrReadoutParamClass = CreatePyrReadoutParameters.CreatePyrReadoutParameters(params)
     PyrReadoutParamClass.write_pyr_parameters()
     PyrReadoutParamClass.write_readout_parameters()
+    del PyrReadoutParamClass 
 
 
 def create_connections(params):
@@ -303,7 +308,6 @@ if __name__ == '__main__':
 
     if not params['oc_only']:
         prepare_epth_ob_prelearning.prepare_epth_ob(params)
-    exit(1)
 
 #     ------------ MDS + VQ of OB output ---------------
     ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
@@ -313,8 +317,8 @@ if __name__ == '__main__':
     ObAnalyser.rescale_activity_cellwise()
     ObAnalyser.rescale_activity_patternwise()
     ObAnalyser.rescale_activity_glom_patterns()
-#    mds_vq_ob_output(params)
-    mds_vq_ob_output(params, mds_output_fn='Cluster_SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1_OcOnly/Other/mds_ob_oc_output.dat')
+    mds_vq_ob_output(params)
+#    mds_vq_ob_output(params, mds_output_fn='Cluster_SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1_OcOnly/Other/mds_ob_oc_output.dat')
 
     bcpnn_ob_oc(params)
     bcpnn_oc_oc(params)

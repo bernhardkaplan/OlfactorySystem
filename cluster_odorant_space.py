@@ -26,12 +26,12 @@ def cluster_odor_space(num_clusters):
         global_mean[dim] = d[:, dim].mean()
 
     # here it can happen, that kmeans could not place the desired number of centroids in the space
-    centroids, distortions = kmeans(d, num_clusters, iter=100)#, thresh=1e-6)
+    centroids, distortions = kmeans(d, num_clusters)#, iter=100)#, thresh=1e-6)
 
     retrial = 0
     while (centroids.shape != (num_clusters, n_dim)):
         print "Run again trial...", retrial
-        centroids, distortions = kmeans(d, num_clusters, iter=100)#, thresh=1e-6)
+        centroids, distortions = kmeans(d, num_clusters)#, iter=100)#, thresh=1e-6)
         retrial += 1
         if (retrial > 50):
             return # it's not possible to put the desired number of centroids in the space --> end of script
@@ -76,7 +76,7 @@ def cluster_odor_space(num_clusters):
         for c in xrange(num_clusters):
             dist_matrix[i, c] = euclidean_dist(d[i, :], centroids[c, :])
 
-    # build affinity matrix
+    # build affinity matrix --- this is not used in the end
     affinities = np.zeros((n_odorants, num_clusters))
     for i in xrange(n_odorants):
         for c in xrange(num_clusters):
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     for n_clusters in xrange(2, 70):
         for run in xrange(n_cluster_trials):
             print "n_clusters", n_clusters, "run: ", run
-            variance, distortion, bgv, wgv, F, code, dist_matrix, affinity_matrix= cluster_odor_space(n_clusters)
+            variance, distortion, bgv, wgv, F, code, dist_matrix, affinity_matrix = cluster_odor_space(n_clusters)
             output = "%d\t%.6e\t%6e\t%.6e\t%.6e\t%.6e\n" % (n_clusters, variance, distortion, bgv, wgv, F)
             f_out.write(output)
             f_out.flush()

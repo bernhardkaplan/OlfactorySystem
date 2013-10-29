@@ -64,18 +64,20 @@ record_time_vec()
 // record_mit_testcells()
 // record_gran_testcells()
 // record_pg_testcells()
-record_sample_mit_cells()
-record_sample_gran_cells()
-record_sample_pg_cells()
 record_readout_voltages()
-record_pyr_sample()
-/*record_pyr_ca_sample()*/
-record_basket_sample()
-record_rsnp_sample()
-/*record_pyr_testcells()*/
-/*record_basket_testcells()*/
-/*record_rsnp_testcells()*/
-record_cells_from_file()
+if (record_voltages != 0) {
+	record_sample_mit_cells()
+	record_sample_gran_cells()
+	record_sample_pg_cells()
+	record_pyr_sample()
+	/*record_pyr_ca_sample()*/
+	record_basket_sample()
+	record_rsnp_sample()
+	/*record_pyr_testcells()*/
+	/*record_basket_testcells()*/
+	/*record_rsnp_testcells()*/
+	record_cells_from_file()
+}
 
 /*init_spikes() // calls setup_input_spikes*/
 
@@ -95,22 +97,24 @@ pnm.psolve(t_sim)
 print_time_vec()
 // print_orn_testcells()
 print_readout_voltages()
-/*print_selected_mit_cells()*/
-// print_mit_testcells()
-// print_gran_testcells()
-// print_pg_testcells()
 //
-print_sample_mit_cells()
-print_sample_gran_cells()
-print_sample_pg_cells()
-print_pyr_sample()
-/*print_pyr_ca_sample()*/
-print_basket_sample()
-print_rsnp_sample()
-/*print_pyr_testcells()*/
-/*print_basket_testcells()*/
-/*print_rsnp_testcells()*/
-print_cells_from_file()
+if (record_voltages != 0) {
+	/*print_selected_mit_cells()*/
+	rint_mit_testcells()
+	print_gran_testcells()
+	print_pg_testcells()
+	print_sample_mit_cells()
+	print_sample_gran_cells()
+	print_sample_pg_cells()
+	print_pyr_sample()
+	/*print_pyr_ca_sample()*/
+	print_basket_sample()
+	print_rsnp_sample()
+	/*print_pyr_testcells()*/
+	/*print_basket_testcells()*/
+	/*print_rsnp_testcells()*/
+	print_cells_from_file()
+}
 
 
 

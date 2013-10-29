@@ -7,14 +7,6 @@ import os
 import pylab
 import time
 import matplotlib
-'''
-This script reads vq_0.csv and one Connection_0_n0.csv file *Simon's Code*
-and produces an output list:
-    src_cell_gid    tgt_cell_gid    weight
-    x               y               w
-It is a quick_fix_solution because it is not possible to handle several Connection_0_ files
-as the mapping between source HC between vq_ and Connection_ files is not clear.
-'''
 
 class GetConnections(object):
     def __init__(self, params, comm=None, rank=0, debug=0):

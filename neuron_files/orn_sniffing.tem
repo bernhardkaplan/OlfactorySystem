@@ -24,7 +24,7 @@
 
 --------------------------------------------------------------*/
 
-begintemplate Orn		// create a new template object
+begintemplate OrnSniffing		// create a new template object
 	public soma, spikecount, spiketimes, connect2target, record_v, print_v
 	public ampa_syn, gabaa_syn, add_exc_connection_to_soma, add_inh_connection_to_soma, add_random_exc_spikes_to_soma, add_random_inh_spikes_to_soma
 	public synlist, netconlist
@@ -82,12 +82,15 @@ begintemplate Orn		// create a new template object
 			//gnabar_hh2 = 0.05	// McCormick=15 muS, thal was 0.09
 			gnabar_hh2 = $5 	// McCormick=15 muS, thal was 0.09
 			
-			insert odorinput //OR machinery (odorinput.mod)
-			gor_odorinput = $1
-			or_odorinput = $2
-			e_odorinput = 0
-			tstart_odorinput = $3
-			tstop_odorinput = $4
+			insert sniffinginput //OR machinery (sniffing.mod)
+			gor_sniffinginput = $1
+			or_sniffinginput = $2
+			e_sniffinginput = 0
+			tstart_sniffinginput = $3
+			tstop_sniffinginput = $4
+			sniffperiod_sniffinginput = $11
+			tshift_sniffinginput = $12
+
 
 
 			insert cagk2		// calcium activated K channel (cagk.mod)
@@ -312,4 +315,4 @@ begintemplate Orn		// create a new template object
 	}
 
 
-endtemplate Orn
+endtemplate OrnSniffing

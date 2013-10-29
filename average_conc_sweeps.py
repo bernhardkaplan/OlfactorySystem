@@ -126,29 +126,8 @@ def get_figsize(fig_width_pt):
     fig_size =  [fig_width,fig_height]      # exact figsize
     return fig_size
 
-figure_params = {
-        'figure.subplot.bottom': 0.15,
-        'figure.subplot.hspace': 0.5,
-        'figure.subplot.left': 0.125,
-        'figure.subplot.right': 0.90,
-        'figure.subplot.top': 0.90,
-        'figure.subplot.wspace': 0.10,
-        'legend.fontsize' : 8,
-        'backend': 'ps',
-        'axes.labelsize': 20,
-        'text.fontsize': 20,
-        'lines.markersize': 6,
-#                'lines.linewidth': 3,
-        'xtick.labelsize': 20,
-        'ytick.labelsize': 20,
-        'legend.pad': 0.2,     # empty space around the legend box
-        'legend.fontsize': 12,
-        'font.size': 20,
-        'path.simplify': False,
-        'figure.figsize': get_figsize(800)
-        }
-
-#pylab.rcParams.update(figure_params)
+from FigureCreator import plot_params
+pylab.rcParams.update(plot_params)
 colorlist = ["#0000FF", "#006600", "#FF0000", "#00FFFF", "#CC00FF", "#FFCC00", "#000000", "#00FF00", "#663300", "#FF3399", "#66CCCC", "#FFCC99", "#666666"]
 
 fig = pylab.figure()
@@ -158,10 +137,10 @@ ax.set_xscale('log')
 
 for curve in xrange(params['n_mit_x']):
 #    ax.plot(x_axis, average_curve[curve,:], 
-    ax.errorbar(x_axis, average_curve[curve,:], yerr=stds[curve,:], color=colorlist[curve%len(colorlist)], lw=2)
+    ax.errorbar(x_axis, average_curve[curve,:], yerr=stds[curve,:], color=colorlist[curve%len(colorlist)], lw=3)
 
 #output_fn = "ob_conc_sweep_average_cray_%d.dat" % params['date']
-output_fn = params['other_folder'] + 'averaged_conc_sweep.dat'
+output_fn = params['other_folder'] + '/averaged_ob_conc_sweep.dat'
 print "Saving data to:", output_fn
 output_data = "# row 0: x_axis, row 1: mean curve 1, row 2: std, row 3: mean_curve2, row 4: std, ..."
 output_data += "# n_x = %d\t n_curves = %d\n" % (n_conc, params['n_mit_x'])
@@ -194,45 +173,26 @@ color_cnt = 0
 x_start = 2 # start fitting splines from this x-value upwards
 x_stop = params['n_or']
 
-#spline_dx = int(round(x_stop / num_curves)) + 4 # size of x-interval in which a spline shall be fitted
-#print "spline_dx = ", spline_dx
-#for curve in xrange(num_curves):
-#    x0 = round(float((x_stop - x_start) - spline_dx) / num_curves) * (num_curves - curve - 1) + x_start
-#    x1 = x0 + spline_dx
-#    spline_intervals2.append((x0, x1))
-#    print "Curve %d x0 %d x1 %d" % (curve, x0, x1)
-#spline_intervals2 = [ (x_stop-14, x_stop-1), (26,40), (22,32), (15,25), (12,22), (8, 18), (5, 18), (2, 12)]
-#for curve in xrange(num_curves):
-#    spline_intervals = [max(spline_dx * (num_curves - curve - 1 - shift_spline_int), 0), min((spline_dx * (num_curves - curve + 2) - 1), x_axis.size - 1)]
-#    print "debug CURVE:", curve
-#    print "debug x_axis.size", len(x_axis)
-#    print "debug spline_int[0], spline_int[1]", spline_intervals[0], spline_intervals[1]
-#    print "debug xb, xe", x_axis[spline_intervals[0]], x_axis[spline_intervals[1]]
-#    print "debug x_axis[-1]", x_axis[-1]
-#    shift_spline_int = (num_curves - curve) / spline_dx
-#    spline_intervals = spline_intervals2[curve]
-#    x_new = np.arange(x_axis[spline_intervals[0]], x_axis[spline_intervals[1]], (x_axis[spline_intervals[1]] - x_axis[spline_intervals[0]])/1000.)
-#    spline_repr = interpolate.spline(x_axis[spline_intervals[0]:spline_intervals[1]], average_curve[curve, spline_intervals[0]:spline_intervals[1]], x_new, order=3)
-#    ax.plot(x_new[:-200], spline_repr[:-200], color=colorlist[color_cnt%len(colorlist)], label="spline", lw=3)
-#    color_cnt += 1
+ax.set_ylim((0, ax.get_ylim()[1]))
+#ax.set_ylim((0, 35))
 
-#ax.set_ylim((0, ax.get_ylim()[1]))
-ax.set_ylim((0, 40))
-
-fontsize = 18
 #ax_2.set_ylim((0, y_max / ((params["t_stop"]-params["t_start"]) / 1000.)))
 #ax_2.set_ylim((0, y_max / (params["t_sim"] / 1000.)))
+ax.set_title('Mitral cell response curves')
 ax.set_xlim((x_axis.min(), x_axis.max()))
-ax.set_xlabel("Concentration", fontsize=fontsize)
-ax.set_ylabel("Spike rate [Hz]", fontsize=fontsize)
+ax.set_xlabel("Concentration [a.u.]")
+ax.set_ylabel("Output rate [Hz]")
 #ax.set_xlabel("x")
 #ax.set_ylabel("y1")
 #ax_2.set_ylabel("y2")
-F = pylab.gcf()
+#F = pylab.gcf()
 
 #F.set_size_inches(get_figsize(800))
 #output_fn = "ob_set_of_curves_%dngor.svg" % (params['n_gor'])
-output_fn = params['figure_folder'] + '/' + 'averaged_conc_sweep.png'
+output_fn = params['figure_folder'] + '/' + 'averaged_ob_conc_sweep.png'
+print 'Saving figure to:', output_fn
+pylab.savefig(output_fn, dpi=(200))
+output_fn = params['figure_folder'] + '/' + 'averaged_conc_sweep.pdf'
 print 'Saving figure to:', output_fn
 pylab.savefig(output_fn, dpi=(200))
 pylab.show()

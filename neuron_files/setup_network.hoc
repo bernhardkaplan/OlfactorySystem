@@ -23,6 +23,7 @@ load_file("readout_cell.tem")
 load_file("readout_spiking.tem")
 load_file("readout_spiking_no_bias.tem")
 load_file("MyRandomStream.hoc")
+load_file("orn_sniffing.tem")
 
 // file names for cell parameters
 strdef orn_params_file
@@ -1192,7 +1193,11 @@ proc init_rnd() {
 
 proc create_orns() {
 	fih_v = new FInitializeHandler(0, "init_voltages()")
-	create_orn()
+	if (with_sniffing_input){
+		create_orn_sniffing()
+	} else {
+		create_orn()
+	}
 	if (with_noise){
 		add_noise_to_cells(w_exc_noise_orn, w_inh_noise_orn, f_exc_noise_orn, f_inh_noise_orn, n_orn, orn_offset)
 	}
@@ -1243,7 +1248,11 @@ proc create_cells_ob_only() {
 
 proc create_cells_with_oc() {
 	fih_v = new FInitializeHandler(0, "init_voltages()")
-	create_orn()
+	if (with_sniffing_input){
+		create_orn_sniffing()
+	} else {
+		create_orn()
+	}
 	create_mit()
 	create_gran()
 	create_pg()
@@ -2015,6 +2024,22 @@ proc create_orn() { local i, gid localobj cell
 		}
 	}
 }
+
+proc create_orn_sniffing() { local i, gid localobj cell
+	for (i = 0; i < n_orn; i += 1){
+		gid = i + orn_offset
+		if (pnm.gid_exists(gid)){	// if cell has been assigned to this machine
+			cell = new OrnSniffing(v_orn_gor[gid-global_offset], v_orn_oor[gid-global_offset], \
+					 t_start, t_stop, v_orn_gna_hh[gid-global_offset], v_orn_gka_hh[gid-global_offset], \
+					 v_orn_gka_cag[gid-global_offset], v_orn_gca_l[gid-global_offset], v_orn_gleak[gid-global_offset],\
+					 v_orn_tau_cadec[gid-global_offset], gid * (pattern_nr+1), \
+					 sniff_period, t_shift_sniff)
+/*                     v_orn_tau_cadec[gid-global_offset], rnd_int.repick() * (pattern_nr+1))*/
+			pnm.register_cell(gid, cell)
+		}
+	}
+}
+
 
 proc create_mit() { local i, gid localobj cell
 	for (i = 0; i < n_mit; i += 1){

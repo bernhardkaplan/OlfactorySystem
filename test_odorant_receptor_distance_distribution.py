@@ -8,9 +8,12 @@ def distance_generator():
 #         1.909487e+01, 1.110809e+01, 3.353855e+00, \
 #         4.188897e+00, 4.088460e+01, 4.966478e-01]
 
-    p = [162.310869565, 6.67080434783, 1.98630434783,\
-          19.8056521739, 10.8089130435, 3.32682608696, \
-           4.4382173913, 40.8932608696, 0.456293478261] # these values are taken from clustering the odorant space with 40 ORs
+#    p = [162.310869565, 6.67080434783, 1.98630434783,\
+#          19.8056521739, 10.8089130435, 3.32682608696, \
+#           4.4382173913, 40.8932608696, 0.456293478261] # these values are taken from clustering the odorant space with 40 ORs
+
+    # fit params obtained from the averaged (normalized by nOR) distance distribution:
+    p = [ 162.796725363 ,  6.67708323673 ,  1.98973030466 ,  19.3388197446 ,  10.853527839 ,  3.3441114626 ,  4.43148000439 ,  40.897695747 ,  0.461489675411]
     w1 = p[0]
     mu1 = p[1]
     sigma1 = p[2]
@@ -106,8 +109,8 @@ ax2.set_ylabel('Normalized count')
 print 'Expected value dist:', expected_value_dist
 
 alpha = 1 * expected_value_dist**2
-#affinities = transform_dist_to_affinity_exp(dist_samples, alpha)
-affinities = transform_dist_to_affinity(dist_samples)
+affinities = transform_dist_to_affinity_exp(dist_samples, alpha)
+#affinities = transform_dist_to_affinity(dist_samples)
 
 count_aff, bins_aff = np.histogram(affinities, bins=200)
 count_norm = count_aff / float(n_samples)

@@ -13,6 +13,7 @@ import MergeSpikefiles
 import SetOfCurvesPlotter
 import numpy as np
 import pylab
+from FigureCreator import plot_params
 
 def wta(d):
     """
@@ -26,7 +27,7 @@ def wta(d):
 
 
 class Plotter(object):
-    def __init__(self, params, pn_max):
+    def __init__(self, params, pn_max, abstract_readout):
 
         self.params = params
         self.Merger = MergeSpikefiles.MergeSpikefiles(params)
@@ -37,12 +38,10 @@ class Plotter(object):
         n_patterns = pn_max
 
         # NSPIKES
-        list_of_winners = np.ones(n_patterns) # list of most active readout cells
-        list_of_winners *= -1
+        list_of_winners = -1 * np.ones(n_patterns) # list of most active readout cells
         activity = np.zeros((params['n_readout'], n_patterns))
         activity_norm = np.zeros((params['n_readout'], n_patterns))
         activity_wta = np.zeros((params['n_readout'], n_patterns))
-
         missing_activity = []
         for pn in xrange(n_patterns):
         #    print "Celltype: %s pattern_nr: %d" % (cell_type, pn)
@@ -72,12 +71,11 @@ class Plotter(object):
                 missing_activity.append(pn)
 
         print "Missing activity of the following %d patterns:" % len(missing_activity), missing_activity
-
         cnt_correct = 0
         incorrect = []
         incorrect_without_silent = []
         for pn in xrange(n_patterns):
-            if (list_of_winners[pn] == pn):
+            if (list_of_winners[pn] == np.argmax(abstract_readout[pn, :])):
                 cnt_correct += 1
             else:
                 incorrect.append(pn)
@@ -122,29 +120,8 @@ class Plotter(object):
         for row in xrange(activity.shape[0]):
             activity_rev[row, :] = activity[n_row - row - 1, :]
 
-        figure_params = {
-                'figure.subplot.bottom': 0.15,
-                'figure.subplot.hspace': 0.5,
-                'figure.subplot.left': 0.125,
-                'figure.subplot.right': 0.90,
-                'figure.subplot.top': 0.90,
-                'figure.subplot.wspace': 0.10,
-                'legend.fontsize' : 8,
-                'backend': 'ps',
-                'axes.labelsize': 20,
-                'text.fontsize': 20,
-                'lines.markersize': 6,
-        #                'lines.linewidth': 3,
-                'xtick.labelsize': 20,
-                'ytick.labelsize': 20,
-                'legend.pad': 0.2,     # empty space around the legend box
-                'legend.fontsize': 12,
-                'font.size': 20,
-                'path.simplify': False
-        #        'figure.figsize': get_figsize(800)
-                }
 
-        pylab.rcParams.update(figure_params)
+        pylab.rcParams.update(plot_params)
 
         fig = pylab.figure()
         ax = fig.add_subplot(111)
@@ -159,8 +136,7 @@ class Plotter(object):
         cb.ax.set_ylabel('Spike rate [Hz]')
         output_fn = params['%s_activity_cmap' % cell_type]
         print "saving ....", output_fn
-        pylab.savefig(output_fn)
-        pylab.savefig(output_fn, dpi=(200))
+        pylab.savefig(output_fn, dpi=(300))
 
         title = "Normalized readout activity "
         activity_norm = activity_norm.transpose()
@@ -171,10 +147,12 @@ class Plotter(object):
         ax.set_ylim((0, activity_norm[:,0].size))
         ax.set_xlim((0, activity_norm[0, :].size))
         ax.set_title(title)
+        ax.set_xlabel('Readout cell')
+        ax.set_ylabel('Pattern number')
         pylab.colorbar(cax)
         output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_normalized.png'
         print "saving ....", output_fn
-        pylab.savefig(output_fn)
+        pylab.savefig(output_fn, dpi=300)
 
         title = "Winner-take-all readout activity"
         activity_wta = activity_wta.transpose()
@@ -185,10 +163,12 @@ class Plotter(object):
         ax.set_ylim((0, activity_wta[:,0].size))
         ax.set_xlim((0, activity_wta[0, :].size))
         ax.set_title(title)
+        ax.set_xlabel('Readout cell')
+        ax.set_ylabel('Pattern number')
         pylab.colorbar(cax)
         output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_wta.png'
         print "saving ....", output_fn
-        pylab.savefig(output_fn)
+        pylab.savefig(output_fn, dpi=300)
         pylab.show()
 
 
@@ -272,7 +252,15 @@ if __name__ == '__main__':
         print 'Plotting all patterns'
         pn_max = params['n_patterns']
 
+    try:
+        fn = sys.argv[2]
+        abstract_readout = np.loadtxt(fn)
+
+    except:
+        print 'Plotting all patterns'
+        abstract_readout = np.eye(pn_max)
+
 #    pn_max = 4
-    P = Plotter(params, pn_max)
+    P = Plotter(params, pn_max, abstract_readout)
 
 

@@ -38,6 +38,157 @@ class CreateOrnParameters(object):
         # a list of lists containing for each row the following parameters:
                 #"gna","gk","gkcag","gcal","gleak_orn", "tau_cadec"]
 
+    def create_pattern_completion_test(self, activation_matrix_fn):
+        """
+        Load the given activation matrix and sample only half of the activation elements 
+        to create the simpler test patterns.
+        """
+        activation_matrix_complex = np.loadtxt(activation_matrix_fn)
+        activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+
+        # take n_active_OR
+        n_active_OR = int(round(self.params['n_or'] * self.params['frac_min_active_OR']))
+
+        for pn in xrange(self.params['n_patterns']):
+            all_activated_ORs = activation_matrix_complex[pn, :].nonzero()[0]
+            remaining_activated_ORs = random.sample(all_activated_ORs, n_active_OR)
+            for OR in remaining_activated_ORs:
+                activation_matrix[pn, OR] = activation_matrix_complex[pn, OR]
+
+        output_fn = self.params['activation_matrix_fn'].rsplit('.')[0] + '_simple_patterns_for_testing.dat'
+        print "Activation matrix fn:", output_fn
+        np.savetxt(output_fn, activation_matrix)
+        for pn in xrange(self.params["n_patterns"]):
+            # calculate the number of receptors activated by the current odorant or pattern
+            for OR in xrange(self.params['n_or']): # equal to a row in the orn array
+                # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                for x in xrange(self.params['n_orn_x']):
+                    orn_id = OR * self.params['n_orn_x'] + x
+                    self.voor[orn_id] = activation #* conc
+            self.set_gor_values()
+            self.set_gna_values()
+            self.set_gk_values()
+            self.set_gkcag_values()
+            self.set_gcal_values()
+            self.set_gleak_values()
+            self.set_tau_cadec_values()
+            output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
+            print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
+            self.write_params_to_file(output_fn)
+
+
+    def create_pattern_completion_training(self, n_active_OR):
+        """
+        Create a number of 'complex' patterns, in which 
+        are activated.
+        """
+       
+        activation_matrix = self.create_activation_matrix_for_pattern_completion_training(n_active_OR)
+        for pn in xrange(self.params["n_patterns"]):
+            # calculate the number of receptors activated by the current odorant or pattern
+            for OR in xrange(self.params['n_or']): # equal to a row in the orn array
+                # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                for x in xrange(self.params['n_orn_x']):
+                    orn_id = OR * self.params['n_orn_x'] + x
+                    self.voor[orn_id] = activation #* conc
+
+            self.set_gor_values()
+            self.set_gna_values()
+            self.set_gk_values()
+            self.set_gkcag_values()
+            self.set_gcal_values()
+            self.set_gleak_values()
+            self.set_tau_cadec_values()
+            output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
+            print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
+            self.write_params_to_file(output_fn)
+        return 1
+
+
+    def create_activation_matrix_for_pattern_completion_training(self, n_active_OR):
+        """
+        Create random patterns with a fixed number of activated OR per pattern
+        --> for pattern completion :
+        n_active_OR = int(round(params['n_or'] * params['frac_max_active_OR']))
+        --> for rivalry:
+        n_active_OR = int(round(params['n_or'] * params['frac_min_active_OR']))
+        """
+        activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+        p1, p2, p3 = self.set_odorant_distribution_params()
+
+        np.random.seed(self.params['seed_activation_matrix'])
+        random.seed(self.params['seed_activation_matrix'])
+        distances = np.zeros((self.params['n_patterns'], self.params['n_or']))
+        for pn in xrange(self.params['n_patterns']):
+            activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
+            while np.unique(activated_ORs).size != n_active_OR:
+                activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
+            for OR in activated_ORs:
+                # draw a random distance from the fitted distance distribution
+                dist = self.odorant_odor_distance_distribution((p1, p2, p3))
+                distances[pn, OR] = dist
+                affinity = np.exp(-(dist)**2 / self.params['distance_affinity_transformation_parameter_exp'])
+                if affinity > 1.:
+                    affinity = 1.
+                if affinity < 0.:
+                    affinity = 0.
+                activation_matrix[pn, OR] = affinity
+
+        if self.params['OR_activation_normalization']:
+            for pn in xrange(self.params['n_patterns']):
+                # this normalization increases the likelihood of having ORs with a high affinity to 
+                # each given pattern --> receptors have specialized to odorants (?)
+                activation_matrix[pn, :] /= activation_matrix[pn, :].max() 
+                if not activation_matrix[pn, :].sum() == 0:
+                    activation_matrix[pn, :] /= activation_matrix[pn, :].sum() 
+                else:
+                    print '\n\tWARNING: activation_matrix.sum for pattern %d == 0\nWill now quit, because that makes no sense' % (pn)
+                    exit(1)
+        print 'Activation matrix sum:', activation_matrix.sum()
+        print "Activation matrix fn:", self.params['activation_matrix_fn']
+        np.savetxt(self.params['activation_matrix_fn'], activation_matrix)
+        return activation_matrix
+
+
+    def create_pattern_rivalry_test(self, activation_matrix_fn):
+        """
+        Load the given activation matrix from the 'training' run and build composite patterns built from the training patterns.
+
+        """
+        simple_activation_matrix = np.loadtxt(activation_matrix_fn)
+        activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+
+        for pn in xrange(self.params['n_patterns'] - 1):
+            activation_matrix[pn, :] = simple_activation_matrix[pn, :] + simple_activation_matrix[pn + 1, :]
+
+        activation_matrix[self.params['n_patterns'] - 1, :] = simple_activation_matrix[self.params['n_patterns'] - 1, :] + simple_activation_matrix[self.params['n_patterns'] - 2, :]
+
+        output_fn = self.params['activation_matrix_fn'].rsplit('.')[0] + '_simple_patterns_for_testing.dat'
+        print "Activation matrix fn:", output_fn
+        np.savetxt(output_fn, activation_matrix)
+        for pn in xrange(self.params["n_patterns"]):
+            # calculate the number of receptors activated by the current odorant or pattern
+            for OR in xrange(self.params['n_or']): # equal to a row in the orn array
+                # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                for x in xrange(self.params['n_orn_x']):
+                    orn_id = OR * self.params['n_orn_x'] + x
+                    self.voor[orn_id] = activation #* conc
+            self.set_gor_values()
+            self.set_gna_values()
+            self.set_gk_values()
+            self.set_gkcag_values()
+            self.set_gcal_values()
+            self.set_gleak_values()
+            self.set_tau_cadec_values()
+            output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
+            print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
+            self.write_params_to_file(output_fn)
+
+
+
 
     def create_conc_invariance_patterns(self, given_activation_matrix=None):
         """
@@ -115,31 +266,12 @@ class CreateOrnParameters(object):
         create_single_odorant_activation_matrix 
         """
         activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
-
-        """
-        Distances are drawn from a tri-modal normal distributions
-        This is done by choosing one of the three possible distributions 
-        according to its probability p_i. 
-        The probability with which one of the normal distributions is chosen 
-        is determined by the respective integral (with respect to the other normal distributions).
-        """
-
-        p = self.params['odorant_receptor_distance_distribution_parameters']
-        dist_range = self.params['odorant_receptor_distance_range']
-        x = np.linspace(dist_range[0], dist_range[1], 1000)
-        A1 = np.array(p[0] * mlab.normpdf(x, p[1], p[2])).sum() # integral of Gauss 1
-        A2 = np.array(p[3] * mlab.normpdf(x, p[4], p[5])).sum() # integral of Gauss 2
-        A3 = np.array(p[6] * mlab.normpdf(x, p[7], p[8])).sum() # integral of Gauss 3
-        p1 = A1 / (A1 + A2 + A3)
-        p2 = A2 / (A1 + A2 + A3)
-        p3 = A3 / (A1 + A2 + A3)
-
-        eps = 1e-12
+        p1, p2, p3 = self.set_odorant_distribution_params()
         np.random.seed(self.params['seed_activation_matrix'])
         random.seed(self.params['seed_activation_matrix'])
         distances = np.zeros((self.params['n_patterns'], self.params['n_or']))
-        n_min_active_OR = self.params['n_or'] * self.params['frac_min_active_OR']
-        n_max_active_OR = self.params['n_or'] * self.params['frac_max_active_OR']
+        n_min_active_OR = int(round(self.params['n_or'] * self.params['frac_min_active_OR']))
+        n_max_active_OR = int(round(self.params['n_or'] * self.params['frac_max_active_OR']))
         n_above_thresh = np.zeros(self.params['n_patterns']) # number of glomeruli expected to get an activation larger than thresh
         thresh = 0.01
         for pn in xrange(self.params['n_patterns']):
@@ -147,31 +279,19 @@ class CreateOrnParameters(object):
             activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
             while np.unique(activated_ORs).size != n_active_OR:
                 activated_ORs = random.sample(range(self.params['n_or']), n_active_OR)
-#            activated_ORs = range(self.params['n_or'])
-#            print 'In pattern %d, %d ( = %.2f percent of the ORs are activated)' % (pn, n_active_OR, float(n_active_OR) / self.params['n_or'] * 100.)
             for OR in activated_ORs:
-#            for OR in xrange(self.params['n_or']):
-                # draw a random distance from the fitted distance distribution
                 dist = self.odorant_odor_distance_distribution((p1, p2, p3))
                 distances[pn, OR] = dist
-#                affinity = 1. / (dist + 1.)
-#                affinity = (1. / dist)**2
-#                affinity = np.exp(-dist * self.params['distance_affinity_transformation_parameter_exp'])
                 affinity = np.exp(-(dist)**2 / self.params['distance_affinity_transformation_parameter_exp'])
-#            return np.exp(-(dist)**2 / alpha)
-                affinity -= self.params['distance_affinity_transformation_parameter']
                 if affinity > 1.:
                     affinity = 1.
                 if affinity < 0.:
                     affinity = 0.
-#                print 'DEBUG pn %d OR %d \tdist = %.6f\taffinity = %.6f' % (pn, OR, dist, affinity)
                 activation_matrix[pn, OR] = affinity
                 n_above_thresh[pn] = (activation_matrix[pn ,:] > thresh).nonzero()[0].size
 
         print 'ActivationMatrix: per pattern number of activated glom: mean %.2f +- %.2f, \t%.2f +- %.2f percent' % (n_above_thresh.mean(), n_above_thresh.std(), \
                 (n_above_thresh.mean() / float(self.params['n_or'])) * 100., (n_above_thresh.std() / float(self.params['n_or'])) * 100.)
-#        print 'Distances.mean:', distances.mean()
-#        print 'Distances.median:', np.median(distances)
 
         if self.params['OR_activation_normalization']:
             for pn in xrange(self.params['n_patterns']):
@@ -258,6 +378,25 @@ class CreateOrnParameters(object):
         print 'Saving modified activation matrix to:', self.params['activation_matrix_fn_conc_inv']
         return new_activation_matrix
 
+
+    def set_odorant_distribution_params(self):
+        """
+        Distances are drawn from a tri-modal normal distributions
+        This is done by choosing one of the three possible distributions 
+        according to its probability p_i. 
+        The probability with which one of the normal distributions is chosen 
+        is determined by the respective integral (with respect to the other normal distributions).
+        """
+        p = self.params['odorant_receptor_distance_distribution_parameters']
+        dist_range = self.params['odorant_receptor_distance_range']
+        x = np.linspace(dist_range[0], dist_range[1], 1000)
+        A1 = np.array(p[0] * mlab.normpdf(x, p[1], p[2])).sum() # integral of Gauss 1
+        A2 = np.array(p[3] * mlab.normpdf(x, p[4], p[5])).sum() # integral of Gauss 2
+        A3 = np.array(p[6] * mlab.normpdf(x, p[7], p[8])).sum() # integral of Gauss 3
+        p1 = A1 / (A1 + A2 + A3)
+        p2 = A2 / (A1 + A2 + A3)
+        p3 = A3 / (A1 + A2 + A3)
+        return p1, p2, p3
 
 
     def odorant_odor_distance_distribution(self, which_gauss):

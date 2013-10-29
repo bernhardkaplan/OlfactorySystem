@@ -2,6 +2,7 @@ import pylab
 import numpy as np
 import sys
 import os
+from FigureCreator import plot_params
 
 def get_mean_max_min_median(d):
     print 'In row   mean    max     min     mean of smallest 10 percent   median'
@@ -110,7 +111,7 @@ if __name__ == '__main__':
 #    thresh = -1.5
 #    get_units_above_thresh(data, thresh)
 
-    plot_wta(data)
+#    plot_wta(data)
 #    plot_hist(data, n_bins=40)
     print 'Sum of all elements:', data.sum()
 #    for OR in xrange(0, 5):
@@ -143,6 +144,7 @@ if __name__ == '__main__':
     #    data_rev[n_row - row, :] = data[row, :]
 
 
+    pylab.rcParams.update(plot_params)
     fig = pylab.figure()
     ax = fig.add_subplot(111)
     print "plotting ...."

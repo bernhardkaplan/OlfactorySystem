@@ -185,7 +185,7 @@ class MDSVQ(object):
         # avoid empty clusters, i.e. no target unit should be without a source
         n_empty_hc = 1
         kmeans_trial = 0
-        while n_empty_hc != 0:
+        while (n_empty_hc != 0) and (kmeans_trial < 1000):
             print 'Running kmeans ...'
             if (type(n_clusters_or_guess) == type(np.array([]))):
                 n_clusters = n_clusters_or_guess[:, 0].size
@@ -207,7 +207,11 @@ class MDSVQ(object):
                 count_projections_to_tgt = 0
                 units_projecting_to_hc = (hc == code).nonzero()[0]
                 if os.path.exists(remove_silent_cells_fn):
-                    silent_mits = np.loadtxt(remove_silent_cells_fn)
+                    silent_mits = np.loadtxt(remove_silent_cells_fn).tolist()
+#                    print 'debug units_projecting_to_hc', units_projecting_to_hc
+#                    print 'debug silent_mits', silent_mits, type(silent_mits), len(silent_mits)
+                    if type(silent_mits) == type(.1): # it's only one silent mitral cell
+                        silent_mits = [silent_mits]
                     n_units_without_silent = len(set(units_projecting_to_hc).difference(silent_mits))
                 else:
                     n_units_without_silent = units_projecting_to_hc.size
@@ -374,6 +378,9 @@ class MDSVQ(object):
 
         if (remove_silent_cells_fn):
             silent_mits = np.loadtxt(self.params['silent_mit_fn'])
+            if silent_mits.size == 1:
+                silent_mits = silent_mits.tolist() # this returns a float for some reason ...
+                silent_mits = [silent_mits]
         else:
             silent_mits = []
 
@@ -391,7 +398,6 @@ class MDSVQ(object):
             for pattern in xrange(n_patterns):
                 # mask only the mitral cells projecting to the hc (src_mits)
                 activity_space[pattern, :] = ob_activity[pattern, :].take(src_mit)
-            print 'DEBUG sum in activity_space', activity_space.sum()
 
             if (optional_mds):
                 mit_coords_fn = self.params['mit_response_space_fn_base']

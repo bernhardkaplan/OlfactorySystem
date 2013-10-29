@@ -146,7 +146,7 @@ if __name__ == '__main__':
             # cluster_odorant_space.py
             data_fn = "%s%d_%d.dat" % (filter_fn, n_cluster, i) 
             d = np.loadtxt(folder + "/" +  data_fn)
-            d = d.flatten() # we want to count affinities between all OR and all odorants
+            d = d.flatten() # we want to count distances between all OR and all odorants
             # convert x-axis to affinity
             if dist_or_aff == 'Affinity':
                 d_ = 1. / d

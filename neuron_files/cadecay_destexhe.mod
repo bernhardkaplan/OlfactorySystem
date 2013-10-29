@@ -17,7 +17,7 @@ TITLE Fast mechanism for submembranal Ca++ concentration (cai)
 :	- kt,kd: dummy parameters
 :
 : Written by Alain Destexhe, Salk Institute, 1995
-:
+: Model-DB number Accession: 279
 
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 

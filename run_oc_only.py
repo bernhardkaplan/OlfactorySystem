@@ -21,6 +21,7 @@ def add_first_line(pn):
     fn = params['mit_spiketimes_merged_fn_base'] + '%d.dat' % pn
     fn_out = params['mit_spiketimes_merged_fn_base'] + 'for_neuron_%d.dat' % pn
     print 'Loading', fn
+    assert (os.path.exists(fn)), 'File not found: %s\n\tHave you merged the files before?' % fn
     d = np.loadtxt(fn)
     n_row, n_col = d.shape[0], d.shape[1]
     # read the current contents of the file
