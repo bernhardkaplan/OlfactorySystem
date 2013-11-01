@@ -31,12 +31,12 @@ class parameter_storage(object):
         self.params['with_artificial_orns'] = 0
         
         self.params['Cluster'] = 1
-        self.params['concentration_sweep'] = 1
+        self.params['concentration_sweep'] = 0
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
-        self.params['with_oc_oc_rec'] = 1
-        self.params['oc_only'] = False
+        self.params['with_oc_oc_rec'] = 0
+        self.params['oc_only'] = True
 
         # parameters to test / train concentration invariance
         self.params['concentration_invariance'] = 0 # if 1: selected patterns are presented at different concentrations
@@ -45,7 +45,7 @@ class parameter_storage(object):
         self.params['conc_inv_modifier'] = .2
 
         # parameters to test / train concentration invariance
-        self.params['pattern_completion'] = 0
+        self.params['pattern_completion'] = 1
         self.params['train_pattern_completion'] = 0
         self.params['test_pattern_completion'] = not (self.params['train_pattern_completion'])
 
@@ -68,7 +68,7 @@ class parameter_storage(object):
 #            self.params['n_patterns'] = 150
         self.params['OR_affinity_noise'] = 0.00
 
-        self.params['frac_ORs_incomplete_patterns'] = .8
+        self.params['frac_ORs_incomplete_patterns'] = 1.0
         # In order to test the pattern completion capability of the system, we made the odor patterns sparser in several steps
         # for each pattern this fraction of previously activated ORs are active.
 
@@ -566,11 +566,12 @@ class parameter_storage(object):
 
         if self.params['pattern_completion']:
             if self.params['test_pattern_completion'] and not self.params['oc_only']:
-                folder_name = 'PatternCompletionTestPostLearningWithSniff_fOR%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+                folder_name = 'PatternCompletionTestNoRecWithSniff_fOR%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
                         self.params['frac_ORs_incomplete_patterns'], self.params['n_or'], \
                         self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
             elif self.params['test_pattern_completion'] and self.params['oc_only']:
-                folder_name = 'PatternCompletionComplexPatternsPostLearningWithSniff_fOR%.2f_anGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+#                folder_name = 'PatternCompletionComplexPatternsPostLearningWithSniff_fOR%.2f_anGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+                folder_name = 'PatternCompletionTestNoRecWithSniff_fOR%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
                         self.params['frac_ORs_incomplete_patterns'], self.params['n_or'], \
                         self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
@@ -585,7 +586,7 @@ class parameter_storage(object):
                         self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
     
                     
-        folder_name = 'SniffinORNs'
+#        folder_name = 'SniffinORNs'
 #        folder_name = 'ORnoise%.2f_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['OR_affinity_noise'], self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
         

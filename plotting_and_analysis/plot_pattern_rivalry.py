@@ -101,13 +101,16 @@ class Plotter(object):
             return
 
         assert self.pyr_pattern_map_loaded, 'Please call either create_pyr_pattern_map or load_pyr_pattern_map before plotting'
-        spiking_cells = np.unique(d[:, 1])
+        if d.size == 2:
+            print 'Found only one spike in file %s \nIf there was a problem when merging them, delete the empty one and rerun' % (fn)
+            return 
         color_map = {}
         color_0 = 'b' # color if cell has only been active in the first pattern
         color_1 = 'r' # color if cell has only been active in the second
         color_2 = 'k' # color if cell has only been active in both patterns
         color_3 = '#A6A6A6' # color if cell has been active in none of the two
 
+        spiking_cells = np.unique(d[:, 1])
         for gid in spiking_cells:
             idx = (d[:, 1] == gid).nonzero()[0]
             st = d[idx, 0]
@@ -128,7 +131,7 @@ class Plotter(object):
 #                print 'gid %d active during test pattern %d %d times and training patterns' % (gid, st.size, pn_0), self.pyr_pattern_map[kid]
                 c = color_3
                 alpha = .4
-            ax.plot(st, y, 'o', markersize=3, markeredgewidth=.0, c=c, alpha=alpha)
+            ax.plot(st, y, 'o', markersize=4, markeredgewidth=.0, c=c, alpha=alpha)
 
         ax.set_title(title)
         ax.set_xlim((0, self.params['t_sim']))
@@ -148,7 +151,7 @@ class Plotter(object):
 #        ax.set_title(title)
 
         ax.set_xlabel('Time [ms]')
-        ax.set_ylabel('%s cell GID' % self.cell_type.capitalize())
+#        ax.set_ylabel('%s cell GID' % self.cell_type.capitalize())
 
 #        ax.set_ylim((0 + self.params['%s_offset' % self.cell_type], self.params['n_%s' % self.cell_type] + self.params['%s_offset' % self.cell_type]))
 #        ylabels = ax.get_yticklabels()
@@ -180,9 +183,9 @@ if __name__ == '__main__':
 #    assert (len(sys.argv) > 1), 'ERROR: pattern numbers not given\n' + info_txt
 #    pn_0 = int(sys.argv[1])
 
-#    training_folder = 'Cluster_OcOcLearning_nGlom40_nHC12_nMC30_vqOvrlp4_np50_OcOnly/'
+    training_folder = 'Cluster_OcOcLearning_nGlom40_nHC12_nMC30_vqOvrlp4_np50_OcOnly/'
     # for ORN you need to have the actual ORN spikes
-    training_folder = 'Cluster_SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1_OcOnly/'
+#    training_folder = 'Cluster_SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1_OcOnly/'
 
 #    plot_folder = 'Cluster_PatternRivalryTestPostLearningWithSniff2_ORnoise0.00_nGlom40_nHC12_nMC30_vqOvrlp4_np50_FullSystem/' #Spiketimes/pyr_spiketimes_merged_0.dat
     plot_folder = 'Cluster_PatternRivalryMorphingPLWithSniff_wRsnpPyr3.0e-03_ORnoise0.00_nGlom40_nHC12_nMC30_vqOvrlp4_np350_FullSystem/'
@@ -197,8 +200,8 @@ if __name__ == '__main__':
     cell_type = sys.argv[1]
 #    cell_type = 'pyr'
 #    n_morph_sets = 2
-    morph_set_start = 2
-    morph_set_stop = 4
+    morph_set_start = 15
+    morph_set_stop = 16
     nspike_thresh = 1
 
     pn_max = training_params['n_patterns']
@@ -207,7 +210,8 @@ if __name__ == '__main__':
 #    P.save_pyr_pattern_map(training_params['other_folder'] + '/%s_pattern_map.json' % cell_type)
     P.load_pyr_pattern_map(training_params['other_folder'] + '/%s_pattern_map.json' % cell_type)
 
-    plot_params['figure.subplot.left'] = .15
+    plot_params['figure.subplot.left'] = .10
+    plot_params['figure.subplot.right'] = .96
     pylab.rcParams.update(plot_params)
 
     pn_per_set = len(params['rivalry_morph_stages'])
@@ -221,8 +225,8 @@ if __name__ == '__main__':
             fn = params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn_morph) + '.dat'
             pn_0 = morph_set
             pn_1 = (morph_set + 1) % params['n_patterns_test_rivalry']
-            P.plot_raster(params, fn, ax, pn_morph, pn_0, pn_1, title='pattern mixture: $%.1f \cdot$B + $%.1f\cdot$R' % \
-                    (params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1.)
+            P.plot_raster(params, fn, ax, pn_morph, pn_0, pn_1, title='%s spikes for mixture: $%.1f \cdot$B + $%.1f\cdot$R' % \
+                    (cell_type.capitalize(), params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1.)
 #                    (params['rivalry_morph_stages'][pn_in_set], pn_morph - 1, params['rivalry_morph_stages'][-pn_in_set], pn_morph), alpha=1.)
             output_fig = params['figure_folder'] + '/rivalry_raster_%s_pn%d.png' % (cell_type, pn_morph)
             print 'Saving:', output_fig

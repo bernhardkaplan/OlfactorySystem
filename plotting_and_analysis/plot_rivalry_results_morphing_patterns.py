@@ -77,6 +77,7 @@ class Plotter(object):
         y_data[:, 0, 2] = .0
         y_data[:, -1, 2] = .0
 
+        pylab.rcParams.update(plot_params)
         fig = pylab.figure()
         ax = fig.add_subplot(111)
 #        for pn in xrange(n_patterns):
@@ -86,7 +87,8 @@ class Plotter(object):
 
 #        fig2 = pylab.figure()
 #        ax2 = fig2.add_subplot(111)
-        subset = [0]
+
+        subset = []
         for pn in subset:
             ax.plot(x_axis, y_data[pn, :, 0], '-', color='b')
             ax.plot(x_axis, y_data[pn, :, 1], '-', color='r')
@@ -107,11 +109,13 @@ class Plotter(object):
         # left blue
         avg_curve[0, 0, 0] = 0.
         # right blue
-        avg_curve[-1, 0, 0] = 100. #1.
+        avg_curve[-1, 0, 0] = 59.1 
+        avg_curve[-1, 1, 0] = 22.74 / np.sqrt(50)
 
         # RED
         # left red
-        avg_curve[0, 0, 1] = 100.
+        avg_curve[0, 0, 1] = 59.1 
+        avg_curve[0, 1, 1] = 22.74 / np.sqrt(50)
         # right blue
         avg_curve[-1, 0, 1] = 0.
 
@@ -122,6 +126,18 @@ class Plotter(object):
         ax.errorbar(x_axis, avg_curve[:, 0, 0], yerr=avg_curve[:, 1, 0], lw=5, color='b')
         ax.errorbar(x_axis, avg_curve[:, 0, 1], yerr=avg_curve[:, 1, 1], lw=5, color='r')
         ax.errorbar(x_axis, avg_curve[:, 0, 2], yerr=avg_curve[:, 1, 2], lw=5, color='k')
+
+        ax.set_xlabel('Fraction of pattern B')
+        ax.set_ylabel('Mean number of output spikes')
+
+        output_fn = self.params['figure_folder'] + '/rivalry_morphing.pdf'
+        print "saving ....", output_fn
+        pylab.savefig(output_fn, dpi=300)
+
+        output_fn = self.params['figure_folder'] + '/rivalry_morphing.png'
+        print "saving ....", output_fn
+        pylab.savefig(output_fn, dpi=300)
+
 
 
     def load_spikes(self):

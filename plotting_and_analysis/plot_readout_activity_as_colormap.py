@@ -48,6 +48,7 @@ class Plotter(object):
         activity = np.zeros((n_readout, n_patterns))
         activity_norm = np.zeros((n_readout, n_patterns))
         activity_wta = np.zeros((n_readout, n_patterns))
+        mean_activity = np.zeros(n_patterns)
         missing_activity = []
         for pn in xrange(n_patterns):
         #    print "Celltype: %s pattern_nr: %d" % (cell_type, pn)
@@ -70,12 +71,14 @@ class Plotter(object):
                         activity[index, pn] = (d[i, 1] / params['t_sim']) * 1000.
                 most_active_neuron = activity[:, pn].argmax() 
                 list_of_winners[pn] = most_active_neuron
+                mean_activity[pn] = activity[most_active_neuron, pn]
 #                print 'most active neuron in pattern %d is %d' % (pn, most_active_neuron)
 
             except:
                 print "Missing activity for pn %d from file %s" % (pn, fn)
                 missing_activity.append(pn)
 
+        print 'Mean activity of winner neurons:', mean_activity.mean(), mean_activity.std()
         print "Missing activity of the following %d patterns:" % len(missing_activity), missing_activity
         cnt_correct = 0
         incorrect = []
@@ -96,7 +99,7 @@ class Plotter(object):
         #exit(1)
 
         print 'Missing patterns', missing_activity
-#        print "Number correctly recognized patterns: %d / %d = %.2f percent (%.2f percent when silent are not counted)" % (cnt_correct, n_patterns, (cnt_correct / float(n_patterns)) * 100., (cnt_correct / float(n_patterns - len(missing_activity))) * 100.)
+        print "Number correctly recognized patterns: %d / %d = %.2f percent (%.2f percent when silent are not counted)" % (cnt_correct, n_patterns, (cnt_correct / float(n_patterns)) * 100., (cnt_correct / float(n_patterns - len(missing_activity))) * 100.)
         print "Incorrectly recognized patterns: ", len(incorrect), incorrect
         print "Incorrectly recognized patterns without silent: ", len(incorrect_without_silent), incorrect_without_silent
 
@@ -264,22 +267,21 @@ if __name__ == '__main__':
         print 'Plotting all patterns'
         pn_max = params['n_patterns']
 
-    params['concentration_invariance'] = 1
+#    params['concentration_invariance'] = 0
     print 'concentration_invariance:', params['concentration_invariance']
-#    try:
-#        fn = sys.argv[2]
-#        abstract_readout = np.loadtxt(fn)
-
-#    except:
-#    print 'Plotting all patterns'
-#    readout_activation = np.eye(pn_max)
-#    if params['concentration_invariance']:
-    readout_activation = np.zeros((params['n_readout'], params['n_patterns']))
-    row = 0 
-    for readout_idx in xrange(params['n_patterns_test_conc_inv']):
-        for conc_ in xrange(params['n_conc_check']):
-            readout_activation[row, readout_idx] = 1.
-            row += 1
+    try:
+        fn = sys.argv[2]
+        abstract_readout = np.loadtxt(fn)
+    except:
+        print 'Plotting all patterns'
+        readout_activation = np.eye(pn_max)
+        if params['concentration_invariance']:
+            readout_activation = np.zeros((params['n_readout'], params['n_patterns']))
+            row = 0 
+            for readout_idx in xrange(params['n_patterns_test_conc_inv']):
+                for conc_ in xrange(params['n_conc_check']):
+                    readout_activation[row, readout_idx] = 1.
+                    row += 1
 
 #    pn_max = 4
     P = Plotter(params, pn_max, readout_activation)

@@ -228,6 +228,13 @@ class BCPNN(object):
             else:
                 self.post_activity[pn, post] = 0
 
+            # NEW
+            for pre_hc_0 in xrange(self.n_hc_in):
+                pre_mc_0 = pre_hc_0 * self.n_mc_in
+                pre_mc_1 = (pre_hc_0 + 1) * self.n_mc_in
+                from_hc = np.sum(self.w_ij[pre_mc_0:pre_mc_1, post] * pre_activity[pre_mc_0:pre_mc_1])
+                # what if from_hc == 0 ????
+
 
 #            print 'debug pn %d post %d in_j %.5e' % (pn, post, in_j.sum())
 #            if in_j.sum() != 0:

@@ -25,7 +25,7 @@ class SetOfCurvesPlotter(object):
         if cell_type == 'orn':
             n_per_group = self.params['rel_orn_mit']
             shared_param_idx = 3
-            x_idx = 2
+            x_idx = 2 # 1 = oor, 2 = c/Kd
         else:
             n_per_group = 1
             shared_param_idx = 4
@@ -56,13 +56,14 @@ class SetOfCurvesPlotter(object):
                 labels.append('%d' % color_group_idx)
             else:
                 ax.plot(x_data[i_], y_data[i_], label='%d' % i_, lw=lw)
-            ax.set_xscale('log')
+#            ax.set_xscale('log')
 
         for group in xrange(len(y_avg)):
             color = colorlist[group % len(colorlist)]
             ax.errorbar(x_data[0], y_avg[group], yerr=y_std[group], c=color, lw=4)
 
         ax.set_title('%s response curves' % cell_type.upper())
+
         ax.set_xlabel('Concentration [a.u.]')
         ax.set_ylabel('Output rate [Hz]')
 #        ax.legend(plots, labels, {'legend.loc' : 'upper left', 'legend.fontsize':8})
@@ -70,6 +71,8 @@ class SetOfCurvesPlotter(object):
             ax.legend(plots, labels, loc='upper left')
 
         ax.set_ylim((0, ax.get_ylim()[1]))
+        ax.set_xlim((1e-2, 1.))
+
         self.ax = ax
         if output_fn != None:
             pylab.savefig(output_fn)

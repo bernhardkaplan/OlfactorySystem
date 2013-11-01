@@ -38,9 +38,9 @@ else:
 sim_cnt = 0
 SOCP = SetOfCurvesPlotter.SetOfCurvesPlotter(params)
 if cell_type == 'mit':
-    output_fn = params['figure_folder'] + '/ob_response_curve_%d.pdf' % sim_cnt
+    output_fn = params['figure_folder'] + '/ob_response_curve_%d.png' % sim_cnt
 else:
-    output_fn = params['figure_folder'] + '/epth_response_curve_%d.pdf' % sim_cnt
+    output_fn = params['figure_folder'] + '/epth_response_curve_%d.png' % sim_cnt
 SOCP.plot_set_of_curves(pn=sim_cnt, output_fn=output_fn, cell_type=cell_type)
 #import pylab
 #pylab.show()

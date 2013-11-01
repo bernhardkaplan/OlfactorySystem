@@ -23,21 +23,31 @@ def plot_raster(params, fn, ax, pn, title='', color='k', alpha=1.):
     data = np.loadtxt(fn)
     assert (data.size > 0), 'ERROR file %s has 0 size\nIf there was a problem when merging them, delete the empty one and rerun' % (fn)
 
-    ax.plot(data[:,0], data[:,1], 'o', markersize=2, markeredgewidth=.0, color=color, alpha=alpha)
+    ax.plot(data[:,0], data[:,1], 'o', markersize=5, markeredgewidth=.0, color=color, alpha=alpha)
     ax.set_xlim((0, params['t_sim']))
     ax.set_title(title)
     ax.set_xlabel('Time [ms]')
-    ax.set_ylabel('Cell GID')
+#    ax.set_ylabel('Cell GID')
 
-    ax.set_ylim((0 + params['%s_offset' % cell_type], params['n_%s' % cell_type] + params['%s_offset' % cell_type]))
     ylabels = ax.get_yticklabels()
     yticks = ax.get_yticks()
     new_ylabels = []
-    for i_, y in enumerate(yticks[1:]):
-        new_ylabels.append('%d' % (y - 72000))
+    for i_, y in enumerate(yticks[0:]):
+#    for i_, y in enumerate(yticks[1:]):
+        new_ylabels.append('%d' % (y - params['%s_offset' % cell_type]))
         
+    ax.set_ylim((-1 + params['%s_offset' % cell_type], params['n_%s' % cell_type] + params['%s_offset' % cell_type] + 1))
     if len(new_ylabels) > 0:
         ax.set_yticklabels(new_ylabels)
+
+    xlabels = ax.get_xticklabels()
+    xticks = ax.get_xticks()
+    new_xlabels = ['']
+    for i_, x in enumerate(xticks[1:-1]):
+#    for i_, x in enumerate(xticks[1:]):
+        new_xlabels.append('%d' % x)
+    new_xlabels.append('')
+    ax.set_xticklabels(new_xlabels)
 
 
 def get_sniff_amplitude(x, tstart, tstop, T, t_shift, amp):
@@ -94,21 +104,24 @@ if __name__ == '__main__':
         training_fn = training_params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn) + '.dat'
         test_fn = params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn) + '.dat'
 
-        plot_params['figure.subplot.left'] = .15
+        plot_params['figure.subplot.left'] = .08
+        plot_params['figure.subplot.right'] = .98
         pylab.rcParams.update(plot_params)
         fig = pylab.figure()
         ax = fig.add_subplot(111)
 
         color_0 = '#A6A6A6'
-        color_1 = 'k'
-        title = 'Pattern completion test pattern %d' % (pn)
-        plot_raster(training_params, training_fn, ax, pn, title=title, color=color_0, alpha=0.8)
+        color_1 = 'b'
+#        title = 'Pattern completion test pattern %d' % (pn)
+#        title = 'MT spikes'
+        title = '%s spikes ' % (cell_type.capitalize())
+        plot_raster(training_params, training_fn, ax, pn, title=title, color=color_0, alpha=0.9)
         plot_raster(params, test_fn, ax, pn, title=title, color=color_1, alpha=1.)
-        plot_sniff_input(params, ax)
+#        plot_sniff_input(params, ax)
 
         output_fn = params['figure_folder'] + '/' + 'competion_raster_%s_%d.png' % (cell_type, pn)
         print 'Saving figure to', output_fn
         pylab.savefig(output_fn, dpi=(300))
 
-#    pylab.show()
+    pylab.show()
 

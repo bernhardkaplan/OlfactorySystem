@@ -80,7 +80,7 @@ class Plotter(object):
         return d_out
 
 
-    def get_units_above_thresh(self, activity, thresh=.05):
+    def get_units_above_thresh(self, activity, thresh=.02):
         """
         Returns an array with the units above a certain threshold in activity.
         activity 
@@ -88,6 +88,8 @@ class Plotter(object):
 
         n_patterns = activity.shape[0]
         n_units = activity.shape[1]
+#        activity_thresh = thresh * np.mean(activity)
+#        activity_thresh = 1.
         activity_thresh = thresh * np.max(activity)
         print 'activity_thresh:', activity_thresh
         n_active_units_per_pattern = np.zeros(n_patterns)
@@ -101,10 +103,11 @@ class Plotter(object):
             print 'n above thresh in pn %d: \t%d' % (pn, idx.size)
             print 'Average activity in pn %d: %.2f +- %.2f' % (pn, avg_activity_per_pattern[pn, 0], avg_activity_per_pattern[pn, 1])
 
+        print 'Average firing rate for all patterns: %.2f +- %.2f' % (avg_activity_per_pattern[:, 0].mean() / self.params['t_sim'] * 1000., avg_activity_per_pattern[:, 1].mean() / self.params['t_sim'] * 1000.)
         n_active_patterns = np.zeros(n_units)
         for unit in xrange(n_units):
             idx = (activity[:, unit] > activity_thresh).nonzero()[0]
-            print 'unit %d is %d times above thresh' % (unit, idx.size), idx
+#            print 'unit %d is %d times above thresh' % (unit, idx.size), idx
             n_active_patterns[unit] = idx.size
 
         n_active_at_least_once = (n_active_patterns > 0).nonzero()[0].size
@@ -120,7 +123,7 @@ class Plotter(object):
         print 'Number of units more active than once: %d ~ %.2f percent' % (n_active_more_than_once, n_active_more_than_once / float(n_units) * 100.)
         print 'Number of units more active than twice: %d ~ %.2f percent' % (n_active_more_than_twice, n_active_more_than_twice / float(n_units) * 100.)
         print 'Number of units more active than threetimes: %d ~ %.2f percent' % (n_active_more_than_threetimes, n_active_more_than_threetimes / float(n_units) * 100.)
-        print 'Threshold is %.2e, absolute value: %.2f' % (thresh, activity_thresh)
+        print 'Threshold is %.2e, absolute value: %.2f spikes' % (thresh, activity_thresh)
 
 
 

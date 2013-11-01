@@ -84,6 +84,12 @@ if __name__ == '__main__':
         # if you want to test on complex patterns, which are a composite of 'simpler' patterns with which the system has
         # been trained, then set oc_only to False!
         if params['oc_only']:
+            cmd = 'cp %s/Connections/* %s' % (training_folder, params['conn_folder'])
+            print cmd
+            os.system(cmd)
+            cmd = 'cp %s/Parameters/* %s' % (training_folder, params['params_folder'])
+            print cmd
+            os.system(cmd)
             # run with the mitral cell activity that is stored in training_folder
             cmd = 'cp %s/Spiketimes/mit_spiketimes_merged_* %s' % (training_folder, params['spiketimes_folder'])
             print cmd
