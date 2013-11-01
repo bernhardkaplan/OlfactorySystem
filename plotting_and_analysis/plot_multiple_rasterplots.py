@@ -10,6 +10,7 @@ import pylab
 import MergeSpikefiles
 from FigureCreator import plot_params
 import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 def plot_raster_for_celltype(params, ax, cell_type, pn, title='', show=True, color='k', alpha=1.):
     print 'Loading Spikes from:', params['%s_spikes_merged_fn_base' % cell_type]
@@ -23,7 +24,7 @@ def plot_raster_for_celltype(params, ax, cell_type, pn, title='', show=True, col
     data = np.loadtxt(fn)
     assert (data.size > 0), 'ERROR file %s has 0 size\nIf there was a problem when merging them, delete the empty one and rerun' % (fn)
 
-    ax.plot(data[:,0], data[:,1], 'o', markersize=2, markeredgewidth=.0, color=color, alpha=alpha)
+    ax.plot(data[:,0], data[:,1], 'o', markersize=5, markeredgewidth=.0, color=color, alpha=alpha)
     ax.set_xlim((0, params['t_sim']))
     ax.set_title(title)
     ax.set_xlabel('Time [ms]')
@@ -32,16 +33,19 @@ def plot_raster_for_celltype(params, ax, cell_type, pn, title='', show=True, col
     ax.set_ylim((0 + params['%s_offset' % cell_type], params['n_%s' % cell_type] + params['%s_offset' % cell_type]))
     ylabels = ax.get_yticklabels()
     yticks = ax.get_yticks()
-    print 'yticks', yticks
     new_ylabels = []
     for i_, y in enumerate(yticks[1:]):
-        print 'y type', y, type(y)
         new_ylabels.append('%d' % (y - 72000))
-        
-    if len(new_ylabels) > 0:
-        print 'new_ylabels', new_ylabels
-        ax.set_yticklabels(new_ylabels)
 
+#    ax.set_xticklabels
+
+#    output_fn = params['figure_folder'] + '/' + 'rasterplot_%s_%d.png' % (cell_type, pn)
+#    print 'Saving figure to', output_fn
+#    pylab.savefig(output_fn, dpi=(400))
+
+        
+#    if len(new_ylabels) > 0:
+#        ax.set_yticklabels(new_ylabels)
 #    if cell_type == 'pyr':
 #        for mc in xrange(params['n_mc'] * params['n_hc']):
 #            idx0 = params['pyr_offset'] + mc * params['n_pyr_per_mc']
@@ -49,9 +53,20 @@ def plot_raster_for_celltype(params, ax, cell_type, pn, title='', show=True, col
 #            ax.plot((0, params['t_sim']), (idx0, idx0), ls='-', c='k', alpha=.2)
 #            ax.plot((0, params['t_sim']), (idx1, idx1), ls='-', c='k', alpha=.2)
 
-    output_fn = params['figure_folder'] + '/' + 'rasterplot_%s_%d.png' % (cell_type, pn)
-    print 'Saving figure to', output_fn
-    pylab.savefig(output_fn, dpi=(400))
+
+def plot_raster_grid(params, pn_min, pn_max, cell_type):
+
+    fig = pylab.figure(figsize=(16, 8))
+    n_fig_x = pn_max - pn_min
+    grid = ImageGrid(fig, 111, nrows_ncols=(1, n_fig_x), axes_pad=0.1)#, aspect=(1, 2))
+
+    w, h = 1. / (n_fig_x), 1.
+    for i_, pn in enumerate(xrange(pn_min, pn_max)):
+        plot_raster_for_celltype(params, grid[pn], cell_type, pn)
+        print 'get axes', grid[pn].set_aspect(.1, 'box-forced')
+        pos = [float(i_) / n_fig_x, .1, 1, h]
+        grid[pn].set_position(pos)
+        print 'pos', grid[pn].properties()['position']
 
 
 
@@ -80,11 +95,17 @@ if __name__ == '__main__':
 
 
     plot_params['figure.subplot.left'] = .15
+    plot_params['figure.subplot.top'] = .85
     pylab.rcParams.update(plot_params)
+
+#    plot_raster_grid(params, pn_0, pn_max, cell_type)
+
 #    figsize = (12, 9)
 #    fig = pylab.figure(figsize=figsize)
+
     fig = pylab.figure()
     ax = fig.add_subplot(111)
+
 #    pylab.subplots_adjust(left=.2)
 
 
@@ -93,14 +114,16 @@ if __name__ == '__main__':
     colorlist = ['k', '#0EC5FF', 'r', '#0AC800', 'c', 'm']
     for i_, pn in enumerate(range(pn_0, pn_max)):
         print 'Plotting raster for %s pattern %d ' % (cell_type, pn)
-#        c = cm.spectral(i_/ float(pn_max - pn_0), 1)
-#        c = list(c)
-#        alpha = (1. - .3 * i_ / float(pn_max - pn_0))
+        c = cm.jet(i_/ float(pn_max - pn_0 - 1), 1)
+        c = cm.brg(.5 * i_/ float(pn_max - pn_0), 1)
+        c = list(c)
+        alpha = (1. - .3 * i_ / float(pn_max - pn_0))
         c = colorlist[i_]
         alpha = 1.
         print 'alpha', alpha
-#            plot_raster_for_celltype(params, ax, cell_type, pn, title='%s spikes patterns %d - %d' % (cell_type.capitalize(), pn_0, pn_max), \
-        plot_raster_for_celltype(params, ax, cell_type, pn, title='Pyramidal cell spikes for patterns %d - %d' % (pn_0, pn_max-1), \
+#        plot_raster_for_celltype(params, ax, cell_type, pn, title='Pyramidal cell spikes for patterns %d - %d' % (pn_0, pn_max-1), \
+#        plot_raster_for_celltype(params, ax, cell_type, pn, title='Pattern activities for \nincreasing concentration', \
+        plot_raster_for_celltype(params, ax, cell_type, pn, title='%s spikes patterns %d - %d' % (cell_type.capitalize(), pn_0, pn_max), \
                 show=False, color=c, alpha=alpha)
 
     pylab.show()

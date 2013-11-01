@@ -47,15 +47,15 @@ class CreateOrnParameters(object):
         activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
 
         # take n_active_OR
-        n_active_OR = int(round(self.params['n_or'] * self.params['frac_min_active_OR']))
 
         for pn in xrange(self.params['n_patterns']):
             all_activated_ORs = activation_matrix_complex[pn, :].nonzero()[0]
-            remaining_activated_ORs = random.sample(all_activated_ORs, n_active_OR)
+            n_OR_to_stay_active = int(round(all_activated_ORs.size * self.params['frac_ORs_incomplete_patterns']))
+            remaining_activated_ORs = random.sample(all_activated_ORs, n_OR_to_stay_active)
             for OR in remaining_activated_ORs:
                 activation_matrix[pn, OR] = activation_matrix_complex[pn, OR]
 
-        output_fn = self.params['activation_matrix_fn'].rsplit('.')[0] + '_simple_patterns_for_testing.dat'
+        output_fn = self.params['params_folder'] + '/activation_matrix_for_completion_test.dat'
         print "Activation matrix fn:", output_fn
         np.savetxt(output_fn, activation_matrix)
         for pn in xrange(self.params["n_patterns"]):
@@ -160,12 +160,19 @@ class CreateOrnParameters(object):
         simple_activation_matrix = np.loadtxt(activation_matrix_fn)
         activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
 
+        dgn = self.params['OR_affinity_noise']
         for pn in xrange(self.params['n_patterns'] - 1):
             activation_matrix[pn, :] = simple_activation_matrix[pn, :] + simple_activation_matrix[pn + 1, :]
+            for OR in xrange(self.params['n_or']):
+                activation_matrix[pn, OR] += np.random.uniform(-dgn, dgn)
+                if (activation_matrix[pn, OR] > 1):
+                    activation_matrix[pn, OR] = 1
+                elif (activation_matrix[pn, OR] < 0):
+                    activation_matrix[pn, OR] = 0.
 
         activation_matrix[self.params['n_patterns'] - 1, :] = simple_activation_matrix[self.params['n_patterns'] - 1, :] + simple_activation_matrix[self.params['n_patterns'] - 2, :]
 
-        output_fn = self.params['activation_matrix_fn'].rsplit('.')[0] + '_simple_patterns_for_testing.dat'
+        output_fn = self.params['params_folder'] + '/activation_matrix_for_rivalrytest.dat'
         print "Activation matrix fn:", output_fn
         np.savetxt(output_fn, activation_matrix)
         for pn in xrange(self.params["n_patterns"]):
@@ -186,6 +193,80 @@ class CreateOrnParameters(object):
             output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
             print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
             self.write_params_to_file(output_fn)
+
+
+
+    def create_pattern_rivalry_morphing_test(self, activation_matrix_fn):
+        """
+        Load the given activation matrix from the 'training' run and build composite patterns built from the training patterns.
+        """
+        simple_activation_matrix = np.loadtxt(activation_matrix_fn)
+        n_simple_patterns = simple_activation_matrix.shape[0]
+        activation_matrix = np.zeros((self.params['n_patterns'], self.params['n_or']))
+
+        pattern_idx = 0
+        random.seed(self.params['seed_activation_matrix'])
+        for pn in xrange(self.params['n_patterns_test_rivalry']): # ~ 10 patterns
+            pn0 = pn 
+            pn1 = (pn + 1) % n_simple_patterns
+#            pn0 = (pn * 2) % n_simple_patterns
+#            pn1 = (pn * 2 + 1) % n_simple_patterns
+
+            activated_in_simple_0 = simple_activation_matrix[pn0, :].nonzero()[0]
+            activated_in_simple_1 = simple_activation_matrix[pn1, :].nonzero()[0]
+            activated_from_pn0 = set([]) # start as if the pattern is currently empty and add ORs for each stage
+            activated_from_pn1 = set(activated_in_simple_1) # start as if it is the original pattern
+            ORs_active_in_simple_pattern_not_yet_activated_pn0 = list(activated_in_simple_0)
+
+            for i_, stage in enumerate(self.params['rivalry_morph_stages']):
+                tgt_n_from_pn0 = int(round(stage * activated_in_simple_0.size))
+                tgt_n_from_pn1 = int(round((1. - stage) * activated_in_simple_1.size))
+                n_to_be_added_to_pn0 =  tgt_n_from_pn0 - len(activated_from_pn0)
+                while (len(activated_from_pn0) < tgt_n_from_pn0):
+                    new_OR = random.choice(ORs_active_in_simple_pattern_not_yet_activated_pn0)
+                    activated_from_pn0.update([new_OR])
+                assert (tgt_n_from_pn0 == len(activated_from_pn0))
+                
+                n_to_be_removed_from_pn1 = len(activated_from_pn1) - tgt_n_from_pn1
+                for j_ in xrange(n_to_be_removed_from_pn1):
+#                    activated_from_pn1.remove(random.choice(activated_from_pn1))
+                    activated_from_pn1.pop()
+
+                print 'Combining patterns %d (%d) & %d (%d) (stage %.1f) take_over_0 (%d)' % (pn0, activated_in_simple_0.size, pn1, activated_in_simple_1.size, stage, len(activated_from_pn0)), activated_from_pn0,
+                print '\t take_over_1 (%d)' % (len(activated_from_pn1)), activated_from_pn1
+                activation_matrix[pattern_idx, list(activated_from_pn0)] = simple_activation_matrix[pn0, list(activated_from_pn0)]
+                activation_matrix[pattern_idx, list(activated_from_pn1)] += simple_activation_matrix[pn1, list(activated_from_pn1)]
+
+                for OR in xrange(self.params['n_or']):
+                    if (activation_matrix[pattern_idx, OR] > 1):
+                        activation_matrix[pattern_idx, OR] = 1
+                    elif (activation_matrix[pattern_idx, OR] < 0):
+                        activation_matrix[pattern_idx, OR] = 0.
+
+                pattern_idx += 1
+
+        output_fn = self.params['params_folder'] + '/activation_matrix_for_rivalrytest.dat'
+        print "Activation matrix fn:", output_fn
+        np.savetxt(output_fn, activation_matrix)
+        for pn in xrange(self.params["n_patterns"]):
+            # calculate the number of receptors activated by the current odorant or pattern
+            for OR in xrange(self.params['n_or']): # equal to a row in the orn array
+                # all ORNs within one row share the same Kd and concentration input value (because same OR is expressed by the these ORNs)
+                activation = activation_matrix[pn, OR]# * self.params['scale_factor_activation_matrix']
+                for x in xrange(self.params['n_orn_x']):
+                    orn_id = OR * self.params['n_orn_x'] + x
+                    self.voor[orn_id] = activation #* conc
+            self.set_gor_values()
+            self.set_gna_values()
+            self.set_gk_values()
+            self.set_gkcag_values()
+            self.set_gcal_values()
+            self.set_gleak_values()
+            self.set_tau_cadec_values()
+            output_fn = self.orn_params_fn_base + "%d.dat" % (pn)
+            print "Writin orn parameters for pattern \t... %d / %d to file: %s" % (pn, self.n_patterns, output_fn)
+            self.write_params_to_file(output_fn)
+
 
 
 

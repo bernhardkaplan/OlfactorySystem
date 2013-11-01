@@ -11,7 +11,7 @@ import pylab
 import MergeSpikefiles
 import SetOfCurvesPlotter
 
-def plot_raster_for_celltype(cell_type, title='', show=True):
+def plot_raster_for_celltype(params, cell_type, title='', show=True):
     print 'Loading Spikes from:', params['%s_spikes_merged_fn_base' % cell_type]
 
     fn = params['%s_spiketimes_merged_fn_base' % (cell_type)] + str(pn) + '.dat'
@@ -24,21 +24,35 @@ def plot_raster_for_celltype(cell_type, title='', show=True):
     assert (data.size > 0), 'ERROR file %s has 0 size\nIf there was a problem when merging them, delete the empty one and rerun' % (fn)
 
     from FigureCreator import plot_params
+#    plot_params['figure.subplot.left'] = .15
+    plot_params['figure.subplot.left'] = .02
+    plot_params['figure.subplot.right'] = .99
     pylab.rcParams.update(plot_params)
     fig = pylab.figure()
     ax = fig.add_subplot(111)
-    pylab.subplots_adjust(left=.2)
 
-    ax.plot(data[:,0], data[:,1], 'o', markersize=2, color='k')
+
+    ylim = ax.get_ylim()
+    ax.set_ylim((0 + params['%s_offset' % cell_type], params['n_%s' % cell_type] + params['%s_offset' % cell_type]))
+    ylabels = ax.get_yticklabels()
+    yticks = ax.get_yticks()
+    new_ylabels = []
+    for i_, y in enumerate(yticks[1:]):
+        new_ylabels.append('%d' % (y - ylim[0]))
+
+    ax.set_yticklabels([])
+        
+    ax.plot(data[:,0], data[:,1], 'o', markersize=2, markeredgewidth=.0, color='b')#color='#00FFFF')
+    ax.set_xticklabels(['', '200', '400', '600', '800', '1000', '1200', '1400', ''])
+
     ax.set_xlim((0, params['t_sim']))
     ax.set_title(title)
     ax.set_xlabel('Time [ms]')
-    ax.set_ylabel('Cell GID')
+#    ax.set_ylabel('Cell GID')
 
     output_fn = params['figure_folder'] + '/' + 'rasterplot_%s_%d.png' % (cell_type, pn)
     print 'Saving figure to', output_fn
     pylab.savefig(output_fn, dpi=(200))
-
 
 
 
@@ -71,6 +85,7 @@ if __name__ == '__main__':
 
     for cell_type in cell_types:
         print 'Plotting raster for:', cell_type
-        plot_raster_for_celltype(cell_type, title='%s spikes pattern %d' % (cell_type.upper(), pn))
+        plot_raster_for_celltype(params, cell_type, title='%s spikes pattern %d' % (cell_type.upper(), pn))
+#        plot_raster_for_celltype(params, cell_type, title='%s spikes pattern %d' % (cell_type.upper(), pn))
 
     pylab.show()

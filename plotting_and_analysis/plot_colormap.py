@@ -169,5 +169,6 @@ if __name__ == '__main__':
         title = plot_fn.rsplit('/')[-1]
     except:
         title = fn.rsplit('/')[-1]
+
     ax.set_title(title)
     pylab.show()

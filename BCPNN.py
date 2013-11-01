@@ -304,14 +304,10 @@ class BCPNN(object):
             for pre in xrange(n_pre):
                 if ((self.p_i[pre] == 0.) or (self.p_j[post] == 0.)):
                     self.w_ij[pre, post] = 0.
-#                    print 'debug w_ij == 0', pre, post
-#                elif ((self.p_ij[pre, post] == 0.) or (self.p_ij[pre, post] < self.params['p_ij_thresh'])):
                 elif (self.p_ij[pre, post] == 0.):
-#                    self.w_ij[pre, post] = np.log(1. / self.n_patterns) * self.mc_mc_mask[pre, post]
                     self.w_ij[pre, post] = (1. / self.n_patterns) * self.mc_mc_mask[pre, post]
                 else:
                     self.w_ij[pre, post] = (self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
-#                    self.w_ij[pre, post] = np.log(self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
 
 
 

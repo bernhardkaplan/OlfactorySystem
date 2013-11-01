@@ -55,7 +55,6 @@ if __name__ == '__main__':
     param_tool.write_parameters_to_file() # 
     param_tool.hoc_export() # 
 
-    default_activation_matrix_fn = default_folder + 'Parameters/activation_matrix.dat'
     OrnParamClass = CreateOrnParameters.CreateOrnParameters(params) # patterns for ORN activation must be recreated to add noise
     default_activation_matrix = '%sParameters/activation_matrix.dat' % default_folder
     ok = OrnParamClass.create_conc_invariance_patterns(given_activation_matrix=default_activation_matrix)

@@ -47,7 +47,9 @@ class ExponentialFilter(object):
         if not os.path.exists(fn):
             self.merge_spike_files(pn, self.cell_type)
 
-        all_spikes = np.loadtxt(fn)
+        all_spikes = np.loadtxt(fn) 
+        # all_spikes column 0 -- spike time
+        # all_spikes column 1 -- GID of cell
         if all_spikes.size == 0:
             print 'No spikes found in %s' % fn
             return
@@ -58,7 +60,6 @@ class ExponentialFilter(object):
         fig = pylab.figure()
         ax = fig.add_subplot(111)
         ax.plot(t_vec, y0, label='Filtered spikes', ls='-', c='g', lw=3)
-#        ax.set_ylabel('
         return fig
 
 

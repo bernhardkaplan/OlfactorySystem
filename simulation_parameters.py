@@ -30,8 +30,8 @@ class parameter_storage(object):
         self.params['OR_activation_normalization'] = False
         self.params['with_artificial_orns'] = 0
         
-        self.params['Cluster'] = 0
-        self.params['concentration_sweep'] = 0
+        self.params['Cluster'] = 1
+        self.params['concentration_sweep'] = 1
         self.params['n_proc'] = 8   # on how many processors do you want to run the neuron code?
         self.params['ob_oc_random_conns'] = False
         self.params['oc_oc_random_conns'] = False
@@ -45,7 +45,7 @@ class parameter_storage(object):
         self.params['conc_inv_modifier'] = .2
 
         # parameters to test / train concentration invariance
-        self.params['pattern_completion'] = 1
+        self.params['pattern_completion'] = 0
         self.params['train_pattern_completion'] = 0
         self.params['test_pattern_completion'] = not (self.params['train_pattern_completion'])
 
@@ -53,13 +53,24 @@ class parameter_storage(object):
         self.params['train_pattern_rivalry'] = 0
         self.params['test_pattern_rivalry'] = not (self.params['train_pattern_rivalry'])
 
-        if self.params['concentration_invariance']:
+        self.params['rivalry_morph_stages'] = [.2, .3, .4, .5, .6, .7, .8]
+        self.params['n_rivalry_morph_stages'] = len(self.params['rivalry_morph_stages']) # number of stages for which one odor morphs into the other
+        self.params['n_patterns_test_rivalry'] = 50     # number of different odor patterns to be checked with different concentrations
+        self.params['conc_inv_modifier'] = .2
+
+        if self.params['pattern_rivalry']:
+            self.params['n_patterns'] = self.params['n_rivalry_morph_stages'] * self.params['n_patterns_test_rivalry']
+        elif self.params['concentration_invariance']:
             self.params['n_patterns'] = self.params['n_conc_check'] * self.params['n_patterns_test_conc_inv']
         else:
-            self.params['n_patterns'] = 5
-#            self.params['n_patterns'] = 50
+#            self.params['n_patterns'] = 5
+            self.params['n_patterns'] = 50
 #            self.params['n_patterns'] = 150
         self.params['OR_affinity_noise'] = 0.00
+
+        self.params['frac_ORs_incomplete_patterns'] = .8
+        # In order to test the pattern completion capability of the system, we made the odor patterns sparser in several steps
+        # for each pattern this fraction of previously activated ORs are active.
 
         self.params['with_noise'] = 1
         self.params['with_bias'] = 1 #if 1: pyramidal and readout neurons have an extra inhibitory ion channel to mimic intrinsic excitability
@@ -86,7 +97,7 @@ class parameter_storage(object):
             else:
                 self.params['n_or'] = 24
         else:
-            self.params['n_or'] = 10
+            self.params['n_or'] = 40
 #            self.params['n_or'] = 60
 #            self.params['n_or'] = self.params['n_patterns']
         if (self.params['Cluster'] == 1):
@@ -146,7 +157,12 @@ class parameter_storage(object):
         self.params['n_pyr'] = self.params['n_mc'] * self.params['n_hc'] * self.params['n_pyr_per_mc']
         self.params['n_basket'] = self.params['n_hc'] * self.params['n_basket_per_hc']
         self.params['n_rsnp'] = self.params['n_mc'] * self.params['n_hc'] * self.params['n_rsnp_per_mc']
-        self.params['n_readout'] = self.params['n_patterns']
+        if self.params['concentration_invariance']:
+            self.params['n_readout'] = self.params['n_patterns_test_conc_inv']
+        elif self.params['pattern_rivalry']:
+            self.params['n_readout'] = self.params['n_patterns_test_rivalry']
+        else:
+            self.params['n_readout'] = self.params['n_patterns']
         self.params['n_cells_oc'] = self.params['n_pyr'] + self.params['n_rsnp'] + self.params['n_basket'] + self.params['n_readout']
         # gid offsets for various cell types
         self.params['global_offset'] = 0 # GID start value
@@ -177,7 +193,7 @@ class parameter_storage(object):
         self.params['n_cell_per_glom'] = self.params['n_orn_x'] + self.params['n_mit_x'] + self.params['n_pg_x'] + self.params['n_gran_x']
 
         # number of randomly selected testcells from which membrane potentials will be recorded
-        self.params['n_sample_orn'] = 0
+        self.params['n_sample_orn'] = 200
         self.params['n_sample_mit'] = 0
         self.params['n_sample_gran'] = 0
         self.params['n_sample_pg'] = 0
@@ -548,29 +564,35 @@ class parameter_storage(object):
 #        folder_name = 'TrainingWithNoisyPatterns_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
-#        if self.params['pattern_completion']:
-#            if self.params['test_pattern_completion'] and not self.params['oc_only']:
-#                folder_name = 'PatternCompletionTestPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
-#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
-#            elif self.params['test_pattern_completion'] and self.params['oc_only']:
-#                folder_name = 'PatternCompletionComplexPatternsPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
-#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+        if self.params['pattern_completion']:
+            if self.params['test_pattern_completion'] and not self.params['oc_only']:
+                folder_name = 'PatternCompletionTestPostLearningWithSniff_fOR%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+                        self.params['frac_ORs_incomplete_patterns'], self.params['n_or'], \
+                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+            elif self.params['test_pattern_completion'] and self.params['oc_only']:
+                folder_name = 'PatternCompletionComplexPatternsPostLearningWithSniff_fOR%.2f_anGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+                        self.params['frac_ORs_incomplete_patterns'], self.params['n_or'], \
+                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
-#        elif self.params['pattern_rivalry']:
-#            if self.params['test_pattern_rivalry'] and not self.params['oc_only']:
-#                folder_name = 'PatternRivalryTestPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
-#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
-#            elif self.params['test_pattern_rivalry'] and self.params['oc_only']:
-#                folder_name = 'PatternRivalrySimplePatternsPostLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
-#                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+        elif self.params['pattern_rivalry']:
+            if self.params['test_pattern_rivalry'] and not self.params['oc_only']:
+                folder_name = 'PatternRivalryMorphingPLWithSniff_wRsnpPyr%.1e_ORnoise%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % ( \
+                        self.params['w_rsnp_pyr'], self.params['OR_affinity_noise'], self.params['n_or'], \
+                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
+            elif self.params['test_pattern_rivalry'] and self.params['oc_only']:
+                folder_name = 'PatternRivalrySimplePatternsPostLearningWithSniff_wRsnpPyr%.1e_ORnoise%.2f_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (\
+                        self.params['w_rsnp_pyr'], self.params['OR_affinity_noise'], self.params['n_or'], \
+                        self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
     
+                    
+        folder_name = 'SniffinORNs'
 #        folder_name = 'ORnoise%.2f_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['OR_affinity_noise'], self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
         
 #        folder_name = 'ConcInvWithTraining_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
 #                self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
 
-        folder_name = 'SniffTest'
+#        folder_name = 'SniffTest'
         
 
 #        folder_name = 'OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['n_or'], \
@@ -766,6 +788,7 @@ class parameter_storage(object):
         self.params['oc_readout_abstract_weights_fn'] = '%s/oc_readout_abstract_weights.dat' % (self.params['bcpnn_folder'])
         self.params['oc_readout_abstract_bias_fn'] = '%s/oc_readout_abstract_bias.dat' % (self.params['bcpnn_folder'])
 
+        # train with binary oc activation derived from WTA after 2nd VQ
 #        self.params['oc_oc_training_fn'] = self.params['binary_oc_activation_fn']
         # train with the output activity when learning the ob-oc connections
         self.params['oc_oc_training_fn'] = self.params['oc_abstract_activity_fn']
@@ -898,7 +921,7 @@ class parameter_storage(object):
 
         # readout activity for spiking network
         self.params['readout_rasterplot_movie'] = '%s/readout_rasterplots.mp4' % self.params['figure_folder']
-        self.params['readout_activity_cmap'] =  '%s/readout_activity.png' % ( self.params['figure_folder'])
+        self.params['readout_activity_cmap'] =  '%s/readout_activity.pdf' % ( self.params['figure_folder'])
         self.params['readout_activity_interval_cmap'] =  '%s/readout_activity_interval.png' % ( self.params['figure_folder'])
         self.params['readout_activity_data'] =  '%s/readout_activity.dat' % ( self.params['figure_folder'])
         self.params['readout_activity_interval_data'] =  '%s/readout_activity_interval.dat' % ( self.params['figure_folder'])

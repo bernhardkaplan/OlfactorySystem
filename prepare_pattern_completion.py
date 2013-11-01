@@ -43,10 +43,6 @@ if __name__ == '__main__':
         print 'quit'
         exit(1)
 
-    param_tool.write_parameters_to_file(params["info_file"])
-    param_tool.write_parameters_to_file() # 
-    param_tool.hoc_export() # 
-
     OrnParamClass = CreateOrnParameters.CreateOrnParameters(params) # patterns for ORN activation must be recreated to add noise
     if params['train_pattern_completion']:
         n_active_OR = int(round(params['n_or'] * params['frac_min_active_OR']))
@@ -61,6 +57,24 @@ if __name__ == '__main__':
                             params['conn_list_mit_gran_global'], \
                             params['conn_list_gran_mit_local'], \
                             params['conn_list_gran_mit_global']]
+
+        # the EPTH, OB activation will be composite patterns
+        cmd = 'cp %s/NumberOfSpikes/mit_* %s' % (os.path.abspath(training_folder), params['nspikes_folder'])
+        print cmd
+        os.system(cmd)
+
+        # training of OB-OC, OC-OC, OC-Readout connections will be based on the simple patterns
+        # copy the mitral cell files
+        ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+        ObAnalyser.get_output_activity() # optional, checks if activity for some patterns is missing
+        ObAnalyser.get_mit_response_normalized()
+        CC.mds_vq_ob_output(params)
+        CC.bcpnn_ob_oc(params)
+        CC.bcpnn_oc_oc(params)
+        readout_activation = np.eye(params['n_patterns'])
+        CC.bcpnn_oc_readout(params, readout_activation)
+        CC.create_pyr_parameters(params)
+        CC.create_connections(params)
 
     elif (params['test_pattern_completion']):
         assert (len(sys.argv) > 1), 'Please give the filename for the \'simple\' activation patterns with which the system has been trained'
@@ -83,40 +97,23 @@ if __name__ == '__main__':
                                         params['conn_list_pyr_rsnp'], \
                                         params['conn_list_pyr_readout']]
         else:
-            prepare_epth_ob_conn(params)
+#            prepare_epth_ob_conn(params)
             # full system
             cmd = 'cp %s/Connections/* %s' % (training_folder, params['conn_folder'])
             print cmd
             os.system(cmd)
+            cmd = 'cp %s/Parameters/* %s' % (training_folder, params['params_folder'])
+            print cmd
+            os.system(cmd)
             activation_matrix_fn = os.path.abspath(training_folder) + '/Parameters/activation_matrix.dat'
             assert (os.path.exists(activation_matrix_fn)), 'Required activation matrix file not found: %s' % activation_matrix_fn
-            # create composite patterns created out of several simple training patterns
-            n_active_OR = int(round(params['n_or'] * params['frac_max_active_OR']))
+
+            # create simpler patterns created out of the training training patterns
             OrnParamClass.create_pattern_completion_test(activation_matrix_fn)
             required_connection_fns = params['all_connection_fns']
             for pn in xrange(params['n_patterns']):
                 fn = params['orn_params_fn_base'] + '%d.dat' % pn
                 assert os.path.exists(fn)
-
-
-        # the EPTH, OB activation will be composite patterns
-        cmd = 'cp %s/NumberOfSpikes/mit_* %s' % (os.path.abspath(training_folder), params['nspikes_folder'])
-        print cmd
-        os.system(cmd)
-
-        # training of OB-OC, OC-OC, OC-Readout connections will be based on the simple patterns
-        # copy the mitral cell files
-        ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-        ObAnalyser.get_output_activity() # optional, checks if activity for some patterns is missing
-        ObAnalyser.get_mit_response_normalized()
-        CC.mds_vq_ob_output(params)
-        CC.bcpnn_ob_oc(params)
-        CC.bcpnn_oc_oc(params)
-        readout_activation = np.eye(params['n_patterns'])
-        CC.bcpnn_oc_readout(params, readout_activation)
-        CC.create_pyr_parameters(params)
-        CC.create_connections(params)
-
 
         for fn in [params['pyr_params_file'], params['readout_params_file']]:
             assert os.path.exists(fn), 'Required dile does not exist: %s' % fn
@@ -130,5 +127,9 @@ if __name__ == '__main__':
 
     for fn in required_connection_fns:
         assert os.path.exists(fn), 'Required dile does not exist: %s' % fn
+
+    param_tool.write_parameters_to_file(params["info_file"])
+    param_tool.write_parameters_to_file() # 
+    param_tool.hoc_export() # 
 
     print 'Los, Los, Los!\t', params['folder_name']

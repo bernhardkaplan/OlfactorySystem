@@ -35,13 +35,19 @@ class Plotter(object):
         cell_type = 'readout'
         gid_offset = params['%s_offset' % cell_type]
 
-        n_patterns = pn_max
 
         # NSPIKES
+        n_patterns = pn_max
         list_of_winners = -1 * np.ones(n_patterns) # list of most active readout cells
-        activity = np.zeros((params['n_readout'], n_patterns))
-        activity_norm = np.zeros((params['n_readout'], n_patterns))
-        activity_wta = np.zeros((params['n_readout'], n_patterns))
+        if params['concentration_invariance']:
+            n_readout = params['n_patterns_test_conc_inv']
+        else:
+            n_readout = params['n_readout']
+            n_patterns = pn_max
+        print 'N_readout', n_readout
+        activity = np.zeros((n_readout, n_patterns))
+        activity_norm = np.zeros((n_readout, n_patterns))
+        activity_wta = np.zeros((n_readout, n_patterns))
         missing_activity = []
         for pn in xrange(n_patterns):
         #    print "Celltype: %s pattern_nr: %d" % (cell_type, pn)
@@ -90,7 +96,7 @@ class Plotter(object):
         #exit(1)
 
         print 'Missing patterns', missing_activity
-        print "Number correctly recognized patterns: %d / %d = %.2f percent (%.2f percent when silent are not counted)" % (cnt_correct, n_patterns, (cnt_correct / float(n_patterns)) * 100., (cnt_correct / float(n_patterns - len(missing_activity))) * 100.)
+#        print "Number correctly recognized patterns: %d / %d = %.2f percent (%.2f percent when silent are not counted)" % (cnt_correct, n_patterns, (cnt_correct / float(n_patterns)) * 100., (cnt_correct / float(n_patterns - len(missing_activity))) * 100.)
         print "Incorrectly recognized patterns: ", len(incorrect), incorrect
         print "Incorrectly recognized patterns without silent: ", len(incorrect_without_silent), incorrect_without_silent
 
@@ -128,13 +134,17 @@ class Plotter(object):
         print "plotting ...."
         cax = ax.pcolormesh(activity)
         ax.set_ylim((0, activity[:,0].size))
+#        ax.set_xlim((0, 10))
         ax.set_xlim((0, activity[0, :].size))
         #ax.set_title(title)
-        ax.set_xlabel("Pattern")
-        ax.set_ylabel("Readout cell")
+        ax.set_xlabel("Readout cell")
+        ax.set_ylabel("Pattern")
         cb = pylab.colorbar(cax)
         cb.ax.set_ylabel('Spike rate [Hz]')
         output_fn = params['%s_activity_cmap' % cell_type]
+        output_fn = 'Cluster_ORnoise0.0_nGlom40_nHC12_nMC30_vqOvrlp4_np50_fullSystem_ConcInv/Figures/readout_activity.pdf'
+#        output_fn = 'Cluster_ConcInvTraining_nGlom40_nHC12_nMC30_vqOvrlp0_np50_OcOnly/Figures/readout_activity.pdf'
+#        output_fn = 'Cluster_OcOcLearning_nGlom40_nHC12_nMC30_vqOvrlp4_np50_OcOnly/Figures/readout_activity.pdf'
         print "saving ....", output_fn
         pylab.savefig(output_fn, dpi=(300))
 
@@ -145,12 +155,13 @@ class Plotter(object):
         print "plotting ...."
         cax = ax.pcolormesh(activity_norm)
         ax.set_ylim((0, activity_norm[:,0].size))
+#        ax.set_xlim((0, 10))
         ax.set_xlim((0, activity_norm[0, :].size))
         ax.set_title(title)
-        ax.set_xlabel('Readout cell')
         ax.set_ylabel('Pattern number')
+        ax.set_xlabel('Readout cell')
         pylab.colorbar(cax)
-        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_normalized.png'
+        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_normalized.pdf'
         print "saving ....", output_fn
         pylab.savefig(output_fn, dpi=300)
 
@@ -161,12 +172,13 @@ class Plotter(object):
         print "plotting ...."
         cax = ax.pcolormesh(activity_wta, cmap='binary')
         ax.set_ylim((0, activity_wta[:,0].size))
+#        ax.set_xlim((0, 10))
         ax.set_xlim((0, activity_wta[0, :].size))
         ax.set_title(title)
-        ax.set_xlabel('Readout cell')
         ax.set_ylabel('Pattern number')
+        ax.set_xlabel('Readout cell')
         pylab.colorbar(cax)
-        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_wta.png'
+        output_fn = params['%s_activity_cmap' % cell_type].rsplit('.png')[0] + '_wta.pdf'
         print "saving ....", output_fn
         pylab.savefig(output_fn, dpi=300)
         pylab.show()
@@ -252,15 +264,24 @@ if __name__ == '__main__':
         print 'Plotting all patterns'
         pn_max = params['n_patterns']
 
-    try:
-        fn = sys.argv[2]
-        abstract_readout = np.loadtxt(fn)
+    params['concentration_invariance'] = 1
+    print 'concentration_invariance:', params['concentration_invariance']
+#    try:
+#        fn = sys.argv[2]
+#        abstract_readout = np.loadtxt(fn)
 
-    except:
-        print 'Plotting all patterns'
-        abstract_readout = np.eye(pn_max)
+#    except:
+#    print 'Plotting all patterns'
+#    readout_activation = np.eye(pn_max)
+#    if params['concentration_invariance']:
+    readout_activation = np.zeros((params['n_readout'], params['n_patterns']))
+    row = 0 
+    for readout_idx in xrange(params['n_patterns_test_conc_inv']):
+        for conc_ in xrange(params['n_conc_check']):
+            readout_activation[row, readout_idx] = 1.
+            row += 1
 
 #    pn_max = 4
-    P = Plotter(params, pn_max, abstract_readout)
+    P = Plotter(params, pn_max, readout_activation)
 
 

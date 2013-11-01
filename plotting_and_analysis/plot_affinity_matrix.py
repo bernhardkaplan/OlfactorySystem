@@ -15,7 +15,7 @@ class OdorantAffininityPlotter(object):
     def __init__(self, params):
         self.params = params
 
-    def plot_affinity_matrix(self, path=None):
+    def plot_affinity_matrix(self, path=None, plot_fn=None, title=''):
         if path == None:
             path = self.params['activation_matrix_fn']
             print 'Loading', path
@@ -51,17 +51,18 @@ class OdorantAffininityPlotter(object):
         cbar = pylab.colorbar(cax)
         ax.set_xlabel('OR')
         ax.set_ylabel('Pattern number')
+        ax.set_title(title)
         cbar.set_label('Affinity')
           
-
-        plot_fn = self.params['activation_matrix_fig']
+        if plot_fn == None:
+            plot_fn = self.params['activation_matrix_fig']
         print "saving ....", plot_fn
-        pylab.savefig(plot_fn, dpi=200)
+        pylab.savefig(plot_fn, dpi=300)
 
-        plot_fn = self.params['activation_matrix_fig'].rsplit('.png')[0] + '.pdf'
-        print "saving ....", plot_fn
-        pylab.savefig(plot_fn, dpi=200)
-
+        if plot_fn == None:
+            plot_fn = self.params['activation_matrix_fig'].rsplit('.png')[0] + '.pdf'
+            print "saving ....", plot_fn
+            pylab.savefig(plot_fn, dpi=300)
 
 if __name__ == '__main__':
 
@@ -73,9 +74,28 @@ if __name__ == '__main__':
         print 'Plotting default params'
         param_tool = simulation_parameters.parameter_storage()
 
+    params_fn = os.path.abspath(folder) + '/Parameters/simulation_parameters.json'
+    param_tool = simulation_parameters.parameter_storage(params_fn=params_fn)
 
     params = param_tool.params
     OAP = OdorantAffininityPlotter(params)
-    OAP.plot_affinity_matrix()
 
-pylab.show()
+    path = params['activation_matrix_fn_conc_inv']
+#    print 'Loading modified activation matrix to:', params['activation_matrix_fn_conc_inv']
+
+    # CONCENTRATION INVARIANCE
+    # folder_name = Cluster_ConcInvTraining_nGlom40_nHC12_nMC30_vqOvrlp0_np50_OcOnly/
+    plot_fn = params['figure_folder'] + '/activation_matrix_conc_inv.pdf'
+    title = 'Patterns for concentration invariance'
+    OAP.plot_affinity_matrix(path=path, plot_fn=plot_fn, title=title)
+
+    # NOISY PATTERNS
+    # folder_name = 
+#    plot_fn = params['figure_folder'] + '/activation_matrix_noise.pdf'
+#    title = 'Noisy odor patterns'
+#    OAP.plot_affinity_matrix(plot_fn=plot_fn, title=title)
+
+#    OAP.plot_affinity_matrix()
+
+
+    pylab.show()
