@@ -200,11 +200,6 @@ class BCPNN(object):
         output_fn = weights_fn
         print "Saving data to:  " , output_fn
         idx_0 = (self.w_ij == 0).nonzero()
-#        print 'debug', idx_0
-#        print 'debug idx_0', idx_0[0].size
-#        print 'debug idx_1', idx_0[1].size
-#        print 'debug shape', idx_0
-#        w_ij_out = self.w_ij[idx_0[0], idx_0[1]]
         np.savetxt(output_fn, self.w_ij, delimiter='\t')
         output_fn = bias_fn
         print "Saving data to:  " , output_fn
@@ -223,7 +218,8 @@ class BCPNN(object):
             s_j = 0. # the support values
             in_j = np.sum(self.w_ij[:, post] * pre_activity * self.mc_mc_mask[:, post])
             if in_j != 0:
-                s_j = self.bias[post] + np.log(in_j)
+                s_j = self.bias[post] + in_j # if weight are already in log domain
+#                s_j = self.bias[post] + np.log(in_j)
                 self.post_activity[pn, post] = np.exp(s_j)
             else:
                 self.post_activity[pn, post] = 0
@@ -314,7 +310,8 @@ class BCPNN(object):
                 elif (self.p_ij[pre, post] == 0.):
                     self.w_ij[pre, post] = (1. / self.n_patterns) * self.mc_mc_mask[pre, post]
                 else:
-                    self.w_ij[pre, post] = (self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
+                    self.w_ij[pre, post] = np.log(self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
+#                    self.w_ij[pre, post] = (self.p_ij[pre, post] / (self.p_i[pre] * self.p_j[post])) * self.mc_mc_mask[pre, post]
 
 
 

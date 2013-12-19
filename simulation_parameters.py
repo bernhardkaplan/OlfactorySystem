@@ -432,7 +432,7 @@ class parameter_storage(object):
         self.params['w_rsnp_pyr_sigma'] = self.params['w_sigma'] * self.params['w_rsnp_pyr']
 
         # weight threshold: when drawing connections only weight/ bigger than this are finally drawn
-        self.params['weight_threshold'] = 5e-6
+        self.params['weight_threshold'] = 5e-6 # == 5 pS
 
         # connection probabilities
         self.params['p_rsnp_pyr'] = 0.7
@@ -585,6 +585,7 @@ class parameter_storage(object):
                         self.params['w_rsnp_pyr'], self.params['OR_affinity_noise'], self.params['n_or'], \
                         self.params['n_hc'], self.params['n_mc'], self.params['vq_ob_oc_overlap'], self.params['n_patterns'])
     
+        folder_name = 'LoggedWeights'
                     
 #        folder_name = 'SniffinORNs'
 #        folder_name = 'ORnoise%.2f_OcOcLearning_nGlom%d_nHC%d_nMC%d_vqOvrlp%d_np%d' % (self.params['OR_affinity_noise'], self.params['n_or'], \

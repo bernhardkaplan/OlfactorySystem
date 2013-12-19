@@ -152,10 +152,11 @@ print ']'
 opt_params[0], opt_params[1], opt_params[2], \
         opt_params[3], opt_params[4], opt_params[5], \
         opt_params[6], opt_params[7], opt_params[8]
-ax.plot(x, opt_fit, 'r--', label=label)
-ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[0]), abs(opt_params[1]), abs(opt_params[2])]), 'g--')
-ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[3]), abs(opt_params[4]), abs(opt_params[5])]), 'y--')
-ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[6]), abs(opt_params[7]), abs(opt_params[8])]), 'k--')
+lw = 5
+ax.plot(x, opt_fit, 'r--', label=label, lw=lw)
+ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[0]), abs(opt_params[1]), abs(opt_params[2])]), ls='--', c='#00FFFF', lw=lw)
+ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[3]), abs(opt_params[4]), abs(opt_params[5])]), 'y--', lw=lw)
+ax.plot(x, AVG.peval_gauss(x, [abs(opt_params[6]), abs(opt_params[7]), abs(opt_params[8])]), 'k--', lw=lw)
 ax.set_ylim((0, ax.get_ylim()[1]))
 
 xlabel = 'Distance between vOR and odorant'

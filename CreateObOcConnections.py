@@ -310,14 +310,14 @@ if __name__ == '__main__':
         prepare_epth_ob_prelearning.prepare_epth_ob(params)
 
 #     ------------ MDS + VQ of OB output ---------------
-    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
-    ObAnalyser.get_output_activity() # optional, checks if activity for some patterns is missing
-    ObAnalyser.get_mit_response_normalized()
-    ObAnalyser.rescale_activity()
-    ObAnalyser.rescale_activity_cellwise()
-    ObAnalyser.rescale_activity_patternwise()
-    ObAnalyser.rescale_activity_glom_patterns()
-    mds_vq_ob_output(params)
+#    ObAnalyser = AnalyseObOutput.AnalyseObOutput(params)
+#    ObAnalyser.get_output_activity() # optional, checks if activity for some patterns is missing
+#    ObAnalyser.get_mit_response_normalized()
+#    ObAnalyser.rescale_activity()
+#    ObAnalyser.rescale_activity_cellwise()
+#    ObAnalyser.rescale_activity_patternwise()
+#    ObAnalyser.rescale_activity_glom_patterns()
+#    mds_vq_ob_output(params)
 #    mds_vq_ob_output(params, mds_output_fn='Cluster_SparserObPatterns_nGlom40_nHC9_nMC9_vqOvrlp8_ORnoise0.0_OrAffNorm0_postL_np50_1_OcOnly/Other/mds_ob_oc_output.dat')
 
     bcpnn_ob_oc(params)
