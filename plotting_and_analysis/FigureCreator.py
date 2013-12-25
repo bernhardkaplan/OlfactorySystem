@@ -1,5 +1,7 @@
 import pylab
 import numpy as np
+#from matplotlib.ticker import MaxNLocator
+#my_locator = MaxNLocator(5)
 
 def get_fig_size(fig_width_pt, portrait=False):
     inches_per_pt = 1.0/72.27               # Convert pt to inch
@@ -13,17 +15,17 @@ def get_fig_size(fig_width_pt, portrait=False):
     return fig_size
 
 plot_params = {'backend': 'png',
-              'axes.labelsize': 24,
+              'axes.labelsize': 42,
               'axes.titlesize': 24,
-              'text.fontsize': 20,
-              'xtick.labelsize': 16,
-              'ytick.labelsize': 16,
+#              'text.fontsize': 20,
+              'xtick.labelsize': 22,
+              'ytick.labelsize': 22,
               'legend.pad': 0.2,     # empty space around the legend box
-              'legend.fontsize': 14,
+#              'legend.fontsize': 14,
                'lines.markersize': 1,
                'lines.markeredgewidth': 0.,
                'lines.linewidth': 1,
-              'font.size': 12,
+#              'font.size': 42,
               'path.simplify': False,
               'figure.subplot.left':.10,
               'figure.subplot.bottom':.13,

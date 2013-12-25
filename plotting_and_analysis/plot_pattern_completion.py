@@ -99,16 +99,27 @@ if __name__ == '__main__':
     training_params_fn = os.path.abspath(training_folder) + '/Parameters/simulation_parameters.json'
     training_param_tool = simulation_parameters.parameter_storage(params_fn=training_params_fn)
     training_params = training_param_tool.params
-    cell_type = 'pyr'
+    cell_type = 'readout'
+#    cell_type = 'pyr'
+#    cell_type = 'mit'
+
     for pn in xrange(pn_max):
         training_fn = training_params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn) + '.dat'
         test_fn = params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn) + '.dat'
 
-        plot_params['figure.subplot.left'] = .08
+        plot_params['figure.subplot.left'] = .11
+        plot_params['figure.subplot.top'] = .92
         plot_params['figure.subplot.right'] = .98
+        plot_params['xtick.labelsize'] = 22
+        plot_params['ytick.labelsize'] = 22
+
+        plot_params['axes.labelsize'] = 32
+        plot_params['axes.titlesize'] = 32
         pylab.rcParams.update(plot_params)
+
         fig = pylab.figure()
         ax = fig.add_subplot(111)
+
 
         color_0 = '#A6A6A6'
         color_1 = 'b'
