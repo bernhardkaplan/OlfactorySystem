@@ -83,13 +83,17 @@ class Plotter(object):
 
 
 #    def plot_raster(self, params, fn, ax, pn, title='', alpha=1.):
-    def plot_raster(self, params, fn, ax, pn_morph, pn_0, pn_1, title='', alpha=1.):
+#    def plot_raster(self, params, fn, fig, pn_morph, pn_0, pn_1, title='', alpha=1., output_fig=''):
+#    def plot_raster(self, params, fn, ax, pn_morph, pn_0, pn_1, title='', alpha=1.):
+    def plot_raster(self, params, fn, pn_morph, pn_0, pn_1, title='', alpha=1., output_fig=''):
         """
         pn_morph -- the 
         pn_0 -- the 
         pn_1 -- the 
         """
 
+        fig = pylab.figure()
+        ax = fig.add_subplot(111)
         if (os.path.exists(fn) == False):
             Merger = MergeSpikefiles.MergeSpikefiles(self.params)
             Merger.merge_spiketimes_files(self.params['%s_spiketimes_fn_base' % (self.cell_type)], self.params['%s_spiketimes_merged_fn_base' % (self.cell_type)], pn_morph)
@@ -131,44 +135,28 @@ class Plotter(object):
 #                print 'gid %d active during test pattern %d %d times and training patterns' % (gid, st.size, pn_0), self.pyr_pattern_map[kid]
                 c = color_3
                 alpha = .4
+#            ax.plot(st, y, 'o', markersize=4, c=c, alpha=alpha)
             ax.plot(st, y, 'o', markersize=4, markeredgewidth=.0, c=c, alpha=alpha)
 
         ax.set_title(title)
         ax.set_xlim((0, self.params['t_sim']))
 
+#        ax.set_ylim((0 + params['%s_offset' % cell_type] - 10, params['n_%s' % cell_type] + params['%s_offset' % cell_type] - 10))
         ax.set_ylim((0 + params['%s_offset' % cell_type], params['n_%s' % cell_type] + params['%s_offset' % cell_type]))
         ylabels = ax.get_yticklabels()
         yticks = ax.get_yticks()
         new_ylabels = []
         for i_, y in enumerate(yticks[1:]):
             new_ylabels.append('%d' % (y - self.params['%s_offset' % self.cell_type]))
+
+        ax.set_xticks(range(0, 1800, 300))
             
         if len(new_ylabels) > 0:
             ax.set_yticklabels(new_ylabels)
-
-#        ax.plot(data[:,0], data[:,1], 'o', markersize=2, markeredgewidth=.0, alpha=alpha)
-#        ax.set_xlim((0, self.params['t_sim']))
-#        ax.set_title(title)
-
         ax.set_xlabel('Time [ms]')
-#        ax.set_ylabel('%s cell GID' % self.cell_type.capitalize())
-
-#        ax.set_ylim((0 + self.params['%s_offset' % self.cell_type], self.params['n_%s' % self.cell_type] + self.params['%s_offset' % self.cell_type]))
-#        ylabels = ax.get_yticklabels()
-#        yticks = ax.get_yticks()
-#        print 'yticks', yticks
-#        new_ylabels = []
-#        for i_, y in enumerate(yticks[1:]):
-#            print 'y type', y, type(y)
-#            new_ylabels.append('%d' % (y - 72000))
-#            
-#        if len(new_ylabels) > 0:
-#            print 'new_ylabels', new_ylabels
-#            ax.set_yticklabels(new_ylabels)
-#        output_fn = self.params['figure_folder'] + '/' + 'rasterplot_%s_%d.png' % (self.cell_type, pn)
-#        print 'Saving figure to', output_fn
-#        pylab.savefig(output_fn, dpi=(400))
-
+        if output_fig != '':
+            print 'Saving:', output_fig
+            fig.savefig(output_fig, dpi=300)
 
 
 
@@ -199,6 +187,7 @@ if __name__ == '__main__':
 
     cell_type = sys.argv[1]
 #    cell_type = 'pyr'
+#    cell_type = 'pyr'
 #    n_morph_sets = 2
     morph_set_start = 15
     morph_set_stop = 16
@@ -210,8 +199,17 @@ if __name__ == '__main__':
 #    P.save_pyr_pattern_map(training_params['other_folder'] + '/%s_pattern_map.json' % cell_type)
     P.load_pyr_pattern_map(training_params['other_folder'] + '/%s_pattern_map.json' % cell_type)
 
-    plot_params['figure.subplot.left'] = .10
-    plot_params['figure.subplot.right'] = .96
+    plot_params['figure.subplot.left'] = .14
+    plot_params['figure.subplot.right'] = .91
+    plot_params['figure.subplot.top'] = .82
+    plot_params['figure.subplot.bottom'] = .15
+#    plot_params['figure.subplot.top'] = .94
+    plot_params['xtick.labelsize'] = 24
+    plot_params['ytick.labelsize'] = 24
+
+    plot_params['axes.labelsize'] = 32
+    plot_params['axes.titlesize'] = 32
+#    plot_params['lines.markeredgewidth'] = .0
     pylab.rcParams.update(plot_params)
 
     pn_per_set = len(params['rivalry_morph_stages'])
@@ -220,19 +218,24 @@ if __name__ == '__main__':
         for pn_in_set in xrange(0, pn_per_set):
 
             pn_morph = morph_set * pn_per_set + pn_in_set
-            fig = pylab.figure()
-            ax = fig.add_subplot(111)
+#            fig = pylab.figure()
+#            ax = fig.add_subplot(111)
             fn = params['%s_spiketimes_merged_fn_base' % cell_type] + str(pn_morph) + '.dat'
             pn_0 = morph_set
             pn_1 = (morph_set + 1) % params['n_patterns_test_rivalry']
-            P.plot_raster(params, fn, ax, pn_morph, pn_0, pn_1, title='%s spikes for mixture: $%.1f \cdot$B + $%.1f\cdot$R' % \
-                    (cell_type.capitalize(), params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1.)
-#                    (params['rivalry_morph_stages'][pn_in_set], pn_morph - 1, params['rivalry_morph_stages'][-pn_in_set], pn_morph), alpha=1.)
             output_fig = params['figure_folder'] + '/rivalry_raster_%s_pn%d.png' % (cell_type, pn_morph)
-            print 'Saving:', output_fig
-            pylab.savefig(output_fig, dpi=300)
-            del fig
-            del ax
+            P.plot_raster(params, fn, pn_morph, pn_0, pn_1, title='%s spikes for\nmixture: $%.1f$ B+$%.1f$ R' % \
+                    (cell_type.capitalize(), params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1., output_fig=output_fig)
+#            fig = P.plot_raster(params, fn, fig, pn_morph, pn_0, pn_1, title='%s spikes for\nmixture: $%.1f$ B+$%.1f$ R' % \
+#                    (cell_type.capitalize(), params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1., output_fig=output_fig)
+#            fig = P.plot_raster(params, fn, ax, pn_morph, pn_0, pn_1, title='%s spikes for\nmixture: $%.1f$ B+$%.1f$ R' % \
+#                    (cell_type.capitalize(), params['rivalry_morph_stages'][pn_in_set], params['rivalry_morph_stages'][-(pn_in_set+1)]), alpha=1.)
+#                    (params['rivalry_morph_stages'][pn_in_set], pn_morph - 1, params['rivalry_morph_stages'][-pn_in_set], pn_morph), alpha=1.)
+#            output_fig = params['figure_folder'] + '/rivalry_raster_%s_pn%d.pdf' % (cell_type, pn_morph)
+#            print 'Saving:', output_fig
+#            fig.savefig(output_fig, dpi=300)
+#            del fig
+#            del ax
 
     #        plot_sniff_input(params, ax)
     #        pylab.show()

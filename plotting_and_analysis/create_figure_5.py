@@ -20,10 +20,10 @@ np_complete_no_rec = np.array([47, 42, 35, 20, 10, 2, 0]) / 50. * 100.
 
 plot_params['figure.subplot.left'] = .17
 plot_params['figure.subplot.top'] = .9
-plot_params['xtick.labelsize'] = 24
-plot_params['ytick.labelsize'] = 24
-plot_params['axes.labelsize'] = 24
-plot_params['axes.titlesize'] = 24
+plot_params['xtick.labelsize'] = 22
+plot_params['ytick.labelsize'] = 22
+plot_params['axes.labelsize'] = 32
+plot_params['axes.titlesize'] = 32
 pylab.rcParams.update(plot_params)
 fig = pylab.figure()
 ax = fig.add_subplot(111)

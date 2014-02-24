@@ -110,8 +110,8 @@ if __name__ == '__main__':
         plot_params['figure.subplot.left'] = .11
         plot_params['figure.subplot.top'] = .92
         plot_params['figure.subplot.right'] = .98
-        plot_params['xtick.labelsize'] = 22
-        plot_params['ytick.labelsize'] = 22
+        plot_params['xtick.labelsize'] = 24
+        plot_params['ytick.labelsize'] = 24
 
         plot_params['axes.labelsize'] = 32
         plot_params['axes.titlesize'] = 32

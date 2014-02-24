@@ -14,7 +14,8 @@ def get_fig_size(fig_width_pt, portrait=False):
         fig_size =  [fig_width,fig_height]
     return fig_size
 
-plot_params = {'backend': 'png',
+plot_params = {
+              'backend': 'pdf',
               'axes.labelsize': 42,
               'axes.titlesize': 24,
 #              'text.fontsize': 20,

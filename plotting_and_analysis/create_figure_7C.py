@@ -5,8 +5,6 @@ print 'cmd_subfolder', cmd_subfolder
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-#from matplotlib.ticker import MaxNLocator
-#my_locator = MaxNLocator(5)
 import matplotlib
 #matplotlib.use('')
 #matplotlib.use('Qt4Agg')
