@@ -1,10 +1,18 @@
 OlfactorySystem
 ===============
 
+This repository holds code that has been used for the publication:
+Kaplan BA and Lansner A (2014) A spiking neural network model of self-organized pattern recognition in the early mammalian olfactory system. Front. Neural Circuits 8:5. doi: 10.3389/fncir.2014.00005
+
+The paper is open access and can be found here: http://journal.frontiersin.org/Journal/10.3389/fncir.2014.00005/abstract
+
+The simulation code for the paper has been run on a Cray super computer and will very likely not run on any personal computer (in the near future) due to memory and computation time requirements.
+
+
 Olfactory system simulation 
 
   The neuron code is in the neuron_files subfolder.
-  Before running a simulation run nrnivmodl in this folder.
+  Before running a simulation run nrnivmodl in neuron_files folder.
 
   For the distribution of Olfactory Receptor affinities:
     The data in the Haddad_data folder is from http://www.nature.com/nmeth/journal/v5/n5/extref/nmeth.1197-S3.xls [Haddad 2008 "A metric for odorant comparison", Nature Methods] 
@@ -17,7 +25,6 @@ Olfactory system simulation
     It tries to fit a distribution to the data and writes the fit parameters
     to a file, which can be displayed by plot_OR_placement_fit_params.py.
     
-
      
   ORN response curves: run_epth_response_curve.py (calls
   prepare_epth_response_curve.py and requires SetOfCurvesPlotter.py, and
